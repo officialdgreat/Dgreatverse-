@@ -1,0 +1,3390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dgreatverse</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --purple-deep: #0d0618;
+    --purple-mid:  #1e0d3f;
+    --purple-bright: #7b2fff;
+    --purple-glow: #a855f7;
+    --gold:        #d0d8e8;
+    --gold-light:  #e8edf5;
+    --gold-dim:    #8a95aa;
+    --white:       #ffffff;
+    --text-muted:  #8892a4;
+    --input-bg:    rgba(255,255,255,0.06);
+    --input-border:rgba(168,85,247,0.35);
+    --card-bg:     rgba(30,13,63,0.7);
+    --danger:      #ff4f4f;
+    --silver:      #cfd3dc;
+    --silver-dim:  #9aa0ad;
+    --silver-glow: rgba(207,211,220,0.35);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--purple-deep);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(123,47,255,0.25) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 80%, rgba(168,85,247,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 50%, rgba(45,21,96,0.8) 0%, transparent 80%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app-wrapper {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 100%;
+    padding: 16px;
+  }
+
+  .screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeIn 0.4s ease;
+    width: 100%;
+  }
+  .screen.active { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .logo-wrap { text-align: center; margin-bottom: 32px; }
+  .logo-circle {
+    display: none; /* replaced by DG SVG shield */
+  }
+  .logo-dg-shield {
+    margin: 0 auto 12px;
+    filter: drop-shadow(0 0 12px rgba(123,47,255,0.6)) drop-shadow(0 0 24px rgba(168,85,247,0.3));
+    animation: pupFloat 4s ease-in-out infinite;
+  }
+  .logo-name {
+    font-family: 'Cinzel', serif; font-size: 22px; font-weight: 700;
+    background: linear-gradient(90deg, var(--silver), var(--purple-glow), var(--silver));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; letter-spacing: 2px;
+  }
+  .logo-sub { font-size: 11px; color: var(--text-muted); letter-spacing: 3px; text-transform: uppercase; margin-top: 4px; }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid rgba(168,85,247,0.25);
+    border-radius: 20px; padding: 28px 24px; width: 100%;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+  .card-title {
+    font-family: 'Cinzel', serif; font-size: 16px; color: var(--silver);
+    text-align: center; margin-bottom: 20px; letter-spacing: 1px;
+  }
+
+  .input-group { margin-bottom: 16px; }
+  .input-group label {
+    display: block; font-size: 11px; color: var(--silver);
+    letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; font-weight: 500;
+  }
+  .input-group input, .input-group textarea, .input-group select {
+    width: 100%; background: var(--input-bg); border: 1px solid var(--input-border);
+    border-radius: 10px; padding: 13px 16px; color: var(--white);
+    font-size: 15px; font-family: 'Inter', sans-serif; outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .input-group input::placeholder, .input-group textarea::placeholder { color: rgba(255,255,255,0.25); }
+  .input-group input:focus, .input-group textarea:focus {
+    border-color: var(--purple-glow); box-shadow: 0 0 0 3px rgba(168,85,247,0.25);
+  }
+
+  .btn-primary {
+    width: 100%; padding: 14px;
+    background: linear-gradient(135deg, var(--purple-bright), var(--silver-dim));
+    border: none; border-radius: 12px; color: #fff;
+    font-size: 15px; font-weight: 600; font-family: 'Inter', sans-serif;
+    cursor: pointer; letter-spacing: 0.5px;
+    transition: opacity 0.2s, transform 0.1s;
+    box-shadow: 0 4px 20px rgba(123,47,255,0.4); margin-top: 4px;
+  }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-primary:active { transform: scale(0.98); }
+
+  .btn-ghost {
+    background: transparent; border: 1px solid rgba(168,85,247,0.4);
+    border-radius: 12px; color: var(--gold-light); font-size: 13px;
+    font-family: 'Inter', sans-serif; padding: 10px 16px;
+    cursor: pointer; width: 100%; margin-top: 10px;
+    transition: background 0.2s, border-color 0.2s; letter-spacing: 0.3px;
+  }
+  .btn-ghost:hover { background: rgba(168,85,247,0.1); border-color: var(--gold); }
+
+  .btn-link {
+    background: none; border: none; color: var(--purple-glow); font-size: 13px;
+    cursor: pointer; font-family: 'Inter', sans-serif; text-decoration: underline;
+    padding: 0; margin-top: 14px; display: block; text-align: center; width: 100%;
+  }
+
+  .btn-danger {
+    width: 100%; padding: 12px;
+    background: rgba(255,79,79,0.15); border: 1px solid rgba(255,79,79,0.4);
+    border-radius: 12px; color: #ff8080; font-size: 14px; font-weight: 600;
+    font-family: 'Inter', sans-serif; cursor: pointer; margin-top: 8px;
+    transition: background 0.2s;
+  }
+  .btn-danger:hover { background: rgba(255,79,79,0.25); }
+
+  .divider { display: flex; align-items: center; gap: 10px; margin: 18px 0; }
+  .divider span { flex: 1; height: 1px; background: rgba(168,85,247,0.2); }
+  .divider p { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+
+  .warning-box {
+    background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.5);
+    border-radius: 12px; padding: 14px 16px; margin: 16px 0;
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .warning-box .icon { font-size: 20px; flex-shrink: 0; }
+  .warning-box p { font-size: 12px; color: var(--silver); line-height: 1.6; }
+  .warning-box strong { color: var(--silver); }
+
+  .code-display {
+    background: rgba(0,0,0,0.35); border: 2px solid var(--silver);
+    border-radius: 14px; padding: 20px; text-align: center;
+    margin: 16px 0; box-shadow: 0 0 24px rgba(168,85,247,0.2);
+  }
+  .code-display .code-label { font-size: 10px; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+  .code-display .code-value { font-family: 'Cinzel', serif; font-size: 28px; font-weight: 700; color: var(--silver); letter-spacing: 4px; text-shadow: 0 0 20px rgba(207,211,220,0.5); }
+  .code-display .code-hint { font-size: 11px; color: var(--text-muted); margin-top: 8px; }
+
+  .success-icon {
+    width: 64px; height: 64px;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 30px; margin: 0 auto 16px;
+    box-shadow: 0 0 24px rgba(34,197,94,0.4);
+  }
+
+  .error-msg {
+    background: rgba(255,79,79,0.1); border: 1px solid rgba(255,79,79,0.4);
+    border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #ff8080;
+    margin-bottom: 12px; display: none;
+  }
+  .error-msg.show { display: block; }
+
+  .loader {
+    width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: #fff; border-radius: 50%;
+    animation: spin 0.7s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner-wrap { text-align: center; padding: 20px; color: var(--text-muted); font-size: 13px; }
+
+  .input-password-wrap { position: relative; }
+  .input-password-wrap input { padding-right: 46px; }
+  .eye-btn {
+    position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer; color: var(--text-muted);
+    font-size: 18px; padding: 0; line-height: 1; transition: color 0.2s;
+  }
+  .eye-btn:hover { color: var(--purple-glow); }
+
+  /* CHAT SPACE */
+  #screen-chat {
+    position: fixed; inset: 0; max-width: 100%;
+    background: var(--purple-deep); z-index: 10;
+    padding: 0; display: none; flex-direction: column;
+    overflow: hidden;
+  }
+  #screen-chat.active { display: flex; }
+
+  /* AD SCREEN */
+  #screen-ad {
+    position: fixed; inset: 0; max-width: 100%;
+    background: #000; z-index: 20;
+    padding: 0; display: none; flex-direction: column;
+    align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  #screen-ad.active { display: flex; }
+  #ad-video-wrap {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    background: #000;
+  }
+  #ad-video-wrap video { width: 100%; height: 100%; object-fit: contain; }
+  #ad-video-wrap img { width: 100%; height: 100%; object-fit: contain; }
+  #ad-blank-label {
+    color: var(--text-muted);
+    font-size: 13px;
+    letter-spacing: 0.05em;
+  }
+  #ad-skip-btn {
+    position: absolute; bottom: 24px; right: 16px;
+    background: rgba(0,0,0,0.6); color: #fff;
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 8px; padding: 8px 16px;
+    font-size: 13px; cursor: pointer;
+    display: none;
+  }
+  #ad-timer-label {
+    position: absolute; bottom: 24px; right: 16px;
+    background: rgba(0,0,0,0.6); color: #fff;
+    border-radius: 8px; padding: 8px 16px;
+    font-size: 13px;
+  }
+  #ad-unmute-btn {
+    position: absolute; bottom: 24px; left: 16px;
+    background: rgba(0,0,0,0.6); color: #fff;
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 8px; padding: 8px 16px;
+    font-size: 13px; cursor: pointer;
+    display: none;
+  }
+
+  @keyframes sparkleTwinkle {
+    0%, 100% { opacity: 0.35; }
+    50% { opacity: 0.8; }
+  }
+  #screen-chat::after {
+    content: '';
+    position: absolute; inset: 0;
+    pointer-events: none; z-index: -1;
+    background-image:
+      radial-gradient(1.5px 1.5px at 12% 18%, rgba(207,211,220,0.55), transparent 60%),
+      radial-gradient(1px 1px at 28% 64%, rgba(207,211,220,0.4), transparent 60%),
+      radial-gradient(2px 2px at 46% 12%, rgba(168,85,247,0.35), transparent 60%),
+      radial-gradient(1px 1px at 62% 78%, rgba(207,211,220,0.45), transparent 60%),
+      radial-gradient(1.5px 1.5px at 78% 30%, rgba(168,85,247,0.3), transparent 60%),
+      radial-gradient(1px 1px at 88% 70%, rgba(207,211,220,0.5), transparent 60%),
+      radial-gradient(1.5px 1.5px at 35% 88%, rgba(168,85,247,0.22), transparent 60%),
+      radial-gradient(1px 1px at 8% 50%, rgba(207,211,220,0.4), transparent 60%);
+    animation: sparkleTwinkle 8s ease-in-out infinite alternate;
+  }
+
+  .chat-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px; background: rgba(45,21,96,0.95);
+    border-bottom: 1px solid rgba(168,85,247,0.2);
+    position: sticky; top: 0; z-index: 20;
+  }
+  .topbar-btn {
+    background: none; border: none; cursor: pointer; padding: 6px;
+    color: var(--gold-light); font-size: 22px; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .topbar-title {
+    font-family: 'Cinzel', serif; font-size: 16px; letter-spacing: 1px;
+    background: linear-gradient(90deg, var(--silver), var(--purple-glow), var(--silver));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .topbar-profile-btn {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--purple-mid); border: 2px solid var(--silver);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; position: relative; overflow: hidden;
+    padding: 0; margin-right: -6px; flex-shrink: 0;
+    font-size: 15px; font-weight: 700; color: var(--gold);
+  }
+  .topbar-profile-btn img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+
+  .chat-split { flex: 1; display: flex; min-height: 0; overflow: hidden; }
+
+  /* Contacts pane */
+  .contacts-pane {
+    width: 104px; flex-shrink: 0; overflow-y: auto;
+    padding: 12px 6px; display: flex; flex-direction: column;
+    align-items: center; gap: 6px;
+    height: 100%;
+  }
+  @media (min-width: 640px) {
+    .contacts-pane { width: 250px; align-items: stretch; padding: 12px 8px; }
+  }
+
+  .contact-rail-item {
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    width: 100%; padding: 8px 4px; border-radius: 14px; cursor: pointer;
+    transition: background 0.2s;
+  }
+  .contact-rail-item:hover { background: rgba(123,47,255,0.12); }
+  .contact-rail-item.active {
+    background: rgba(123,47,255,0.2);
+    box-shadow: inset 0 0 0 1px rgba(168,85,247,0.4);
+  }
+  .contact-rail-avatar {
+    width: 46px; height: 46px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--purple-bright), var(--silver-dim));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; font-weight: 700; color: white; flex-shrink: 0;
+    overflow: hidden; position: relative;
+  }
+  .contact-rail-item.active .contact-rail-avatar {
+    box-shadow: 0 0 0 2px var(--purple-glow), 0 0 0 4px var(--silver-glow), 0 0 14px rgba(168,85,247,0.55);
+  }
+  .contact-rail-name {
+    font-size: 11px; color: var(--text-muted); text-align: center;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+  }
+  .contact-rail-item.active .contact-rail-name { color: var(--silver); font-weight: 600; }
+  .contact-rail-sub {
+    display: none; font-size: 11px; color: var(--text-muted);
+    margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%;
+  }
+  @media (min-width: 640px) {
+    .contact-rail-item { flex-direction: row; text-align: left; gap: 12px; padding: 10px; }
+    .contact-rail-item .crl-info { flex: 1; min-width: 0; }
+    .contact-rail-name { font-size: 14px; font-weight: 600; color: var(--white); text-align: left; }
+    .contact-rail-item.active .contact-rail-name { color: var(--white); }
+    .contact-rail-sub { display: block; }
+  }
+
+  .pane-divider {
+    width: 3px; flex-shrink: 0; align-self: stretch; position: relative;
+    background: linear-gradient(180deg,
+      rgba(168,85,247,0) 0%, var(--purple-glow) 12%, var(--purple-bright) 50%,
+      var(--purple-glow) 88%, rgba(168,85,247,0) 100%);
+    box-shadow: 0 0 10px rgba(168,85,247,0.5), 0 0 20px rgba(123,47,255,0.25);
+  }
+  @keyframes dividerGlint { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.7; } }
+  .pane-divider::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent, var(--silver-glow), transparent);
+    animation: dividerGlint 5s ease-in-out infinite;
+  }
+
+  .chat-pane { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  .chat-pane-empty {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; text-align: center; padding: 24px; gap: 14px;
+  }
+  .chat-pane-empty .cpe-icon {
+    width: 60px; height: 60px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--purple-bright), var(--silver-dim));
+    display: flex; align-items: center; justify-content: center; font-size: 26px;
+    box-shadow: 0 0 24px rgba(168,85,247,0.35);
+  }
+  .chat-pane-empty .cpe-title {
+    font-family: 'Cinzel', serif; font-size: 15px; letter-spacing: 1px;
+    background: linear-gradient(90deg, var(--purple-glow), var(--silver), var(--purple-glow));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .chat-pane-empty p { font-size: 13px; line-height: 1.6; max-width: 220px; color: var(--text-muted); }
+
+  .chat-pane-active { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+  .chat-pane-header {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+    background: rgba(45,21,96,0.5); border-bottom: 1px solid rgba(168,85,247,0.15);
+  }
+  .cph-avatar {
+    width: 36px; height: 36px; border-radius: 50%; overflow: hidden; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--purple-bright), var(--silver-dim));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: white;
+  }
+  .cph-name {
+    font-size: 14px; font-weight: 600; color: var(--white); flex: 1; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+
+  /* PUP */
+  .pup-bubble {
+    position: fixed; left: 0; top: 0;
+    display: flex; flex-direction: column; align-items: center;
+    cursor: grab; touch-action: none; user-select: none;
+    z-index: 60; transition: filter 0.15s ease;
+  }
+  .pup-bubble.dragging { cursor: grabbing; filter: brightness(1.15); }
+  @keyframes pupFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  .pup-body {
+    width: 52px; height: 52px;
+    background: linear-gradient(135deg, #a855f7, #7b2fff);
+    border-radius: 50%; position: relative;
+    box-shadow: 0 0 18px rgba(168,85,247,0.5), 0 0 36px rgba(123,47,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    animation: pupFloat 3s ease-in-out infinite;
+  }
+  .pup-eyes { display: flex; gap: 6px; align-items: center; }
+  .pup-eye {
+    width: 18px; height: 20px; background: white; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 5px rgba(255,255,255,0.8); overflow: hidden;
+  }
+  .pup-pupil {
+    width: 9px; height: 10px; background: #1a0a2e; border-radius: 50%;
+    animation: pupLook 9s ease-in-out infinite;
+  }
+  @keyframes pupLook {
+    0%, 80%, 100% { transform: translate(0,0); }
+    85% { transform: translate(2px,-1px); }
+    90% { transform: translate(-2px,1px); }
+    95% { transform: translate(0,1px); }
+  }
+
+  .notif-badge {
+    position: absolute; top: -4px; right: -4px;
+    background: var(--danger); color: white;
+    font-size: 10px; font-weight: 700;
+    width: 18px; height: 18px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .contact-avatar {
+    width: 46px; height: 46px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--purple-bright), var(--silver-dim));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 700; color: white; flex-shrink: 0; position: relative;
+  }
+
+  /* DRAWER */
+  .drawer-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 30; }
+  .drawer-overlay.open { display: block; }
+  .drawer {
+    position: fixed; left: -280px; top: 0; bottom: 0; width: 280px;
+    background: rgba(26,10,46,0.98); border-right: 1px solid rgba(168,85,247,0.25);
+    z-index: 40; transition: left 0.3s ease;
+    display: flex; flex-direction: column; padding: 0;
+    backdrop-filter: blur(20px);
+  }
+  .drawer.open { left: 0; }
+  .drawer-header { padding: 24px 20px 16px; border-bottom: 1px solid rgba(168,85,247,0.15); }
+  .drawer-header .logo-name { font-size: 16px; }
+  .drawer-menu { flex: 1; padding: 12px 0; overflow-y: auto; }
+  .drawer-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 20px; cursor: pointer; color: var(--silver);
+    font-size: 14px; font-weight: 500; transition: background 0.2s;
+    border: none; background: none; width: 100%; text-align: left;
+    font-family: 'Inter', sans-serif;
+  }
+  .drawer-item:hover { background: rgba(168,85,247,0.1); }
+  .drawer-item .di-icon { font-size: 20px; width: 28px; text-align: center; }
+  .drawer-section-title {
+    font-size: 10px; color: var(--silver-dim); letter-spacing: 2px;
+    text-transform: uppercase; padding: 12px 20px 4px; font-weight: 600;
+  }
+  .drawer-groups-list { padding: 0 12px 12px; }
+  .group-chip {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 10px; cursor: pointer;
+    margin-bottom: 6px; background: rgba(45,21,96,0.5);
+    border: 1px solid rgba(168,85,247,0.15); transition: background 0.2s;
+  }
+  .group-chip:hover { background: rgba(45,21,96,0.8); }
+  .group-chip-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--purple-bright), var(--silver-dim));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: white; font-weight: 700; flex-shrink: 0;
+  }
+  .group-chip-name { font-size: 13px; color: var(--silver); font-weight: 500; }
+
+  /* PROFILE PANEL */
+  .profile-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 30; }
+  .profile-overlay.open { display: block; }
+  .profile-panel {
+    position: fixed; right: -320px; top: 0; bottom: 0; width: 300px;
+    background: rgba(26,10,46,0.98); border-left: 1px solid rgba(168,85,247,0.25);
+    z-index: 40; transition: right 0.3s ease;
+    display: flex; flex-direction: column; padding: 0;
+    backdrop-filter: blur(20px); overflow-y: auto;
+  }
+  .profile-panel.open { right: 0; }
+  .profile-panel-header {
+    padding: 20px; border-bottom: 1px solid rgba(168,85,247,0.15);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .profile-panel-title { font-family: 'Cinzel', serif; font-size: 15px; color: var(--silver); }
+  .close-btn { background: none; border: none; color: var(--text-muted); font-size: 22px; cursor: pointer; padding: 4px; line-height: 1; }
+  .profile-avatar-wrap { display: flex; flex-direction: column; align-items: center; padding: 24px 20px 16px; }
+  .profile-big-avatar {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--purple-bright), var(--silver-dim));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px; color: white; font-weight: 700;
+    box-shadow: 0 0 24px rgba(123,47,255,0.4); cursor: pointer;
+    overflow: hidden; position: relative;
+  }
+  .profile-big-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .profile-avatar-hint { font-size: 11px; color: var(--text-muted); margin-top: 8px; }
+  .profile-name-display { font-size: 18px; font-weight: 700; color: var(--white); margin-top: 8px; }
+  .profile-body { padding: 0 20px 20px; }
+
+  /* MODALS */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7); z-index: 50;
+    align-items: flex-end; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-sheet {
+    background: #1a0a2e; border: 1px solid rgba(168,85,247,0.25);
+    border-radius: 24px 24px 0 0; padding: 24px 20px;
+    width: 100%; max-width: 420px; max-height: 85vh; overflow-y: auto;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal-title { font-family: 'Cinzel', serif; font-size: 16px; color: var(--silver); margin-bottom: 20px; text-align: center; }
+  .modal-close { float: right; background: none; border: none; color: var(--text-muted); font-size: 22px; cursor: pointer; line-height: 1; margin-top: -4px; }
+
+  /* MESSAGES */
+  .messages-area {
+    flex: 1; overflow-y: auto; padding: 12px 12px 8px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .msg-row { display: flex; flex-direction: column; max-width: 80%; }
+  .msg-row.sent { align-self: flex-end; align-items: flex-end; }
+  .msg-row.received { align-self: flex-start; align-items: flex-start; }
+  .msg-bubble { padding: 10px 14px; border-radius: 18px; font-size: 14px; line-height: 1.5; word-break: break-word; }
+  .msg-row.sent .msg-bubble { background: linear-gradient(135deg, var(--purple-bright), var(--purple-mid)); color: white; border-bottom-right-radius: 4px; }
+  .msg-row.received .msg-bubble { background: rgba(45,21,96,0.8); color: var(--white); border: 1px solid rgba(168,85,247,0.15); border-bottom-left-radius: 4px; }
+  .msg-time { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+  .msg-actions { display: flex; gap: 8px; margin-top: 4px; }
+  .msg-action-btn {
+    background: rgba(45,21,96,0.6); border: 1px solid rgba(168,85,247,0.2);
+    border-radius: 20px; padding: 3px 10px; font-size: 11px; color: var(--text-muted);
+    cursor: pointer; display: flex; align-items: center; gap: 4px;
+    transition: background 0.2s; font-family: 'Inter', sans-serif;
+  }
+  .msg-action-btn:hover { background: rgba(168,85,247,0.15); color: var(--gold-light); }
+
+  /* CHAT INPUT */
+  .chat-input-bar {
+    padding: 8px 12px; background: rgba(45,21,96,0.95);
+    border-top: 1px solid rgba(168,85,247,0.15);
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .chat-input-row { display: flex; align-items: center; gap: 8px; }
+  .chat-input-field {
+    flex: 1; background: var(--input-bg); border: 1px solid var(--input-border);
+    border-radius: 24px; padding: 10px 16px; color: var(--white); font-size: 14px;
+    font-family: 'Inter', sans-serif; outline: none; resize: none;
+    max-height: 100px; line-height: 1.4;
+  }
+  .chat-input-field::placeholder { color: rgba(255,255,255,0.25); }
+  .send-btn {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--purple-bright), var(--silver-dim));
+    border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0; box-shadow: 0 2px 12px rgba(123,47,255,0.4);
+  }
+  .chat-tools-row { display: flex; align-items: center; gap: 6px; padding: 0 4px; }
+  .tool-btn { background: none; border: none; cursor: pointer; font-size: 22px; padding: 4px; color: var(--text-muted); transition: color 0.2s; }
+  .tool-btn:hover { color: var(--gold); }
+
+  .emoji-picker {
+    display: none; padding: 8px;
+    background: rgba(26,10,46,0.98); border-top: 1px solid rgba(168,85,247,0.15);
+    max-height: 200px; overflow-y: auto; flex-wrap: wrap; gap: 4px;
+  }
+  .emoji-picker.open { display: flex; }
+  .emoji-btn { background: none; border: none; font-size: 22px; cursor: pointer; padding: 4px; border-radius: 8px; transition: background 0.15s; line-height: 1; }
+  .emoji-btn:hover { background: rgba(168,85,247,0.15); }
+
+  .comment-sheet { padding: 16px; }
+  .comment-item { display: flex; gap: 10px; margin-bottom: 12px; }
+  .comment-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--purple-bright), var(--silver-dim));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: white; font-weight: 700; flex-shrink: 0;
+  }
+  .comment-content { flex: 1; }
+  .comment-name { font-size: 11px; color: var(--gold-light); font-weight: 600; }
+  .comment-text { font-size: 13px; color: var(--white); margin-top: 2px; line-height: 1.4; }
+
+  /* GROUP CHAT */
+  #screen-group-chat {
+    position: fixed; inset: 0; max-width: 100%;
+    background: var(--purple-deep); z-index: 15;
+    padding: 0; display: none; flex-direction: column;
+  }
+  #screen-group-chat.active { display: flex; }
+
+  /* STORIES */
+  #screen-stories {
+    position: fixed; inset: 0; max-width: 100%;
+    background: var(--purple-deep); z-index: 15;
+    padding: 0; display: none; flex-direction: column;
+  }
+  #screen-stories.active { display: flex; }
+
+  .stories-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 12px; }
+  .story-card {
+    border-radius: 16px; overflow: hidden; aspect-ratio: 9/16;
+    background: rgba(45,21,96,0.6); border: 1px solid rgba(168,85,247,0.2);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; position: relative;
+  }
+  .story-card img, .story-card video { width: 100%; height: 100%; object-fit: cover; }
+  .story-card-overlay {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 8px; background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    font-size: 11px; color: white;
+  }
+  .add-story-btn {
+    width: 100%; padding: 14px; margin-bottom: 18px;
+    background: linear-gradient(135deg, var(--purple-bright), var(--purple-glow));
+    border: 1px solid rgba(168,85,247,0.4); border-radius: 14px;
+    color: #fff; font-family: 'Cinzel', serif; font-size: 14px; letter-spacing: 1px;
+    cursor: pointer; box-shadow: 0 4px 20px rgba(123,47,255,0.4);
+  }
+  .contacts-stories-row { display: flex; gap: 14px; overflow-x: auto; padding: 6px 2px 12px; }
+  .contact-story-item { display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0; width: 64px; }
+  .contact-story-avatar {
+    width: 56px; height: 56px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; color: #fff; font-size: 18px;
+    background: var(--purple-mid); border: 3px solid transparent; overflow: hidden;
+  }
+  .contact-story-item.active .contact-story-avatar { border-color: var(--gold); box-shadow: 0 0 12px rgba(168,85,247,0.6); cursor: pointer; }
+  .contact-story-item.inactive .contact-story-avatar { opacity: 0.35; filter: grayscale(1); cursor: default; }
+  .csi-name { font-size: 11px; color: var(--text-muted); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+  .stories-empty-hint { font-size: 12px; color: var(--text-muted); padding: 4px 2px 16px; }
+
+  .chat-code-banner {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 5px 12px;
+    background: linear-gradient(90deg, rgba(168,85,247,0.2), rgba(123,47,255,0.18), rgba(207,211,220,0.08));
+    border-bottom: 1px solid rgba(168,85,247,0.25);
+  }
+  .ccb-label { font-size: 8px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
+  .ccb-value { font-family: 'Cinzel', serif; font-size: 13px; color: var(--silver); letter-spacing: 1.5px; }
+  .ccb-btn { background: none; border: none; color: var(--silver); cursor: pointer; font-size: 11px; padding: 2px 4px; }
+
+  .request-item {
+    display: flex; align-items: center; gap: 12px; padding: 12px;
+    background: rgba(45,21,96,0.4); border: 1px solid rgba(168,85,247,0.15);
+    border-radius: 12px; margin-bottom: 8px;
+  }
+  .request-info { flex: 1; }
+  .request-name { font-size: 14px; font-weight: 600; color: var(--white); }
+  .request-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .request-btns { display: flex; gap: 6px; }
+  .btn-accept { padding: 6px 14px; background: rgba(34,197,94,0.2); border: 1px solid rgba(34,197,94,0.4); border-radius: 8px; color: #4ade80; font-size: 12px; cursor: pointer; font-family: 'Inter', sans-serif; }
+  .btn-decline { padding: 6px 14px; background: rgba(255,79,79,0.15); border: 1px solid rgba(255,79,79,0.3); border-radius: 8px; color: #ff8080; font-size: 12px; cursor: pointer; font-family: 'Inter', sans-serif; }
+
+  .upload-area {
+    border: 2px dashed rgba(168,85,247,0.4); border-radius: 12px;
+    padding: 20px; text-align: center; cursor: pointer;
+    transition: border-color 0.2s; margin-bottom: 12px;
+  }
+  .upload-area:hover { border-color: var(--purple-glow); }
+  .upload-area input { display: none; }
+  .upload-area .upload-icon { font-size: 32px; margin-bottom: 8px; }
+  .upload-area p { font-size: 12px; color: var(--text-muted); }
+
+
+  /* DELETE CONTEXT MENU */
+  .msg-context-menu {
+    position: fixed; z-index: 999;
+    background: rgba(26,10,46,0.98);
+    border: 1px solid rgba(168,85,247,0.4);
+    border-radius: 14px; overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    min-width: 180px;
+    animation: fadeIn 0.15s ease;
+  }
+  .msg-context-menu button {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; padding: 14px 18px;
+    background: none; border: none; cursor: pointer;
+    font-family: 'Inter', sans-serif; font-size: 14px;
+    color: var(--white); text-align: left;
+    transition: background 0.15s;
+  }
+  .msg-context-menu button:hover { background: rgba(168,85,247,0.15); }
+  .msg-context-menu button.danger { color: #ff8080; }
+  .msg-context-menu button.danger:hover { background: rgba(255,79,79,0.15); }
+  .msg-context-menu-divider { height: 1px; background: rgba(168,85,247,0.2); margin: 0; }
+  .ctx-overlay { position: fixed; inset: 0; z-index: 998; }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(168,85,247,0.25); border-radius: 4px; }
+
+  /* UNREAD BADGE on contact items */
+  .contact-rail-avatar { position: relative; }
+  .contact-unread-badge {
+    position: absolute; top: -3px; right: -3px;
+    background: var(--danger); color: white;
+    font-size: 9px; font-weight: 700;
+    min-width: 16px; height: 16px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 3px; line-height: 1;
+    box-shadow: 0 0 6px rgba(255,79,79,0.6);
+    border: 1.5px solid var(--purple-deep);
+  }
+</style>
+</head>
+<body>
+<div class="app-wrapper" id="auth-wrapper">
+  <!-- About button fixed top-right on auth screens -->
+  <button onclick="openModal('modal-about')"
+    style="position:fixed;top:14px;right:16px;z-index:99;
+           background:rgba(123,47,255,0.25);border:1px solid rgba(168,85,247,0.5);
+           border-radius:20px;color:var(--gold-light);font-size:12px;font-weight:600;
+           font-family:'Inter',sans-serif;padding:7px 16px;cursor:pointer;
+           letter-spacing:0.8px;backdrop-filter:blur(8px);
+           box-shadow:0 2px 12px rgba(123,47,255,0.3);"
+    id="auth-about-btn">About</button>
+
+  <!-- SCREEN 1: Enter Login Code -->
+  <div class="screen active" id="screen-enter-code">
+    <div class="logo-wrap">
+      <div class="logo-dg-shield"><svg width="80" height="100" viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">
+  <defs>
+    <linearGradient id="silver" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e8edf5"/>
+      <stop offset="40%" stop-color="#cfd3dc"/>
+      <stop offset="100%" stop-color="#8a95aa"/>
+    </linearGradient>
+    <linearGradient id="purpleFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6b1fb5"/>
+      <stop offset="100%" stop-color="#4a0e8f"/>
+    </linearGradient>
+    <linearGradient id="silverLetter" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="50%" stop-color="#cfd3dc"/>
+      <stop offset="100%" stop-color="#9aa0ad"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.6)"/>
+    </filter>
+  </defs>
+
+  <!-- TOP DIAMOND (D) -->
+  <!-- Outer silver border -->
+  <polygon points="40,2 74,24 74,48 40,50 6,48 6,24" fill="url(#silver)" filter="url(#shadow)"/>
+  <!-- Purple inner fill -->
+  <polygon points="40,7 69,27 69,44 40,46 11,44 11,27" fill="url(#purpleFill)"/>
+  <!-- Inner silver inset edge -->
+  <polygon points="40,11 65,29 65,42 40,43 15,42 15,29" fill="none" stroke="url(#silver)" stroke-width="1.5" opacity="0.6"/>
+  <!-- D letter -->
+  <text x="40" y="37" text-anchor="middle" font-family="'Cinzel',Georgia,serif" font-size="22" font-weight="900"
+        fill="url(#silverLetter)" filter="url(#shadow)" letter-spacing="1">D</text>
+
+  <!-- DIVIDER BAR -->
+  <rect x="4" y="47" width="72" height="5" fill="#111" rx="1"/>
+  <rect x="6" y="48" width="68" height="2" fill="url(#silver)" opacity="0.5" rx="1"/>
+
+  <!-- BOTTOM DIAMOND (G) -->
+  <!-- Outer silver border -->
+  <polygon points="40,52 74,52 74,76 40,98 6,76 6,52" fill="url(#silver)" filter="url(#shadow)"/>
+  <!-- Purple inner fill -->
+  <polygon points="40,56 69,56 69,74 40,93 11,74 11,56" fill="url(#purpleFill)"/>
+  <!-- Inner silver inset edge -->
+  <polygon points="40,60 65,60 65,72 40,89 15,72 15,60" fill="none" stroke="url(#silver)" stroke-width="1.5" opacity="0.6"/>
+  <!-- G letter -->
+  <text x="40" y="81" text-anchor="middle" font-family="'Cinzel',Georgia,serif" font-size="22" font-weight="900"
+        fill="url(#silverLetter)" filter="url(#shadow)" letter-spacing="1">G</text>
+
+  <!-- Glow overlay on edges -->
+  <polygon points="40,2 74,24 74,48 40,50 6,48 6,24" fill="none" stroke="rgba(168,85,247,0.4)" stroke-width="1" filter="url(#glow)"/>
+  <polygon points="40,52 74,52 74,76 40,98 6,76 6,52" fill="none" stroke="rgba(168,85,247,0.4)" stroke-width="1" filter="url(#glow)"/>
+</svg></div>
+      <div class="logo-name">DGREATVERSE</div>
+      <div class="logo-sub">Connect · Share · Thrive</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Welcome Back</div>
+      <div class="error-msg" id="err-enter-code">Invalid code. Please check and try again.</div>
+      <div class="input-group">
+        <label>Enter Your Login Code</label>
+        <input type="text" id="login-code-input" placeholder="A1B2-C3D4" maxlength="9"
+          oninput="formatCodeInput(this)" autocomplete="off"
+          onkeydown="if(event.key==='Enter') handleEnterCode()" />
+      </div>
+      <button class="btn-primary" onclick="handleEnterCode()">Continue →</button>
+      <div class="divider"><span></span><p>or</p><span></span></div>
+      <button class="btn-ghost" onclick="showScreen('screen-create-account')">✦ Create Account</button>
+      <button class="btn-link" onclick="showScreen('screen-forgot-password')">Forgot Password?</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: Login Password -->
+  <div class="screen" id="screen-login-password">
+    <div class="logo-wrap">
+      <div class="logo-dg-shield"><svg width="80" height="100" viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">
+  <defs>
+    <linearGradient id="silver" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e8edf5"/>
+      <stop offset="40%" stop-color="#cfd3dc"/>
+      <stop offset="100%" stop-color="#8a95aa"/>
+    </linearGradient>
+    <linearGradient id="purpleFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6b1fb5"/>
+      <stop offset="100%" stop-color="#4a0e8f"/>
+    </linearGradient>
+    <linearGradient id="silverLetter" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="50%" stop-color="#cfd3dc"/>
+      <stop offset="100%" stop-color="#9aa0ad"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.6)"/>
+    </filter>
+  </defs>
+
+  <!-- TOP DIAMOND (D) -->
+  <!-- Outer silver border -->
+  <polygon points="40,2 74,24 74,48 40,50 6,48 6,24" fill="url(#silver)" filter="url(#shadow)"/>
+  <!-- Purple inner fill -->
+  <polygon points="40,7 69,27 69,44 40,46 11,44 11,27" fill="url(#purpleFill)"/>
+  <!-- Inner silver inset edge -->
+  <polygon points="40,11 65,29 65,42 40,43 15,42 15,29" fill="none" stroke="url(#silver)" stroke-width="1.5" opacity="0.6"/>
+  <!-- D letter -->
+  <text x="40" y="37" text-anchor="middle" font-family="'Cinzel',Georgia,serif" font-size="22" font-weight="900"
+        fill="url(#silverLetter)" filter="url(#shadow)" letter-spacing="1">D</text>
+
+  <!-- DIVIDER BAR -->
+  <rect x="4" y="47" width="72" height="5" fill="#111" rx="1"/>
+  <rect x="6" y="48" width="68" height="2" fill="url(#silver)" opacity="0.5" rx="1"/>
+
+  <!-- BOTTOM DIAMOND (G) -->
+  <!-- Outer silver border -->
+  <polygon points="40,52 74,52 74,76 40,98 6,76 6,52" fill="url(#silver)" filter="url(#shadow)"/>
+  <!-- Purple inner fill -->
+  <polygon points="40,56 69,56 69,74 40,93 11,74 11,56" fill="url(#purpleFill)"/>
+  <!-- Inner silver inset edge -->
+  <polygon points="40,60 65,60 65,72 40,89 15,72 15,60" fill="none" stroke="url(#silver)" stroke-width="1.5" opacity="0.6"/>
+  <!-- G letter -->
+  <text x="40" y="81" text-anchor="middle" font-family="'Cinzel',Georgia,serif" font-size="22" font-weight="900"
+        fill="url(#silverLetter)" filter="url(#shadow)" letter-spacing="1">G</text>
+
+  <!-- Glow overlay on edges -->
+  <polygon points="40,2 74,24 74,48 40,50 6,48 6,24" fill="none" stroke="rgba(168,85,247,0.4)" stroke-width="1" filter="url(#glow)"/>
+  <polygon points="40,52 74,52 74,76 40,98 6,76 6,52" fill="none" stroke="rgba(168,85,247,0.4)" stroke-width="1" filter="url(#glow)"/>
+</svg></div>
+      <div class="logo-name">DGREATVERSE</div>
+    </div>
+    <div class="card">
+      <div class="card-title" id="login-greeting">Welcome back</div>
+      <div class="error-msg" id="err-login">Incorrect password. Please try again.</div>
+      <div class="input-group">
+        <label>Password</label>
+        <div class="input-password-wrap">
+          <input type="password" id="login-password-input" placeholder="Enter your password"
+            onkeydown="if(event.key==='Enter') handleLogin()" />
+          <button class="eye-btn" type="button" onclick="toggleEye('login-password-input', this)">👁️</button>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="handleLogin()">Enter My Space →</button>
+      <button class="btn-link" onclick="showScreen('screen-enter-code')">← Back</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: Create Account -->
+  <div class="screen" id="screen-create-account">
+    <div class="logo-wrap">
+      <div class="logo-dg-shield"><svg width="80" height="100" viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">
+  <defs>
+    <linearGradient id="silver" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e8edf5"/>
+      <stop offset="40%" stop-color="#cfd3dc"/>
+      <stop offset="100%" stop-color="#8a95aa"/>
+    </linearGradient>
+    <linearGradient id="purpleFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6b1fb5"/>
+      <stop offset="100%" stop-color="#4a0e8f"/>
+    </linearGradient>
+    <linearGradient id="silverLetter" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="50%" stop-color="#cfd3dc"/>
+      <stop offset="100%" stop-color="#9aa0ad"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.6)"/>
+    </filter>
+  </defs>
+
+  <!-- TOP DIAMOND (D) -->
+  <!-- Outer silver border -->
+  <polygon points="40,2 74,24 74,48 40,50 6,48 6,24" fill="url(#silver)" filter="url(#shadow)"/>
+  <!-- Purple inner fill -->
+  <polygon points="40,7 69,27 69,44 40,46 11,44 11,27" fill="url(#purpleFill)"/>
+  <!-- Inner silver inset edge -->
+  <polygon points="40,11 65,29 65,42 40,43 15,42 15,29" fill="none" stroke="url(#silver)" stroke-width="1.5" opacity="0.6"/>
+  <!-- D letter -->
+  <text x="40" y="37" text-anchor="middle" font-family="'Cinzel',Georgia,serif" font-size="22" font-weight="900"
+        fill="url(#silverLetter)" filter="url(#shadow)" letter-spacing="1">D</text>
+
+  <!-- DIVIDER BAR -->
+  <rect x="4" y="47" width="72" height="5" fill="#111" rx="1"/>
+  <rect x="6" y="48" width="68" height="2" fill="url(#silver)" opacity="0.5" rx="1"/>
+
+  <!-- BOTTOM DIAMOND (G) -->
+  <!-- Outer silver border -->
+  <polygon points="40,52 74,52 74,76 40,98 6,76 6,52" fill="url(#silver)" filter="url(#shadow)"/>
+  <!-- Purple inner fill -->
+  <polygon points="40,56 69,56 69,74 40,93 11,74 11,56" fill="url(#purpleFill)"/>
+  <!-- Inner silver inset edge -->
+  <polygon points="40,60 65,60 65,72 40,89 15,72 15,60" fill="none" stroke="url(#silver)" stroke-width="1.5" opacity="0.6"/>
+  <!-- G letter -->
+  <text x="40" y="81" text-anchor="middle" font-family="'Cinzel',Georgia,serif" font-size="22" font-weight="900"
+        fill="url(#silverLetter)" filter="url(#shadow)" letter-spacing="1">G</text>
+
+  <!-- Glow overlay on edges -->
+  <polygon points="40,2 74,24 74,48 40,50 6,48 6,24" fill="none" stroke="rgba(168,85,247,0.4)" stroke-width="1" filter="url(#glow)"/>
+  <polygon points="40,52 74,52 74,76 40,98 6,76 6,52" fill="none" stroke="rgba(168,85,247,0.4)" stroke-width="1" filter="url(#glow)"/>
+</svg></div>
+      <div class="logo-name">DGREATVERSE</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Create Your Account</div>
+      <div class="error-msg" id="err-create">Please fill in all fields correctly.</div>
+      <div class="input-group">
+        <label>Your Name</label>
+        <input type="text" id="reg-name" placeholder="What should we call you?" />
+      </div>
+      <div class="input-group">
+        <label>Password</label>
+        <div class="input-password-wrap">
+          <input type="password" id="reg-password" placeholder="Create a strong password" />
+          <button class="eye-btn" type="button" onclick="toggleEye('reg-password', this)">👁️</button>
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Security PIN <span style="color:var(--text-muted);font-size:10px;">(6+ characters)</span></label>
+        <div class="input-password-wrap">
+          <input type="password" id="reg-pin" placeholder="e.g. A3b9K2mX" autocomplete="off" />
+          <button class="eye-btn" type="button" onclick="toggleEye('reg-pin', this)">👁️</button>
+        </div>
+      </div>
+      <div class="warning-box">
+        <span class="icon">📸</span>
+        <p><strong>Screenshot your Security PIN!</strong> You'll need it to recover your account if you forget your password.</p>
+      </div>
+      <button class="btn-primary" onclick="handleCreateAccount()">Generate My Code →</button>
+      <button class="btn-link" onclick="showScreen('screen-enter-code')">← Back to Login</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: Code Generated -->
+  <div class="screen" id="screen-code-generated">
+    <div class="logo-wrap">
+      <div class="logo-dg-shield"><svg width="80" height="100" viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">
+  <defs>
+    <linearGradient id="silver" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e8edf5"/>
+      <stop offset="40%" stop-color="#cfd3dc"/>
+      <stop offset="100%" stop-color="#8a95aa"/>
+    </linearGradient>
+    <linearGradient id="purpleFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6b1fb5"/>
+      <stop offset="100%" stop-color="#4a0e8f"/>
+    </linearGradient>
+    <linearGradient id="silverLetter" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="50%" stop-color="#cfd3dc"/>
+      <stop offset="100%" stop-color="#9aa0ad"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.6)"/>
+    </filter>
+  </defs>
+
+  <!-- TOP DIAMOND (D) -->
+  <!-- Outer silver border -->
+  <polygon points="40,2 74,24 74,48 40,50 6,48 6,24" fill="url(#silver)" filter="url(#shadow)"/>
+  <!-- Purple inner fill -->
+  <polygon points="40,7 69,27 69,44 40,46 11,44 11,27" fill="url(#purpleFill)"/>
+  <!-- Inner silver inset edge -->
+  <polygon points="40,11 65,29 65,42 40,43 15,42 15,29" fill="none" stroke="url(#silver)" stroke-width="1.5" opacity="0.6"/>
+  <!-- D letter -->
+  <text x="40" y="37" text-anchor="middle" font-family="'Cinzel',Georgia,serif" font-size="22" font-weight="900"
+        fill="url(#silverLetter)" filter="url(#shadow)" letter-spacing="1">D</text>
+
+  <!-- DIVIDER BAR -->
+  <rect x="4" y="47" width="72" height="5" fill="#111" rx="1"/>
+  <rect x="6" y="48" width="68" height="2" fill="url(#silver)" opacity="0.5" rx="1"/>
+
+  <!-- BOTTOM DIAMOND (G) -->
+  <!-- Outer silver border -->
+  <polygon points="40,52 74,52 74,76 40,98 6,76 6,52" fill="url(#silver)" filter="url(#shadow)"/>
+  <!-- Purple inner fill -->
+  <polygon points="40,56 69,56 69,74 40,93 11,74 11,56" fill="url(#purpleFill)"/>
+  <!-- Inner silver inset edge -->
+  <polygon points="40,60 65,60 65,72 40,89 15,72 15,60" fill="none" stroke="url(#silver)" stroke-width="1.5" opacity="0.6"/>
+  <!-- G letter -->
+  <text x="40" y="81" text-anchor="middle" font-family="'Cinzel',Georgia,serif" font-size="22" font-weight="900"
+        fill="url(#silverLetter)" filter="url(#shadow)" letter-spacing="1">G</text>
+
+  <!-- Glow overlay on edges -->
+  <polygon points="40,2 74,24 74,48 40,50 6,48 6,24" fill="none" stroke="rgba(168,85,247,0.4)" stroke-width="1" filter="url(#glow)"/>
+  <polygon points="40,52 74,52 74,76 40,98 6,76 6,52" fill="none" stroke="rgba(168,85,247,0.4)" stroke-width="1" filter="url(#glow)"/>
+</svg></div>
+      <div class="logo-name">DGREATVERSE</div>
+    </div>
+    <div class="card">
+      <div class="success-icon">✓</div>
+      <div class="card-title" id="welcome-name-title">Account Created!</div>
+      <p style="text-align:center;font-size:13px;color:var(--text-muted);margin-bottom:4px;">
+        This is your unique login code. Screenshot it now!
+      </p>
+      <div class="code-display">
+        <div class="code-label">Your Login Code</div>
+        <div class="code-value" id="generated-code-display">----</div>
+        <div class="code-hint">Use this code every time you log in</div>
+      </div>
+      <div class="warning-box">
+        <span class="icon">⚠️</span>
+        <p><strong>Screenshot this code NOW!</strong> This is the only time it will be shown.</p>
+      </div>
+      <button class="btn-primary" onclick="enterChatSpace()">I've Saved It — Enter My Space →</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 5: Forgot Password -->
+  <div class="screen" id="screen-forgot-password">
+    <div class="logo-wrap">
+      <div class="logo-dg-shield"><svg width="80" height="100" viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">
+  <defs>
+    <linearGradient id="silver" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e8edf5"/>
+      <stop offset="40%" stop-color="#cfd3dc"/>
+      <stop offset="100%" stop-color="#8a95aa"/>
+    </linearGradient>
+    <linearGradient id="purpleFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6b1fb5"/>
+      <stop offset="100%" stop-color="#4a0e8f"/>
+    </linearGradient>
+    <linearGradient id="silverLetter" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="50%" stop-color="#cfd3dc"/>
+      <stop offset="100%" stop-color="#9aa0ad"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.6)"/>
+    </filter>
+  </defs>
+
+  <!-- TOP DIAMOND (D) -->
+  <!-- Outer silver border -->
+  <polygon points="40,2 74,24 74,48 40,50 6,48 6,24" fill="url(#silver)" filter="url(#shadow)"/>
+  <!-- Purple inner fill -->
+  <polygon points="40,7 69,27 69,44 40,46 11,44 11,27" fill="url(#purpleFill)"/>
+  <!-- Inner silver inset edge -->
+  <polygon points="40,11 65,29 65,42 40,43 15,42 15,29" fill="none" stroke="url(#silver)" stroke-width="1.5" opacity="0.6"/>
+  <!-- D letter -->
+  <text x="40" y="37" text-anchor="middle" font-family="'Cinzel',Georgia,serif" font-size="22" font-weight="900"
+        fill="url(#silverLetter)" filter="url(#shadow)" letter-spacing="1">D</text>
+
+  <!-- DIVIDER BAR -->
+  <rect x="4" y="47" width="72" height="5" fill="#111" rx="1"/>
+  <rect x="6" y="48" width="68" height="2" fill="url(#silver)" opacity="0.5" rx="1"/>
+
+  <!-- BOTTOM DIAMOND (G) -->
+  <!-- Outer silver border -->
+  <polygon points="40,52 74,52 74,76 40,98 6,76 6,52" fill="url(#silver)" filter="url(#shadow)"/>
+  <!-- Purple inner fill -->
+  <polygon points="40,56 69,56 69,74 40,93 11,74 11,56" fill="url(#purpleFill)"/>
+  <!-- Inner silver inset edge -->
+  <polygon points="40,60 65,60 65,72 40,89 15,72 15,60" fill="none" stroke="url(#silver)" stroke-width="1.5" opacity="0.6"/>
+  <!-- G letter -->
+  <text x="40" y="81" text-anchor="middle" font-family="'Cinzel',Georgia,serif" font-size="22" font-weight="900"
+        fill="url(#silverLetter)" filter="url(#shadow)" letter-spacing="1">G</text>
+
+  <!-- Glow overlay on edges -->
+  <polygon points="40,2 74,24 74,48 40,50 6,48 6,24" fill="none" stroke="rgba(168,85,247,0.4)" stroke-width="1" filter="url(#glow)"/>
+  <polygon points="40,52 74,52 74,76 40,98 6,76 6,52" fill="none" stroke="rgba(168,85,247,0.4)" stroke-width="1" filter="url(#glow)"/>
+</svg></div>
+      <div class="logo-name">DGREATVERSE</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Reset Password</div>
+      <div class="error-msg" id="err-forgot">Invalid details. Please try again.</div>
+      <div class="input-group">
+        <label>Your Login Code</label>
+        <input type="text" id="forgot-code" placeholder="A1B2-C3D4" maxlength="9"
+          oninput="formatCodeInput(this)" autocomplete="off" />
+      </div>
+      <div class="input-group">
+        <label>Your Name</label>
+        <input type="text" id="forgot-name" placeholder="The name on your account" autocomplete="off" />
+      </div>
+      <div class="input-group">
+        <label>Security PIN</label>
+        <div class="input-password-wrap">
+          <input type="password" id="forgot-pin" placeholder="Your security PIN" />
+          <button class="eye-btn" type="button" onclick="toggleEye('forgot-pin', this)">👁️</button>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="handleForgotPassword()">Verify Identity →</button>
+      <button class="btn-link" onclick="showScreen('screen-enter-code')">← Back to Login</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 6: Set New Password -->
+  <div class="screen" id="screen-new-password">
+    <div class="logo-wrap">
+      <div class="logo-dg-shield"><svg width="80" height="100" viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">
+  <defs>
+    <linearGradient id="silver" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e8edf5"/>
+      <stop offset="40%" stop-color="#cfd3dc"/>
+      <stop offset="100%" stop-color="#8a95aa"/>
+    </linearGradient>
+    <linearGradient id="purpleFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6b1fb5"/>
+      <stop offset="100%" stop-color="#4a0e8f"/>
+    </linearGradient>
+    <linearGradient id="silverLetter" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="50%" stop-color="#cfd3dc"/>
+      <stop offset="100%" stop-color="#9aa0ad"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.6)"/>
+    </filter>
+  </defs>
+
+  <!-- TOP DIAMOND (D) -->
+  <!-- Outer silver border -->
+  <polygon points="40,2 74,24 74,48 40,50 6,48 6,24" fill="url(#silver)" filter="url(#shadow)"/>
+  <!-- Purple inner fill -->
+  <polygon points="40,7 69,27 69,44 40,46 11,44 11,27" fill="url(#purpleFill)"/>
+  <!-- Inner silver inset edge -->
+  <polygon points="40,11 65,29 65,42 40,43 15,42 15,29" fill="none" stroke="url(#silver)" stroke-width="1.5" opacity="0.6"/>
+  <!-- D letter -->
+  <text x="40" y="37" text-anchor="middle" font-family="'Cinzel',Georgia,serif" font-size="22" font-weight="900"
+        fill="url(#silverLetter)" filter="url(#shadow)" letter-spacing="1">D</text>
+
+  <!-- DIVIDER BAR -->
+  <rect x="4" y="47" width="72" height="5" fill="#111" rx="1"/>
+  <rect x="6" y="48" width="68" height="2" fill="url(#silver)" opacity="0.5" rx="1"/>
+
+  <!-- BOTTOM DIAMOND (G) -->
+  <!-- Outer silver border -->
+  <polygon points="40,52 74,52 74,76 40,98 6,76 6,52" fill="url(#silver)" filter="url(#shadow)"/>
+  <!-- Purple inner fill -->
+  <polygon points="40,56 69,56 69,74 40,93 11,74 11,56" fill="url(#purpleFill)"/>
+  <!-- Inner silver inset edge -->
+  <polygon points="40,60 65,60 65,72 40,89 15,72 15,60" fill="none" stroke="url(#silver)" stroke-width="1.5" opacity="0.6"/>
+  <!-- G letter -->
+  <text x="40" y="81" text-anchor="middle" font-family="'Cinzel',Georgia,serif" font-size="22" font-weight="900"
+        fill="url(#silverLetter)" filter="url(#shadow)" letter-spacing="1">G</text>
+
+  <!-- Glow overlay on edges -->
+  <polygon points="40,2 74,24 74,48 40,50 6,48 6,24" fill="none" stroke="rgba(168,85,247,0.4)" stroke-width="1" filter="url(#glow)"/>
+  <polygon points="40,52 74,52 74,76 40,98 6,76 6,52" fill="none" stroke="rgba(168,85,247,0.4)" stroke-width="1" filter="url(#glow)"/>
+</svg></div>
+      <div class="logo-name">DGREATVERSE</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Set New Password</div>
+      <div class="error-msg" id="err-new-pass">Passwords do not match.</div>
+      <div class="input-group">
+        <label>New Password</label>
+        <div class="input-password-wrap">
+          <input type="password" id="new-password" placeholder="Create a new password" />
+          <button class="eye-btn" type="button" onclick="toggleEye('new-password', this)">👁️</button>
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Confirm Password</label>
+        <div class="input-password-wrap">
+          <input type="password" id="confirm-password" placeholder="Type it again" />
+          <button class="eye-btn" type="button" onclick="toggleEye('confirm-password', this)">👁️</button>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="handleSetNewPassword()">Save New Password →</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 7: Loading -->
+  <div class="screen" id="screen-loading">
+    <div class="logo-wrap">
+      <div class="logo-dg-shield"><svg width="80" height="100" viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">
+  <defs>
+    <linearGradient id="silver" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e8edf5"/>
+      <stop offset="40%" stop-color="#cfd3dc"/>
+      <stop offset="100%" stop-color="#8a95aa"/>
+    </linearGradient>
+    <linearGradient id="purpleFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6b1fb5"/>
+      <stop offset="100%" stop-color="#4a0e8f"/>
+    </linearGradient>
+    <linearGradient id="silverLetter" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="50%" stop-color="#cfd3dc"/>
+      <stop offset="100%" stop-color="#9aa0ad"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.6)"/>
+    </filter>
+  </defs>
+
+  <!-- TOP DIAMOND (D) -->
+  <!-- Outer silver border -->
+  <polygon points="40,2 74,24 74,48 40,50 6,48 6,24" fill="url(#silver)" filter="url(#shadow)"/>
+  <!-- Purple inner fill -->
+  <polygon points="40,7 69,27 69,44 40,46 11,44 11,27" fill="url(#purpleFill)"/>
+  <!-- Inner silver inset edge -->
+  <polygon points="40,11 65,29 65,42 40,43 15,42 15,29" fill="none" stroke="url(#silver)" stroke-width="1.5" opacity="0.6"/>
+  <!-- D letter -->
+  <text x="40" y="37" text-anchor="middle" font-family="'Cinzel',Georgia,serif" font-size="22" font-weight="900"
+        fill="url(#silverLetter)" filter="url(#shadow)" letter-spacing="1">D</text>
+
+  <!-- DIVIDER BAR -->
+  <rect x="4" y="47" width="72" height="5" fill="#111" rx="1"/>
+  <rect x="6" y="48" width="68" height="2" fill="url(#silver)" opacity="0.5" rx="1"/>
+
+  <!-- BOTTOM DIAMOND (G) -->
+  <!-- Outer silver border -->
+  <polygon points="40,52 74,52 74,76 40,98 6,76 6,52" fill="url(#silver)" filter="url(#shadow)"/>
+  <!-- Purple inner fill -->
+  <polygon points="40,56 69,56 69,74 40,93 11,74 11,56" fill="url(#purpleFill)"/>
+  <!-- Inner silver inset edge -->
+  <polygon points="40,60 65,60 65,72 40,89 15,72 15,60" fill="none" stroke="url(#silver)" stroke-width="1.5" opacity="0.6"/>
+  <!-- G letter -->
+  <text x="40" y="81" text-anchor="middle" font-family="'Cinzel',Georgia,serif" font-size="22" font-weight="900"
+        fill="url(#silverLetter)" filter="url(#shadow)" letter-spacing="1">G</text>
+
+  <!-- Glow overlay on edges -->
+  <polygon points="40,2 74,24 74,48 40,50 6,48 6,24" fill="none" stroke="rgba(168,85,247,0.4)" stroke-width="1" filter="url(#glow)"/>
+  <polygon points="40,52 74,52 74,76 40,98 6,76 6,52" fill="none" stroke="rgba(168,85,247,0.4)" stroke-width="1" filter="url(#glow)"/>
+</svg></div>
+      <div class="logo-name">DGREATVERSE</div>
+    </div>
+    <div class="card">
+      <div class="spinner-wrap">
+        <div class="loader"></div>
+        <span id="loading-text">Please wait...</span>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end auth-wrapper -->
+
+<!-- AD SCREEN -->
+<div class="screen" id="screen-ad">
+  <div id="ad-video-wrap">
+    <video id="ad-video" playsinline></video>
+    <img id="ad-image" style="display:none;" />
+    <div id="ad-blank-label" style="display:none;">Advertisement</div>
+  </div>
+  <div id="ad-timer-label">10</div>
+  <button id="ad-skip-btn" onclick="skipAd()">Skip Ad ▶</button>
+  <button id="ad-unmute-btn" onclick="unmuteAd()">🔇 Tap for sound</button>
+</div>
+
+<!-- CHAT SPACE -->
+<div class="screen" id="screen-chat">
+  <div class="chat-topbar">
+    <button class="topbar-btn" onclick="openDrawer()">☰</button>
+    <span class="topbar-title">DGREATVERSE</span>
+    <button class="topbar-btn topbar-profile-btn" onclick="openProfile()">
+      <span id="topbar-avatar-initials">D</span>
+      <img id="topbar-avatar-img" src="" style="display:none;" />
+      <span class="notif-badge" id="req-badge" style="display:none;">0</span>
+    </button>
+  </div>
+
+  <div class="chat-code-banner" id="chat-code-banner" style="display:none;">
+    <div>
+      <div class="ccb-label">Your Chat Code</div>
+      <div class="ccb-value" id="display-chat-code">—</div>
+    </div>
+    <button class="ccb-btn" onclick="copyChatCode()">📋 Copy</button>
+    <button class="ccb-btn" onclick="toggleChatCodeBanner()">✕</button>
+  </div>
+
+
+
+  <div class="chat-split">
+    <!-- LEFT PANE: Contacts -->
+    <div class="contacts-pane" id="contacts-pane">
+      <button id="contacts-refresh-btn" onclick="manualRefreshContacts()"
+        style="width:100%;background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);border-radius:8px;color:var(--gold-light);font-size:12px;padding:8px;margin-bottom:8px;cursor:pointer;font-family:'Inter',sans-serif;">
+        ⟳ Refresh Contacts
+      </button>
+      <div id="empty-contacts-hint" style="text-align:center;color:var(--text-muted);font-size:12px;padding:16px 6px;">
+        No contacts yet ✦ Use the menu to join a chat.
+      </div>
+      <div id="contacts-list" style="width:100%;display:none;"></div>
+    </div>
+
+    <div class="pane-divider"></div>
+
+    <!-- RIGHT PANE: Chat -->
+    <div class="chat-pane" id="chat-pane">
+      <div class="chat-pane-empty" id="chat-pane-empty">
+        <div class="cpe-icon">💬</div>
+        <div class="cpe-title">Your Chat Space</div>
+        <p>Tap a contact on the left to start chatting ✦</p>
+      </div>
+
+      <div class="chat-pane-active" id="chat-pane-active" style="display:none;">
+        <div class="chat-pane-header">
+          <div class="cph-avatar" id="pc-avatar">?</div>
+          <span class="cph-name" id="pc-name">—</span>
+          <button class="topbar-btn" onclick="closePrivateChat()" title="Close chat">✕</button>
+        </div>
+        <div class="messages-area" id="private-messages-area">
+          <div style="text-align:center;color:var(--text-muted);font-size:12px;padding:20px;">
+            Start the conversation ✦
+          </div>
+        </div>
+        <div class="emoji-picker" id="private-emoji-picker"></div>
+        <div class="chat-input-bar">
+          <div class="chat-input-row">
+            <textarea class="chat-input-field" id="private-msg-input" rows="1" placeholder="Type a message..."></textarea>
+            <button class="send-btn" onclick="sendPrivateMessage()">➤</button>
+          </div>
+          <div class="chat-tools-row">
+            <button class="tool-btn" onclick="toggleEmoji('private-emoji-picker','private-msg-input')" title="Emoji">😊</button>
+            <button class="tool-btn" onclick="document.getElementById('private-file-input').click()" title="Attachment">📎</button>
+            <input type="file" id="private-file-input" style="display:none" onchange="handleFileAttach(this,'private')" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PUP bubble -->
+<div id="pup-wrap" class="pup-bubble">
+  <div class="pup-body">
+    <div class="pup-eyes">
+      <div class="pup-eye"><div class="pup-pupil"></div></div>
+      <div class="pup-eye"><div class="pup-pupil"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- DRAWER -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <div class="logo-name">DGREATVERSE</div>
+    <div style="font-size:11px;color:var(--text-muted);margin-top:4px;" id="drawer-user-name">—</div>
+  </div>
+  <div class="drawer-menu">
+    <div class="drawer-section-title">Chat</div>
+    <button class="drawer-item" onclick="toggleChatCodeBanner()" style="background:linear-gradient(90deg,rgba(168,85,247,0.15),rgba(123,47,255,0.14));border:1px solid rgba(168,85,247,0.3);border-radius:10px;">
+      <span class="di-icon">✦</span> Generate Chat Code
+    </button>
+    <button class="drawer-item" onclick="openModal('modal-join-chat')">
+      <span class="di-icon">🔗</span> Join Chat
+    </button>
+    <div class="drawer-section-title" style="margin-top:8px;">Groups</div>
+    <button class="drawer-item" onclick="openModal('modal-create-group')">
+      <span class="di-icon">👥</span> Create Group
+    </button>
+    <div id="drawer-group-invites" style="display:none; padding:0 12px 8px;">
+      <div style="font-size:10px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;padding:8px 0 6px;font-weight:600;">📨 Group Invites</div>
+      <div id="drawer-group-invites-list"></div>
+    </div>
+    <div class="drawer-groups-list" id="drawer-groups-list"></div>
+  </div>
+</div>
+
+<!-- PROFILE PANEL -->
+<div class="profile-overlay" id="profile-overlay" onclick="closeProfile()"></div>
+<div class="profile-panel" id="profile-panel">
+  <div class="profile-panel-header">
+    <span class="profile-panel-title">My Profile</span>
+    <button class="close-btn" onclick="closeProfile()">✕</button>
+  </div>
+  <div class="profile-avatar-wrap">
+    <div class="profile-big-avatar" id="profile-big-avatar" onclick="triggerAvatarUpload()">
+      <span id="profile-avatar-letter">D</span>
+      <img id="profile-avatar-img" src="" style="display:none;position:absolute;inset:0;" />
+    </div>
+    <input type="file" id="avatar-file-input" accept="image/*" style="display:none" onchange="handleAvatarUpload(this)" />
+    <div class="profile-avatar-hint">Tap to change photo</div>
+    <div class="profile-name-display" id="profile-name-display">—</div>
+  </div>
+  <div class="profile-body">
+    <!-- CHAT REQUESTS SECTION — visible in profile when bell badge is tapped -->
+    <div id="profile-requests-section" style="margin-bottom:18px;border-bottom:1px solid rgba(168,85,247,0.15);padding-bottom:16px;">
+      <div style="font-size:11px;color:var(--silver);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">📨 Chat Requests</div>
+      <div id="profile-pending-requests-list">
+        <div style="font-size:13px;color:var(--text-muted);text-align:center;">No pending requests</div>
+      </div>
+    </div>
+    <div class="input-group">
+      <label>About</label>
+      <textarea id="profile-about" rows="3" placeholder="Tell people about yourself..."
+        style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:10px;padding:12px;color:white;font-family:Inter,sans-serif;font-size:14px;resize:none;width:100%;outline:none;"></textarea>
+    </div>
+    <button class="btn-primary" onclick="saveProfile()">Save Profile</button>
+    <div style="margin-top:20px;border-top:1px solid rgba(168,85,247,0.15);padding-top:16px;">
+      <button class="btn-danger" onclick="confirmDeleteAccount()">🗑 Delete My Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: JOIN CHAT -->
+<div class="modal-overlay" id="modal-join-chat">
+  <div class="modal-sheet">
+    <button class="modal-close" onclick="closeModal('modal-join-chat')">✕</button>
+    <div class="modal-title">Join Chat</div>
+    <div class="error-msg" id="err-join-chat">User not found.</div>
+    <div class="input-group">
+      <label>Enter Their Chat Code</label>
+      <input type="text" id="join-chat-code" placeholder="XXXXX-XXXXX" maxlength="11"
+        oninput="formatChatCodeInput(this)" autocomplete="off" />
+    </div>
+    <button class="btn-primary" onclick="handleJoinChat()">Send Join Request →</button>
+    <button class="btn-ghost" onclick="closeModal('modal-join-chat')">Cancel</button>
+  </div>
+</div>
+
+<!-- MODAL: CREATE GROUP -->
+<div class="modal-overlay" id="modal-create-group">
+  <div class="modal-sheet">
+    <button class="modal-close" onclick="closeModal('modal-create-group')">✕</button>
+    <div class="modal-title">Create Group</div>
+    <div class="error-msg" id="err-create-group">Please fill in the group name.</div>
+    <div class="upload-area" onclick="document.getElementById('group-avatar-input').click()">
+      <input type="file" id="group-avatar-input" accept="image/*" onchange="previewGroupAvatar(this)" />
+      <div id="group-avatar-preview" style="display:none;width:60px;height:60px;border-radius:50%;overflow:hidden;margin:0 auto 8px;"><img id="group-avatar-img" style="width:100%;height:100%;object-fit:cover;" /></div>
+      <div class="upload-icon" id="group-upload-icon">🖼️</div>
+      <p>Tap to add group photo (optional)</p>
+    </div>
+    <div class="input-group">
+      <label>Group Name</label>
+      <input type="text" id="group-name" placeholder="Enter group name" />
+    </div>
+    <div class="input-group">
+      <label>Add Admins (from your contacts)</label>
+      <div id="admin-contacts-list" style="max-height:150px;overflow-y:auto;"></div>
+    </div>
+    <button class="btn-primary" onclick="handleCreateGroup()">Create Group →</button>
+    <button class="btn-ghost" onclick="closeModal('modal-create-group')">Cancel</button>
+  </div>
+</div>
+
+<!-- MODAL: COMMENTS -->
+<div class="modal-overlay" id="modal-comments">
+  <div class="modal-sheet">
+    <button class="modal-close" onclick="closeModal('modal-comments')">✕</button>
+    <div class="modal-title">Comments</div>
+    <div class="comment-sheet" id="comments-list"></div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <input type="text" id="comment-input" placeholder="Write a comment..." class="chat-input-field" style="border-radius:24px;" />
+      <button class="send-btn" onclick="submitComment()">➤</button>
+    </div>
+  </div>
+</div>
+
+<!-- GROUP CHAT SCREEN -->
+<div id="screen-group-chat">
+  <div class="chat-topbar">
+    <button class="topbar-btn" onclick="closeGroupChat()">←</button>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="contact-avatar" id="gc-avatar" style="width:34px;height:34px;font-size:14px;">G</div>
+      <span class="topbar-title" id="gc-name" style="font-size:14px;">—</span>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <button class="topbar-btn" id="gc-info-btn" onclick="openGroupInfo()" style="display:none;font-size:12px;">👥 Add</button>
+      <button class="topbar-btn" id="gc-delete-btn" onclick="confirmDeleteGroup()" style="display:none;font-size:12px;color:#ff8080;">🗑️ Delete</button>
+    </div>
+  </div>
+  <div class="messages-area" id="group-messages-area">
+    <div style="text-align:center;color:var(--text-muted);font-size:12px;padding:20px;">Group chat starts here ✦</div>
+  </div>
+  <div class="emoji-picker" id="group-emoji-picker"></div>
+  <div class="chat-input-bar">
+    <div class="chat-input-row">
+      <textarea class="chat-input-field" id="group-msg-input" rows="1" placeholder="Type a message..."></textarea>
+      <button class="send-btn" onclick="sendGroupMessage()">➤</button>
+    </div>
+    <div class="chat-tools-row">
+      <button class="tool-btn" onclick="toggleEmoji('group-emoji-picker','group-msg-input')" title="Emoji">😊</button>
+      <button class="tool-btn" onclick="document.getElementById('group-file-input').click()" title="Attachment">📎</button>
+      <input type="file" id="group-file-input" style="display:none" onchange="handleFileAttach(this,'group')" />
+    </div>
+  </div>
+</div>
+
+<!-- STORIES SCREEN -->
+<div id="screen-stories">
+  <div class="chat-topbar">
+    <button class="topbar-btn" onclick="closeStories()">←</button>
+    <span class="topbar-title">Stories</span>
+    <span style="width:34px;"></span>
+    <input type="file" id="story-file-input" accept="image/*,video/*" style="display:none" onchange="handleStoryUpload(this)" />
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:16px;">
+    <button class="add-story-btn" onclick="document.getElementById('story-file-input').click()">✦ Add Story</button>
+    <div class="drawer-section-title">Stories You've Posted</div>
+    <div class="stories-grid" id="stories-grid"></div>
+    <div class="drawer-section-title" style="margin-top:18px;">Contacts</div>
+    <div class="contacts-stories-row" id="contacts-stories-row"></div>
+  </div>
+</div>
+
+<!-- MODAL: STORY VIEWER -->
+<div class="modal-overlay" id="modal-story-viewer">
+  <div class="modal-sheet" style="padding:16px;">
+    <button class="modal-close" onclick="closeModal('modal-story-viewer')">✕</button>
+    <div class="modal-title" id="story-viewer-title">Story</div>
+    <div id="story-viewer-content" style="max-height:70vh;overflow-y:auto;"></div>
+  </div>
+</div>
+
+<!-- GROUP INFO MODAL -->
+<div class="modal-overlay" id="modal-group-info">
+  <div class="modal-sheet">
+    <button class="modal-close" onclick="closeModal('modal-group-info')">✕</button>
+    <div class="modal-title" id="group-info-title">Group Info</div>
+    <div class="input-group" style="margin-top:8px;">
+      <label>Add Members (from your contacts)</label>
+      <div id="group-add-members-list" style="max-height:200px;overflow-y:auto;"></div>
+    </div>
+    <button class="btn-primary" onclick="addGroupMembers()">Add Selected Members</button>
+    <button class="btn-ghost" onclick="closeModal('modal-group-info')">Close</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════
+const SUPABASE_URL  = 'https://cdxmepbybarjpzkskedq.supabase.co';
+const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkeG1lcGJ5YmFyanB6a3NrZWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzMjYzMzcsImV4cCI6MjA5NjkwMjMzN30.L6weqvlr-lJlHkonjwJEeeoWWUAEGiBDJQyVMONc2H8';
+const CLOUD_NAME    = 'dkrbxpi2y';
+const UPLOAD_PRESET = 'dgreatverse';
+
+// ═══════════════════════════════════════
+// SUPABASE HELPER
+// ═══════════════════════════════════════
+async function sbQuery(method, table, body = null, filters = '') {
+  const url = `${SUPABASE_URL}/rest/v1/${table}${filters}`;
+  const headers = {
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${SUPABASE_KEY}`,
+    'Content-Type': 'application/json',
+    'Prefer': method === 'POST' ? 'return=representation' : 'return=representation'
+  };
+  const res = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : null });
+
+  let data = null;
+  const text = await res.text();
+  if (text) {
+    try { data = JSON.parse(text); } catch (e) { data = text; }
+  }
+  return { data, ok: res.ok, status: res.status };
+}
+
+// Safe upsert — checks if a matching row already exists; only inserts if it doesn't.
+// Works regardless of whether the table has a UNIQUE constraint defined.
+async function sbQueryUpsert(table, body) {
+  // Build a filter string matching all the fields in `body`
+  const filters = '?' + Object.entries(body)
+    .map(([k, v]) => `${k}=eq.${v}`)
+    .join('&') + '&select=*';
+
+  const { data: existing } = await sbQuery('GET', table, null, filters);
+  if (Array.isArray(existing) && existing.length > 0) {
+    return { ok: true, status: 200, data: existing, skipped: true };
+  }
+
+  const url = `${SUPABASE_URL}/rest/v1/${table}`;
+  const headers = {
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${SUPABASE_KEY}`,
+    'Content-Type': 'application/json',
+    'Prefer': 'return=representation'
+  };
+  const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
+  let data = null;
+  try { data = await res.json(); } catch (e) {}
+  return { ok: res.ok, status: res.status, data };
+}
+
+// ═══════════════════════════════════════
+// CLOUDINARY
+// ═══════════════════════════════════════
+async function uploadToCloudinary(file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', UPLOAD_PRESET);
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`, { method:'POST', body:fd });
+  const data = await res.json();
+  return data.secure_url;
+}
+
+// ═══════════════════════════════════════
+// CODE GENERATORS
+// ═══════════════════════════════════════
+function genCode4() {
+  const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const p = () => Array.from({length:4}, () => c[Math.floor(Math.random()*c.length)]).join('');
+  return `${p()}-${p()}`;
+}
+function genCode5() {
+  const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const p = () => Array.from({length:5}, () => c[Math.floor(Math.random()*c.length)]).join('');
+  return `${p()}-${p()}`;
+}
+async function generateUniqueCode(field, gen) {
+  let code, exists = true;
+  while (exists) {
+    code = gen();
+    const { data } = await sbQuery('GET','users',null,`?${field}=eq.${code}&select=id`);
+    exists = Array.isArray(data) && data.length > 0;
+  }
+  return code;
+}
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let currentUser        = null;
+let resetUserId        = null;
+let activeChatContact  = null;
+let activeGroup        = null;
+let activeCommentMsgId = null;
+let activeCommentMsgType = null;
+let pollTimer          = null;
+let myContacts         = [];
+let myGroups           = [];
+
+// Track the last known set of contact IDs so we can detect changes
+let knownContactIds    = new Set();
+
+// ═══════════════════════════════════════
+// SCREEN NAV
+// ═══════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('#auth-wrapper .screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+  document.querySelectorAll('.error-msg').forEach(e => e.classList.remove('show'));
+}
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  if (el) { if (msg) el.textContent = msg; el.classList.add('show'); }
+}
+function setLoading(text = 'Please wait...') {
+  document.getElementById('loading-text').textContent = text;
+  showScreen('screen-loading');
+}
+
+// ═══════════════════════════════════════
+// ENTER CHAT SPACE
+// ═══════════════════════════════════════
+function enterChatSpace() {
+  document.getElementById('auth-wrapper').style.display = 'none';
+  const aboutBtn = document.getElementById('auth-about-btn');
+  if (aboutBtn) aboutBtn.style.display = 'none';
+  document.getElementById('screen-chat').classList.add('active');
+  initChatSpace();
+}
+
+async function initChatSpace() {
+  const initials = currentUser.name.charAt(0).toUpperCase();
+  document.getElementById('topbar-avatar-initials').textContent = initials;
+  document.getElementById('drawer-user-name').textContent = currentUser.name;
+  document.getElementById('profile-name-display').textContent = currentUser.name;
+  document.getElementById('profile-avatar-letter').textContent = initials;
+
+  if (currentUser.avatar_url) {
+    _applyAvatar(currentUser.avatar_url);
+  }
+  if (currentUser.about) {
+    document.getElementById('profile-about').value = currentUser.about;
+  }
+  document.getElementById('display-chat-code').textContent = currentUser.chat_code || '—';
+
+  buildEmojiPicker('private-emoji-picker');
+  buildEmojiPicker('group-emoji-picker');
+
+  await loadContacts();
+  await loadGroups();
+  await loadPendingRequests();
+  await loadGroupInvites();
+  startPolling();
+  initPupDrag();
+}
+
+// ═══════════════════════════════════════
+// PUP
+// ═══════════════════════════════════════
+function initPupDrag() {
+  const pup = document.getElementById('pup-wrap');
+  if (!pup || pup.dataset.dragInit) return;
+  pup.dataset.dragInit = '1';
+  const size = 52;
+  const saved = JSON.parse(localStorage.getItem('pupPosition') || 'null');
+  let x = saved ? saved.x : window.innerWidth - size - 24;
+  let y = saved ? saved.y : window.innerHeight - size - 110;
+  setPupPos(x, y);
+  let dragging = false, moved = false, startX, startY, startLeft, startTop;
+
+  function setPupPos(px, py) {
+    px = Math.max(4, Math.min(window.innerWidth - size - 4, px));
+    py = Math.max(60, Math.min(window.innerHeight - size - 4, py));
+    pup.style.left = px + 'px'; pup.style.top = py + 'px';
+    x = px; y = py;
+  }
+  pup.addEventListener('pointerdown', e => {
+    dragging = true; moved = false; pup.classList.add('dragging');
+    startX = e.clientX; startY = e.clientY; startLeft = x; startTop = y;
+    pup.setPointerCapture(e.pointerId);
+  });
+  pup.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const dx = e.clientX - startX, dy = e.clientY - startY;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+    setPupPos(startLeft + dx, startTop + dy);
+  });
+  pup.addEventListener('pointerup', () => {
+    if (!dragging) return;
+    dragging = false; pup.classList.remove('dragging');
+    if (moved) localStorage.setItem('pupPosition', JSON.stringify({x, y}));
+    else openStories();
+  });
+  window.addEventListener('resize', () => setPupPos(x, y));
+}
+
+// ─── UNREAD / SORT TRACKING ────────────────────────────────────────────
+// contactMeta[contactId] = { lastMsgTime: ISO, unread: N }
+const contactMeta = {};
+// lastSeenMap[contactId] = ISO timestamp when user last opened that chat
+const lastSeenMap = {};
+// legacy alias so existing badge code still works
+const unreadMap = {};
+async function loadContacts() {
+  // Fetch all rows where current user is involved
+  const { data: rows } = await sbQuery('GET', 'contacts', null,
+    `?or=(user_id.eq.${currentUser.id},contact_id.eq.${currentUser.id})&select=user_id,contact_id`);
+
+  if (!Array.isArray(rows) || rows.length === 0) {
+    myContacts = [];
+    knownContactIds = new Set();
+    renderContacts();
+    return;
+  }
+
+  // Collect the OTHER person's ID from each row
+  const otherIds = [];
+  rows.forEach(r => {
+    const otherId = r.user_id === currentUser.id ? r.contact_id : r.user_id;
+    if (otherId && !otherIds.includes(otherId)) otherIds.push(otherId);
+  });
+
+  if (!otherIds.length) {
+    myContacts = [];
+    knownContactIds = new Set();
+    renderContacts();
+    return;
+  }
+
+  // Fetch each contact's profile individually to avoid filter-construction bugs
+  const profiles = [];
+  for (const id of otherIds) {
+    const { data: uArr } = await sbQuery('GET', 'users', null, `?id=eq.${id}&select=id,name,avatar_url`);
+    if (Array.isArray(uArr) && uArr.length > 0) profiles.push(uArr[0]);
+  }
+
+  myContacts = profiles;
+  knownContactIds = new Set(profiles.map(u => u.id));
+
+  // Restore last-message-time from contactMeta (maintained by pollNewMessages)
+  profiles.forEach(u => {
+    if (contactMeta[u.id]) u._lastMsgTime = contactMeta[u.id].lastMsgTime;
+    else u._lastMsgTime = null;
+  });
+
+  sortAndRenderContacts();
+
+  // If a contact updated their avatar while we have their chat open, refresh the chat header
+  if (activeChatContact) {
+    const updated = profiles.find(u => u.id === activeChatContact.id);
+    if (updated && updated.avatar_url && updated.avatar_url !== activeChatContact.avatar_url) {
+      activeChatContact.avatar_url = updated.avatar_url;
+      const av = document.getElementById('pc-avatar');
+      if (av) av.innerHTML = `<img src="${updated.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`;
+    }
+  }
+}
+
+// Sort myContacts by lastMsgTime descending, then render
+function sortAndRenderContacts() {
+  myContacts.sort((a, b) => {
+    const ta = a._lastMsgTime ? new Date(a._lastMsgTime).getTime() : 0;
+    const tb = b._lastMsgTime ? new Date(b._lastMsgTime).getTime() : 0;
+    return tb - ta;
+  });
+  renderContacts();
+}
+
+function renderContacts() {
+  const hint = document.getElementById('empty-contacts-hint');
+  const list = document.getElementById('contacts-list');
+
+  if (!myContacts.length) {
+    hint.style.display = 'block';
+    list.style.display  = 'none';
+    list.innerHTML = '';
+    return;
+  }
+
+  hint.style.display = 'none';
+  list.style.display  = 'block';
+  list.innerHTML = myContacts.map(u => {
+    const av = u.avatar_url
+      ? `<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
+      : escHtml(u.name.charAt(0).toUpperCase());
+    const meta = contactMeta[u.id] || {};
+    const unread = meta.unread || 0;
+    const badge = unread > 0
+      ? `<div class="contact-unread-badge">●</div>`
+      : '';
+    return `
+      <div class="contact-rail-item" data-user-id="${u.id}"
+        data-user-name="${escAttr(u.name)}"
+        data-avatar-url="${escAttr(u.avatar_url||'')}"
+        onclick="openPrivateChat('${u.id}','${escAttr(u.name)}',this.dataset.avatarUrl)"
+        oncontextmenu="showContactMenu(event,'${u.id}','${escAttr(u.name)}')"
+        ontouchstart="startContactHold(event,'${u.id}','${escAttr(u.name)}')"
+        ontouchend="cancelContactHold()" ontouchmove="cancelContactHold()">
+        <div class="contact-rail-avatar">${av}${badge}</div>
+        <div class="crl-info">
+          <div class="contact-rail-name">${escHtml(u.name)}</div>
+          <div class="contact-rail-sub">${unread > 0 ? '<span style="color:var(--danger);font-weight:600;">New message</span>' : 'Tap to chat'}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  if (activeChatContact) highlightActiveContact(activeChatContact.id);
+}
+
+// ═══════════════════════════════════════
+// LOAD GROUPS
+// ═══════════════════════════════════════
+async function loadGroups() {
+  const { data: memberRows } = await sbQuery('GET', 'group_members', null,
+    `?user_id=eq.${currentUser.id}&select=group_id`);
+  if (!Array.isArray(memberRows) || !memberRows.length) { myGroups = []; renderGroups(); return; }
+  const gids = memberRows.map(r => `id.eq.${r.group_id}`).join(',');
+  const { data: groups } = await sbQuery('GET', 'groups', null, `?or=(${gids})&select=*`);
+  myGroups = groups || [];
+  renderGroups();
+}
+
+function renderGroups() {
+  const list = document.getElementById('drawer-groups-list');
+  if (!myGroups.length) {
+    list.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:8px 12px;">No groups yet</div>';
+    return;
+  }
+  list.innerHTML = myGroups.map(g => {
+    const av = g.avatar_url
+      ? `<img src="${g.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
+      : g.name.charAt(0).toUpperCase();
+    return `
+      <div class="group-chip" onclick="openGroupChat('${g.id}','${escAttr(g.name)}','${g.avatar_url||''}');closeDrawer()">
+        <div class="group-chip-avatar">${av}</div>
+        <div class="group-chip-name">${escHtml(g.name)}</div>
+      </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+// GROUP INVITES
+// ═══════════════════════════════════════
+async function loadGroupInvites() {
+  const { data, ok } = await sbQuery('GET', 'group_invites', null,
+    `?to_user=eq.${currentUser.id}&status=eq.pending&select=*`);
+
+  const drawerSection = document.getElementById('drawer-group-invites');
+  const drawerList    = document.getElementById('drawer-group-invites-list');
+
+  // If the fetch failed entirely (e.g. table missing / RLS block), bail silently
+  if (!ok || !Array.isArray(data) || !data.length) {
+    if (drawerSection) drawerSection.style.display = 'none';
+    if (drawerList) drawerList.innerHTML = '';
+    return;
+  }
+
+  const inviteHtml = [];
+  for (const inv of data) {
+    const { data: gArr } = await sbQuery('GET', 'groups', null, `?id=eq.${inv.group_id}&select=id,name`);
+    const { data: uArr } = await sbQuery('GET', 'users', null, `?id=eq.${inv.from_user}&select=name`);
+    const gName    = (Array.isArray(gArr) && gArr.length) ? gArr[0].name : 'Unknown Group';
+    const fromName = (Array.isArray(uArr) && uArr.length) ? uArr[0].name : 'Someone';
+    inviteHtml.push(`
+      <div class="request-item" style="border-color:rgba(168,85,247,0.5);margin-bottom:8px;">
+        <div class="request-info">
+          <div class="request-name" style="color:#e8edf5;">👥 ${escHtml(gName)}</div>
+          <div class="request-sub">Invited by ${escHtml(fromName)}</div>
+        </div>
+        <div class="request-btns">
+          <button class="btn-accept" onclick="acceptGroupInvite('${inv.id}','${inv.group_id}')">Accept</button>
+          <button class="btn-decline" onclick="declineGroupInvite('${inv.id}')">Decline</button>
+        </div>
+      </div>`);
+  }
+
+  if (drawerList) drawerList.innerHTML = inviteHtml.join('');
+  if (drawerSection) drawerSection.style.display = 'block';
+}
+
+async function acceptGroupInvite(inviteId, groupId) {
+  await sbQuery('PATCH', 'group_invites', { status: 'accepted' }, `?id=eq.${inviteId}`);
+  await sbQuery('POST', 'group_members', { group_id: groupId, user_id: currentUser.id, is_admin: false });
+  await loadGroupInvites();
+  await loadGroups();
+  closeDrawer();
+  alert('✅ You joined the group!');
+}
+
+async function declineGroupInvite(inviteId) {
+  await sbQuery('PATCH', 'group_invites', { status: 'declined' }, `?id=eq.${inviteId}`);
+  await loadGroupInvites();
+}
+
+// ═══════════════════════════════════════
+// PENDING REQUESTS
+// ═══════════════════════════════════════
+async function loadPendingRequests() {
+  const { data } = await sbQuery('GET', 'chat_requests', null,
+    `?to_user=eq.${currentUser.id}&status=eq.pending&select=*`);
+  if (!Array.isArray(data)) return;
+
+  const badge = document.getElementById('req-badge');
+  if (data.length > 0) { badge.textContent = data.length; badge.style.display = 'flex'; }
+  else badge.style.display = 'none';
+
+  const emptyHtml = '<div style="font-size:13px;color:var(--text-muted);text-align:center;">No pending requests</div>';
+
+  const profileList = document.getElementById('profile-pending-requests-list');
+  if (!profileList) return;
+
+  if (!data.length) {
+    profileList.innerHTML = emptyHtml;
+    return;
+  }
+
+  const senderIds = data.map(r => r.from_user);
+  const profiles = {};
+  for (const sid of senderIds) {
+    const { data: uArr } = await sbQuery('GET', 'users', null, `?id=eq.${sid}&select=id,name`);
+    if (Array.isArray(uArr) && uArr.length) profiles[sid] = uArr[0].name;
+  }
+
+  profileList.innerHTML = data.map(r => `
+    <div class="request-item">
+      <div class="request-info">
+        <div class="request-name">${escHtml(profiles[r.from_user] || 'Unknown')}</div>
+        <div class="request-sub">Wants to chat with you</div>
+      </div>
+      <div class="request-btns">
+        <button class="btn-accept" onclick="acceptRequest('${r.id}','${r.from_user}')">Accept</button>
+        <button class="btn-decline" onclick="declineRequest('${r.id}')">Decline</button>
+      </div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════
+// ACCEPT / DECLINE
+// ═══════════════════════════════════════
+async function acceptRequest(reqId, fromUserId) {
+  try {
+  // 1. Mark as accepted
+  await sbQuery('PATCH', 'chat_requests', { status:'accepted' }, `?id=eq.${reqId}`);
+
+  // 2. Insert BOTH directions using upsert so duplicates are never an error.
+  //    sbQueryUpsert checks for an existing row first, so it's safe even
+  //    if the table has no UNIQUE constraint.
+  const r1 = await sbQueryUpsert('contacts', { user_id: currentUser.id, contact_id: fromUserId });
+  const r2 = await sbQueryUpsert('contacts', { user_id: fromUserId,     contact_id: currentUser.id });
+
+  if (!r1.ok || !r2.ok) {
+    console.error('Failed to insert contacts row(s):', r1, r2);
+    showDebugBox('Contact insert FAILED', { step1: r1, step2: r2 });
+  } else {
+    showDebugBox('Contact insert OK', {
+      step1: r1.skipped ? 'already existed' : 'inserted',
+      step2: r2.skipped ? 'already existed' : 'inserted'
+    });
+  }
+
+  // 3. Close profile panel + reload pending badge
+  closeProfile();
+  await loadPendingRequests();
+
+  // 4. Re-fetch contacts and re-render the left pane
+  await loadContacts();
+
+  // Append the resulting contact list to the debug box so we can see
+  // whether the SELECT picked up the new rows
+  appendDebugBox('myContacts after reload', myContacts.map(u => ({ id: u.id, name: u.name })));
+
+  // 4b. Optimistic fallback — if the contact still isn't in the list
+  //     (e.g. the GET hasn't caught up yet), fetch their profile directly
+  //     and add them so the panel reflects the accept immediately.
+  let newContact = myContacts.find(u => u.id === fromUserId);
+  if (!newContact) {
+    const { data: uArr } = await sbQuery('GET', 'users', null, `?id=eq.${fromUserId}&select=id,name,avatar_url`);
+    if (Array.isArray(uArr) && uArr.length) {
+      newContact = uArr[0];
+      myContacts.push(newContact);
+      knownContactIds.add(newContact.id);
+      renderContacts();
+    }
+  }
+
+  // 5. Flash the contacts pane so the user notices
+  flashContactsPane();
+
+  // 6. Auto-open the new contact's chat
+  if (newContact) {
+    openPrivateChat(newContact.id, newContact.name, newContact.avatar_url || '');
+  }
+  } catch (err) {
+    console.error('acceptRequest crashed:', err);
+    showDebugBox('acceptRequest CRASHED', { message: err.message, stack: err.stack });
+  }
+}
+
+async function declineRequest(reqId) {
+  await sbQuery('PATCH', 'chat_requests', { status:'declined' }, `?id=eq.${reqId}`);
+  await loadPendingRequests();
+}
+
+function flashContactsPane() {
+  const pane = document.querySelector('.contacts-pane');
+  if (!pane) return;
+  pane.style.transition = 'background 0.3s';
+  pane.style.background = 'rgba(123,47,255,0.2)';
+  setTimeout(() => { pane.style.background = ''; }, 700);
+}
+
+// Manual refresh — re-pulls contacts from the database and re-renders the left panel.
+// Works for BOTH sides: the accepter and the sender will both see the new
+// contact appear here once they tap this after an accept happens.
+async function manualRefreshContacts() {
+  const btn = document.getElementById('contacts-refresh-btn');
+  if (btn) { btn.textContent = '⟳ Refreshing...'; btn.disabled = true; }
+
+  await loadContacts();
+  await loadPendingRequests();
+
+  // DIAGNOSTIC: dump raw table contents for this user so we can see
+  // exactly what's in contacts / chat_requests right now.
+  const { data: rawContacts } = await sbQuery('GET', 'contacts', null,
+    `?or=(user_id.eq.${currentUser.id},contact_id.eq.${currentUser.id})&select=*`);
+  const { data: rawRequests } = await sbQuery('GET', 'chat_requests', null,
+    `?or=(from_user.eq.${currentUser.id},to_user.eq.${currentUser.id})&select=*`);
+
+  showDebugBox('Raw DB dump for ' + (currentUser.name || currentUser.id), {
+    my_id: currentUser.id,
+    contacts_table_rows: rawContacts,
+    chat_requests_table_rows: rawRequests,
+    myContacts_after_load: myContacts.map(u => ({ id: u.id, name: u.name }))
+  });
+
+  if (btn) {
+    btn.textContent = '✓ Refreshed';
+    setTimeout(() => { btn.textContent = '⟳ Refresh Contacts'; btn.disabled = false; }, 1000);
+  }
+  flashContactsPane();
+}
+
+// On-screen debug box — shows raw error/response info for troubleshooting
+function showDebugBox(title, obj) {
+  // Debug box removed — logging to console only
+  console.log('[Debug]', title, obj);
+}
+
+// Append more info to the existing debug box without clearing it
+function appendDebugBox(title, obj) {
+  // Debug box removed — logging to console only
+  console.log('[Debug]', title, obj);
+}
+
+// ═══════════════════════════════════════
+// POLLING — now checks BOTH sides
+// ═══════════════════════════════════════
+function startPolling() {
+  pollTimer = setInterval(async () => {
+    await pollContactSync();
+    await pollNewMessages();   // ← real-time sort + red dot
+    await loadPendingRequests();
+    await loadGroupInvites();
+    if (activeChatContact) await loadPrivateMessages();
+    if (activeGroup) await loadGroupMessages();
+  }, 4000);
+}
+
+// ─── REAL-TIME NEW-MESSAGE POLL ─────────────────────────────────────────
+// Checks all contacts for new incoming messages.
+// Updates contactMeta[id].lastMsgTime and .unread, then re-sorts the panel.
+async function pollNewMessages() {
+  if (!currentUser || !myContacts.length) return;
+  const myId = currentUser.id;
+  let changed = false;
+
+  for (const contact of myContacts) {
+    // Fetch the single latest message in this conversation
+    const { data: msgs } = await sbQuery('GET', 'messages', null,
+      `?or=(and(sender_id.eq.${myId},receiver_id.eq.${contact.id}),and(sender_id.eq.${contact.id},receiver_id.eq.${myId}))&order=created_at.desc&limit=1&select=created_at,sender_id`);
+    if (!Array.isArray(msgs) || !msgs.length) continue;
+
+    const latest = msgs[0];
+    const latestTime = latest.created_at;
+    const prev = contactMeta[contact.id] || {};
+
+    // Did the latest message time change?
+    if (latestTime !== prev.lastMsgTime) {
+      contactMeta[contact.id] = { ...prev, lastMsgTime: latestTime };
+      contact._lastMsgTime = latestTime;
+      changed = true;
+
+      // If the sender is NOT us AND this contact chat is not currently open → unread
+      const isFromOther = latest.sender_id !== myId;
+      const isOpen = activeChatContact && activeChatContact.id === contact.id;
+      if (isFromOther && !isOpen) {
+        contactMeta[contact.id].unread = (prev.unread || 0) + 1;
+      }
+    }
+  }
+
+  if (changed) sortAndRenderContacts();
+}
+
+// Called every poll tick — checks if any new contacts appeared
+// Works for BOTH sides: the sender (whose request was accepted) AND the accepter
+async function pollContactSync() {
+  const { data: rows } = await sbQuery('GET', 'contacts', null,
+    `?or=(user_id.eq.${currentUser.id},contact_id.eq.${currentUser.id})&select=user_id,contact_id`);
+  if (!Array.isArray(rows)) return;
+
+  const otherIds = [];
+  rows.forEach(r => {
+    const otherId = r.user_id === currentUser.id ? r.contact_id : r.user_id;
+    if (otherId && !otherIds.includes(otherId)) otherIds.push(otherId);
+  });
+
+  // Check if the set of contacts changed
+  const changed = otherIds.length !== knownContactIds.size
+    || otherIds.some(id => !knownContactIds.has(id));
+
+  if (changed) {
+    await loadContacts(); // full reload + re-render
+    flashContactsPane();
+  }
+}
+
+// ═══════════════════════════════════════
+// DRAWER
+// ═══════════════════════════════════════
+function openDrawer() {
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawer-overlay').classList.add('open');
+  renderAdminContactsList();
+}
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawer-overlay').classList.remove('open');
+}
+
+// ═══════════════════════════════════════
+// PROFILE
+// ═══════════════════════════════════════
+function openProfile() {
+  document.getElementById('profile-panel').classList.add('open');
+  document.getElementById('profile-overlay').classList.add('open');
+  loadPendingRequests();
+  loadGroupInvites();
+}
+function closeProfile() {
+  document.getElementById('profile-panel').classList.remove('open');
+  document.getElementById('profile-overlay').classList.remove('open');
+}
+async function saveProfile() {
+  const about = document.getElementById('profile-about').value.trim();
+  await sbQuery('PATCH', 'users', { about }, `?id=eq.${currentUser.id}`);
+  currentUser.about = about;
+  alert('✅ Profile saved!');
+  closeProfile();
+}
+function triggerAvatarUpload() { document.getElementById('avatar-file-input').click(); }
+async function handleAvatarUpload(input) {
+  if (!input.files[0]) return;
+  const url = await uploadToCloudinary(input.files[0]);
+  await sbQuery('PATCH', 'users', { avatar_url: url }, `?id=eq.${currentUser.id}`);
+  currentUser.avatar_url = url;
+  _applyAvatar(url);
+}
+function _applyAvatar(url) {
+  const img = document.getElementById('profile-avatar-img');
+  img.src = url; img.style.display = 'block';
+  document.getElementById('profile-avatar-letter').style.display = 'none';
+  const topImg = document.getElementById('topbar-avatar-img');
+  topImg.src = url; topImg.style.display = 'block';
+  document.getElementById('topbar-avatar-initials').style.display = 'none';
+}
+function confirmDeleteAccount() {
+  if (confirm('⚠️ Delete your account? This cannot be undone.')) deleteAccount();
+}
+async function deleteAccount() {
+  await sbQuery('DELETE', 'users', null, `?id=eq.${currentUser.id}`);
+  clearInterval(pollTimer);
+  currentUser = null;
+  document.getElementById('screen-chat').classList.remove('active');
+  document.getElementById('auth-wrapper').style.display = 'flex';
+  const _ab = document.getElementById('auth-about-btn'); if (_ab) _ab.style.display = 'block';
+  showScreen('screen-enter-code');
+}
+
+// ═══════════════════════════════════════
+// MODALS
+// ═══════════════════════════════════════
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  closeDrawer();
+  if (id === 'modal-create-group') renderAdminContactsList();
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ═══════════════════════════════════════
+// CHAT CODE
+// ═══════════════════════════════════════
+function copyChatCode() {
+  const code = currentUser.chat_code;
+  if (navigator.clipboard) navigator.clipboard.writeText(code);
+  alert(`✅ Chat code copied: ${code}`);
+}
+function toggleChatCodeBanner() {
+  closeDrawer();
+  const b = document.getElementById('chat-code-banner');
+  b.style.display = (b.style.display === 'none' || !b.style.display) ? 'flex' : 'none';
+}
+
+// ═══════════════════════════════════════
+// JOIN CHAT
+// ═══════════════════════════════════════
+function formatChatCodeInput(input) {
+  let v = input.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if (v.length > 5) v = v.slice(0,5) + '-' + v.slice(5,10);
+  input.value = v;
+}
+
+async function handleJoinChat() {
+  const code = document.getElementById('join-chat-code').value.trim().toUpperCase();
+  if (code.length !== 11) { showError('err-join-chat','Please enter a valid chat code (XXXXX-XXXXX)'); return; }
+
+  const { data } = await sbQuery('GET','users',null,`?chat_code=eq.${code}&select=id,name`);
+  if (!data || !data.length) { showError('err-join-chat','No user found with that chat code.'); return; }
+
+  const target = data[0];
+  if (target.id === currentUser.id) { showError('err-join-chat','That is your own chat code!'); return; }
+
+  const { data: existing } = await sbQuery('GET','contacts',null,
+    `?user_id=eq.${currentUser.id}&contact_id=eq.${target.id}&select=id`);
+  if (existing && existing.length) { showError('err-join-chat',`Already connected with ${target.name}.`); return; }
+
+  const { data: existReq } = await sbQuery('GET','chat_requests',null,
+    `?from_user=eq.${currentUser.id}&to_user=eq.${target.id}&status=eq.pending&select=id`);
+  if (existReq && existReq.length) { showError('err-join-chat','Request already sent. Waiting for acceptance.'); return; }
+
+  await sbQuery('POST','chat_requests',{ from_user: currentUser.id, to_user: target.id, status:'pending' });
+  document.getElementById('join-chat-code').value = '';
+  alert(`✅ Join request sent to ${target.name}!`);
+  closeModal('modal-join-chat');
+}
+
+// ═══════════════════════════════════════
+// CREATE GROUP
+// ═══════════════════════════════════════
+function renderAdminContactsList() {
+  const list = document.getElementById('admin-contacts-list');
+  if (!myContacts.length) {
+    list.innerHTML = '<div style="font-size:12px;color:var(--text-muted);">No contacts yet.</div>';
+    return;
+  }
+  list.innerHTML = myContacts.map(u => `
+    <label style="display:flex;align-items:center;gap:10px;padding:8px;cursor:pointer;border-radius:8px;color:var(--gold-light);font-size:13px;">
+      <input type="checkbox" value="${u.id}" style="accent-color:var(--purple-bright);" />
+      ${escHtml(u.name)}
+    </label>`).join('');
+}
+
+async function handleCreateGroup() {
+  const name = document.getElementById('group-name').value.trim();
+  if (!name) { showError('err-create-group','Please enter a group name.'); return; }
+  let avatar_url = null;
+  const avatarFile = document.getElementById('group-avatar-input').files[0];
+  if (avatarFile) avatar_url = await uploadToCloudinary(avatarFile);
+  const { data, ok } = await sbQuery('POST','groups',{ name, avatar_url, created_by: currentUser.id });
+  if (!ok || !data || !data[0]) { showError('err-create-group','Failed to create group.'); return; }
+  const groupId = data[0].id;
+  // Creator always joins immediately
+  await sbQuery('POST','group_members',{ group_id: groupId, user_id: currentUser.id, is_admin: true });
+  // Send invites to selected contacts — they must accept before joining
+  const cbs = document.querySelectorAll('#admin-contacts-list input[type=checkbox]:checked');
+  let invitesSent = 0;
+  for (const cb of cbs) {
+    const toUser = cb.value;
+    // Check for duplicate pending invite first
+    const { data: existInv } = await sbQuery('GET','group_invites',null,
+      `?group_id=eq.${groupId}&to_user=eq.${toUser}&status=eq.pending&select=id`);
+    if (existInv && existInv.length) continue; // already invited
+    const { ok: invOk } = await sbQuery('POST','group_invites',{
+      group_id: groupId, from_user: currentUser.id, to_user: toUser, status: 'pending'
+    });
+    if (invOk) invitesSent++;
+  }
+  document.getElementById('group-name').value = '';
+  document.getElementById('group-avatar-input').value = '';
+  document.getElementById('group-avatar-preview').style.display = 'none';
+  document.getElementById('group-upload-icon').style.display = 'block';
+  await loadGroups();
+  closeModal('modal-create-group');
+  const invMsg = invitesSent > 0 ? ` Invites sent: ${invitesSent}.` : '';
+  alert(`✅ Group "${name}" created!${invMsg}`);
+}
+
+function previewGroupAvatar(input) {
+  if (!input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('group-avatar-img').src = e.target.result;
+    document.getElementById('group-avatar-preview').style.display = 'block';
+    document.getElementById('group-upload-icon').style.display = 'none';
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+// ═══════════════════════════════════════
+// PRIVATE CHAT
+// ═══════════════════════════════════════
+function openPrivateChat(userId, userName, avatarUrl) {
+  activeChatContact = { id: userId, name: userName, avatar_url: avatarUrl };
+
+  // Mark as read: record the current timestamp as "last seen" for this contact
+  lastSeenMap[userId] = new Date().toISOString();
+  // Clear unread badge for this contact
+  if (contactMeta[userId] && contactMeta[userId].unread) {
+    contactMeta[userId].unread = 0;
+    renderContacts(); // re-render to remove badge immediately
+  }
+
+  document.getElementById('pc-name').textContent = userName;
+  const av = document.getElementById('pc-avatar');
+  av.innerHTML = avatarUrl
+    ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
+    : escHtml(userName.charAt(0).toUpperCase());
+  document.getElementById('chat-pane-empty').style.display = 'none';
+  document.getElementById('chat-pane-active').style.display = 'flex';
+  document.getElementById('private-emoji-picker').classList.remove('open');
+  highlightActiveContact(userId);
+  loadPrivateMessages();
+}
+
+function closePrivateChat() {
+  document.getElementById('chat-pane-active').style.display = 'none';
+  document.getElementById('chat-pane-empty').style.display = 'flex';
+  document.getElementById('private-emoji-picker').classList.remove('open');
+  activeChatContact = null;
+  highlightActiveContact(null);
+}
+
+function highlightActiveContact(userId) {
+  document.querySelectorAll('.contact-rail-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.userId === userId);
+  });
+}
+
+async function loadPrivateMessages() {
+  if (!activeChatContact) return;
+  const myId = currentUser.id, theirId = activeChatContact.id;
+  // Update lastSeen to now since user is viewing this chat
+  lastSeenMap[theirId] = new Date().toISOString();
+  const { data } = await sbQuery('GET','messages',null,
+    `?or=(and(sender_id.eq.${myId},receiver_id.eq.${theirId}),and(sender_id.eq.${theirId},receiver_id.eq.${myId}))&order=created_at.asc&select=*`);
+  if (!Array.isArray(data)) return;
+  renderPrivateMessages(data);
+  // Re-sort contacts (new message may have arrived)
+  await loadContacts();
+}
+
+function renderPrivateMessages(msgs) {
+  const area = document.getElementById('private-messages-area');
+  if (!msgs.length) {
+    area.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:12px;padding:20px;">Start the conversation ✦</div>';
+    return;
+  }
+  area.innerHTML = msgs.map(m => {
+    const sent = m.sender_id === currentUser.id;
+    const time = new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    let content = '';
+    if (m.content) content = `<div class="msg-bubble">${escHtml(m.content)}</div>`;
+    else if (m.file_url) {
+      if (m.file_type === 'image') content = `<img src="${m.file_url}" style="max-width:200px;border-radius:12px;cursor:pointer;" onclick="window.open('${m.file_url}')" />`;
+      else content = `<div class="msg-bubble">📎 <a href="${m.file_url}" target="_blank" style="color:var(--gold-light);">View file</a></div>`;
+    }
+    return `<div class="msg-row ${sent?'sent':'received'}"
+        oncontextmenu="showMsgMenu(event,'${m.id}','private',${sent})"
+        ontouchstart="startMsgHold(event,'${m.id}','private',${sent})"
+        ontouchend="cancelMsgHold()" ontouchmove="cancelMsgHold()">
+      ${content}
+      <div class="msg-time">${time}</div>
+      <div class="msg-actions">
+        <button class="msg-action-btn" id="comment-btn-${m.id}" onclick="openComments('${m.id}','private')">💬 Comment</button>
+        <button class="msg-action-btn" id="like-btn-${m.id}" onclick="toggleLike('${m.id}','private')">🔥 Like</button>
+      </div>
+    </div>`;
+  }).join('');
+  area.scrollTop = area.scrollHeight;
+  msgs.forEach(m => loadLikeCount(m.id));
+  msgs.forEach(m => loadCommentCount(m.id));
+}
+
+async function sendPrivateMessage() {
+  const input = document.getElementById('private-msg-input');
+  const text = input.value.trim();
+  if (!text || !activeChatContact) return;
+  input.value = '';
+  await sbQuery('POST','messages',{
+    sender_id: currentUser.id, receiver_id: activeChatContact.id,
+    content: text, file_type: 'text'
+  });
+  await loadPrivateMessages();
+}
+
+// ═══════════════════════════════════════
+// GROUP CHAT
+// ═══════════════════════════════════════
+async function openGroupChat(groupId, groupName, avatarUrl) {
+  activeGroup = { id: groupId, name: groupName, avatar_url: avatarUrl, isAdmin: false };
+  document.getElementById('gc-name').textContent = groupName;
+  const av = document.getElementById('gc-avatar');
+  av.innerHTML = avatarUrl
+    ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
+    : groupName.charAt(0).toUpperCase();
+  // Check if current user is admin of this group
+  const { data: memberRow } = await sbQuery('GET', 'group_members', null,
+    `?group_id=eq.${groupId}&user_id=eq.${currentUser.id}&select=is_admin`);
+  if (Array.isArray(memberRow) && memberRow.length && memberRow[0].is_admin) {
+    activeGroup.isAdmin = true;
+  }
+  // Show/hide the Add Members + Delete Group buttons based on admin status
+  const infoBtn = document.getElementById('gc-info-btn');
+  const delBtn  = document.getElementById('gc-delete-btn');
+  if (infoBtn) infoBtn.style.display = activeGroup.isAdmin ? 'flex' : 'none';
+  if (delBtn)  delBtn.style.display  = activeGroup.isAdmin ? 'flex' : 'none';
+  document.getElementById('screen-group-chat').classList.add('active');
+  loadGroupMessages();
+}
+function closeGroupChat() {
+  document.getElementById('screen-group-chat').classList.remove('active');
+  activeGroup = null;
+}
+async function loadGroupMessages() {
+  if (!activeGroup) return;
+  const { data } = await sbQuery('GET','group_messages',null,
+    `?group_id=eq.${activeGroup.id}&order=created_at.asc&select=*`);
+  if (!Array.isArray(data)) return;
+  const senderIds = [...new Set(data.map(m => m.sender_id))];
+  const senderMap = {};
+  for (const sid of senderIds) {
+    const { data: uArr } = await sbQuery('GET','users',null,`?id=eq.${sid}&select=id,name`);
+    if (Array.isArray(uArr) && uArr.length) senderMap[sid] = uArr[0].name;
+  }
+  renderGroupMessages(data, senderMap);
+}
+function renderGroupMessages(msgs, senderMap) {
+  const area = document.getElementById('group-messages-area');
+  if (!msgs.length) {
+    area.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:12px;padding:20px;">Group chat starts here ✦</div>';
+    return;
+  }
+  area.innerHTML = msgs.map(m => {
+    const sent = m.sender_id === currentUser.id;
+    const senderName = senderMap[m.sender_id] || 'Unknown';
+    const time = new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    let content = '';
+    if (m.content) content = `<div class="msg-bubble">${escHtml(m.content)}</div>`;
+    else if (m.file_url) {
+      if (m.file_type === 'image') content = `<img src="${m.file_url}" style="max-width:200px;border-radius:12px;" />`;
+      else content = `<div class="msg-bubble">📎 <a href="${m.file_url}" target="_blank" style="color:var(--gold-light);">View file</a></div>`;
+    }
+    return `<div class="msg-row ${sent?'sent':'received'}"
+        oncontextmenu="showMsgMenu(event,'${m.id}','group',${sent})"
+        ontouchstart="startMsgHold(event,'${m.id}','group',${sent})"
+        ontouchend="cancelMsgHold()" ontouchmove="cancelMsgHold()">
+      ${!sent ? `<div style="font-size:10px;color:var(--gold-light);margin-bottom:2px;">${escHtml(senderName)}</div>` : ''}
+      ${content}
+      <div class="msg-time">${time}</div>
+      <div class="msg-actions">
+        <button class="msg-action-btn" id="comment-btn-${m.id}" onclick="openComments('${m.id}','group')">💬 Comment</button>
+        <button class="msg-action-btn" id="like-btn-${m.id}" onclick="toggleLike('${m.id}','group')">🔥 Like</button>
+      </div>
+    </div>`;
+  }).join('');
+  area.scrollTop = area.scrollHeight;
+  msgs.forEach(m => loadLikeCount(m.id));
+  msgs.forEach(m => loadCommentCount(m.id));
+}
+async function sendGroupMessage() {
+  const input = document.getElementById('group-msg-input');
+  const text = input.value.trim();
+  if (!text || !activeGroup) return;
+  input.value = '';
+  await sbQuery('POST','group_messages',{ group_id: activeGroup.id, sender_id: currentUser.id, content: text });
+  await loadGroupMessages();
+}
+
+// ═══════════════════════════════════════
+// GROUP INFO
+// ═══════════════════════════════════════
+function openGroupInfo() {
+  if (!activeGroup || !activeGroup.isAdmin) {
+    alert('Only the group admin can add members.');
+    return;
+  }
+  document.getElementById('group-info-title').textContent = activeGroup.name;
+  const list = document.getElementById('group-add-members-list');
+  if (!myContacts.length) { list.innerHTML = '<div style="font-size:12px;color:var(--text-muted);">No contacts to add.</div>'; }
+  else {
+    list.innerHTML = myContacts.map(u => `
+      <label style="display:flex;align-items:center;gap:10px;padding:8px;cursor:pointer;border-radius:8px;color:var(--gold-light);font-size:13px;">
+        <input type="checkbox" value="${u.id}" style="accent-color:var(--purple-bright);" />
+        ${escHtml(u.name)}
+      </label>`).join('');
+  }
+  openModal('modal-group-info');
+}
+async function addGroupMembers() {
+  if (!activeGroup) return;
+  const cbs = document.querySelectorAll('#group-add-members-list input[type=checkbox]:checked');
+  for (const cb of cbs) {
+    await sbQuery('POST','group_invites',{ group_id: activeGroup.id, from_user: currentUser.id, to_user: cb.value, status: 'pending' });
+  }
+  closeModal('modal-group-info');
+  alert('✅ Invites sent!');
+}
+
+// ═══════════════════════════════════════
+// LIKES
+// ═══════════════════════════════════════
+async function toggleLike(msgId, msgType) {
+  const { data: ex } = await sbQuery('GET','likes',null,`?user_id=eq.${currentUser.id}&message_id=eq.${msgId}&select=id`);
+  if (ex && ex.length) await sbQuery('DELETE','likes',null,`?user_id=eq.${currentUser.id}&message_id=eq.${msgId}`);
+  else await sbQuery('POST','likes',{ user_id: currentUser.id, message_id: msgId, message_type: msgType });
+  loadLikeCount(msgId);
+}
+async function loadLikeCount(msgId) {
+  const { data } = await sbQuery('GET','likes',null,`?message_id=eq.${msgId}&select=id`);
+  const btn = document.getElementById(`like-btn-${msgId}`);
+  if (btn && Array.isArray(data)) btn.textContent = data.length > 0 ? `🔥 +${data.length}` : '🔥 Like';
+}
+
+async function loadCommentCount(msgId) {
+  const { data } = await sbQuery('GET','comments',null,`?message_id=eq.${msgId}&select=id`);
+  const btn = document.getElementById(`comment-btn-${msgId}`);
+  if (btn && Array.isArray(data)) {
+    btn.textContent = data.length > 0 ? `💬 +${data.length}` : '💬 Comment';
+  }
+}
+
+// ═══════════════════════════════════════
+// COMMENTS
+// ═══════════════════════════════════════
+async function openComments(msgId, msgType) {
+  activeCommentMsgId = msgId; activeCommentMsgType = msgType;
+  const { data } = await sbQuery('GET','comments',null,`?message_id=eq.${msgId}&order=created_at.asc&select=*`);
+  const list = document.getElementById('comments-list');
+  if (!Array.isArray(data) || !data.length) {
+    list.innerHTML = '<div style="font-size:13px;color:var(--text-muted);text-align:center;">No comments yet</div>';
+  } else {
+    const uIds = [...new Set(data.map(c => c.user_id))];
+    const uMap = {};
+    for (const uid of uIds) {
+      const { data: uArr } = await sbQuery('GET','users',null,`?id=eq.${uid}&select=id,name`);
+      if (Array.isArray(uArr) && uArr.length) uMap[uid] = uArr[0].name;
+    }
+    list.innerHTML = data.map(c => `
+      <div class="comment-item">
+        <div class="comment-avatar">${escHtml((uMap[c.user_id]||'?').charAt(0))}</div>
+        <div class="comment-content">
+          <div class="comment-name">${escHtml(uMap[c.user_id]||'Unknown')}</div>
+          <div class="comment-text">${escHtml(c.content)}</div>
+        </div>
+      </div>`).join('');
+  }
+  openModal('modal-comments');
+}
+async function submitComment() {
+  const input = document.getElementById('comment-input');
+  const text = input.value.trim();
+  if (!text || !activeCommentMsgId) return;
+  await sbQuery('POST','comments',{ user_id: currentUser.id, message_id: activeCommentMsgId, message_type: activeCommentMsgType, content: text });
+  input.value = '';
+  await openComments(activeCommentMsgId, activeCommentMsgType);
+  loadCommentCount(activeCommentMsgId);
+}
+
+// ═══════════════════════════════════════
+// FILE ATTACHMENTS
+// ═══════════════════════════════════════
+async function handleFileAttach(input, type) {
+  if (!input.files[0]) return;
+  const file = input.files[0];
+  const url = await uploadToCloudinary(file);
+  const fileType = file.type.startsWith('image') ? 'image' : 'file';
+  if (type === 'private' && activeChatContact) {
+    await sbQuery('POST','messages',{ sender_id: currentUser.id, receiver_id: activeChatContact.id, file_url: url, file_type: fileType });
+    await loadPrivateMessages();
+  } else if (type === 'group' && activeGroup) {
+    await sbQuery('POST','group_messages',{ group_id: activeGroup.id, sender_id: currentUser.id, file_url: url, file_type: fileType });
+    await loadGroupMessages();
+  }
+}
+
+// ═══════════════════════════════════════
+// EMOJI
+// ═══════════════════════════════════════
+const EMOJIS = [
+  // Smileys & People
+  '😀','😁','😂','🤣','😃','😄','😅','😆','😉','😊','😋','😎','😍','🥰','😘','😗','😙','😚','🙂','🤗',
+  '🤩','🤔','🤨','😐','😑','😶','🙄','😏','😣','😥','😮','🤐','😯','😪','😫','🥱','😴','😌','😛','😜',
+  '😝','🤤','😒','😓','😔','😕','🙃','🤑','😲','☹️','🙁','😖','😞','😟','😤','😢','😭','😦','😧','😨',
+  '😩','🤯','😬','😰','😱','🥵','🥶','😳','🤪','😵','🥴','😠','😡','🤬','😷','🤒','🤕','🤢','🤮','🤧',
+  '🥳','🥸','🤠','🥺','🥹','😇','🤡','🤥','🤫','🤭','🧐','😈','👿','👹','👺','💀','☠️','👻','👽','👾',
+  '🤖','😺','😸','😹','😻','😼','😽','🙀','😿','😾',
+  // Hand gestures & People
+  '👋','🤚','🖐️','✋','🖖','👌','🤌','🤏','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','🖕','👇','☝️','👍',
+  '👎','✊','👊','🤛','🤜','👏','🙌','🫶','👐','🤲','🤝','🙏','✍️','💅','🤳','💪','🦵','🦶','👂','🦻',
+  '👃','🫀','🫁','🧠','🦷','🦴','👀','👁️','👅','👄','🫦','💋','👶','🧒','👦','👧','🧑','👱','🧔','👩',
+  '🧓','👴','👵','🙍','🙎','🙅','🙆','💁','🙋','🧏','🙇','🤦','🤷',
+  // Hearts & Love
+  '❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❤️‍🔥','❤️‍🩹','❣️','💕','💞','💓','💗','💖','💘','💝',
+  '💟','☮️','✝️','☪️','🕉️','✡️','🔯','🪯',
+  // Nature & Animals
+  '🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐻‍❄️','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🙈','🙉','🙊',
+  '🐔','🐧','🐦','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐜','🪲','🦟','🦗',
+  '🐢','🐍','🦎','🦖','🦕','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🐊','🐅','🐆',
+  '🦓','🦍','🦧','🦣','🐘','🦛','🦏','🐪','🐫','🦒','🦘','🦬','🐃','🐂','🐄','🐎','🐖','🐏','🐑','🦙',
+  '🐐','🦌','🐕','🐩','🦮','🐈','🐓','🦃','🦤','🦚','🦜','🦢','🦩','🕊️','🐇','🦝','🦨','🦡','🦫','🦦',
+  '🦥','🐁','🐀','🐿️','🦔','🌵','🎄','🌲','🌳','🌴','🪵','🌱','🌿','☘️','🍀','🎍','🎋','🍃','🍂','🍁',
+  '🍄','🌾','💐','🌷','🌹','🥀','🌺','🌸','🌼','🌻','🌞','🌝','🌛','🌜','🌚','🌕','🌖','🌗','🌘','🌑',
+  '🌒','🌓','🌔','🌙','🌟','⭐','🌠','🌌','☀️','🌤️','⛅','🌦️','🌧️','⛈️','🌩️','🌨️','❄️','☃️','⛄','🌬️',
+  '💨','🌪️','🌫️','🌈','☂️','⛱️','⚡','🔥','💧','🌊','🌺',
+  // Food & Drink
+  '🍎','🍊','🍋','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🥝','🍅','🍆','🥑','🥦','🥬','🥒','🫑',
+  '🌶️','🫒','🧄','🧅','🥔','🍠','🥐','🥯','🍞','🥖','🧀','🥚','🍳','🧈','🥞','🧇','🥓','🥩','🍗','🍖',
+  '🌭','🍔','🍟','🍕','🫓','🥪','🥙','🧆','🌮','🌯','🫔','🥗','🥘','🫕','🍝','🍜','🍲','🍛','🍣','🍱',
+  '🥟','🦪','🍤','🍙','🍚','🍘','🍥','🥮','🍡','🧁','🍰','🎂','🍮','🍭','🍬','🍫','🍿','🍩','🍪','🌰',
+  '🥜','🍯','🧃','🥤','🧋','☕','🍵','🧉','🍺','🍻','🥂','🍷','🥃','🍸','🍹','🧊','🥄','🍴','🍽️',
+  // Activities & Sports
+  '⚽','🏀','🏈','⚾','🥎','🎾','🏐','🏉','🥏','🎱','🏓','🏸','🏒','🥅','⛳','🎣','🤿','🎽','🎿','🛷',
+  '🥌','🎯','🪀','🪁','🎮','🕹️','🎲','♟️','🎭','🎨','🖼️','🎪','🎤','🎧','🎼','🎹','🥁','🪘','🎷','🎺',
+  '🎸','🪕','🎻','🎬','🎥','📸','📷','🎞️','📺','📻','🎙️',
+  // Travel & Places
+  '🚗','🚕','🚙','🚌','🚎','🏎️','🚓','🚑','🚒','🚐','🛻','🚚','🚛','🚜','🏍️','🛵','🛺','🚲','🛴','🛹',
+  '🛼','🚏','🛣️','🛤️','⛽','🚨','🚥','🚦','✈️','🛫','🛬','🛩️','💺','🚀','🛸','🚁','🛶','⛵','🚤','🛥️',
+  '🛳️','⛴️','🚢','⚓','🗺️','🧭','🏔️','⛰️','🌋','🏕️','🏖️','🏗️','🏘️','🏚️','🏠','🏡','🏢','🏣','🏤',
+  '🏥','🏦','🏨','🏩','🏪','🏫','🏬','🏭','🏯','🏰','💒','🗼','🗽','⛪','🕌','🕍','⛩️','🕋','⛲','🌁',
+  '🌃','🏙️','🌄','🌅','🌆','🌇','🌉','🌌','🎠','🎡','🎢','💈','🎪',
+  // Objects & Symbols
+  '💎','👑','🏆','🥇','🥈','🥉','🎖️','🎗️','🎫','🎟️','🎪','🤹','🎭','🎨','🖼️','🎰','🚩','🎌','🏴','🏳️',
+  '💡','🔦','🕯️','🪔','🔑','🗝️','🔒','🔓','🔨','🪓','⛏️','⚒️','🛠️','🗡️','⚔️','🛡️','🔧','🔩','⚙️','🗜️',
+  '⚖️','🦯','🔗','⛓️','🪝','🧲','🪜','🧪','🧫','🧬','🔭','🔬','🩺','💊','🩹','🩼','💉','🩸','🧴','🧷',
+  '🧹','🧺','🧻','🪣','🧼','🫧','🪥','🧽','🪒','🧯','🛒','🚪','🪟','🛏️','🛋️','🪑','🚽','🚿','🛁','📱',
+  '💻','🖥️','🖨️','⌨️','🖱️','🖲️','💾','💿','📀','📼','📷','📸','📹','🎥','📞','☎️','📟','📠','📺','📻',
+  '🧭','⏱️','⏲️','⏰','🕰️','⌛','⏳','📡','🔋','🔌','💡','🔦','🕯️','💰','💴','💵','💶','💷','💸','💳',
+  '🪙','💹','📈','📉','📊','📋','📌','📍','✂️','🗃️','🗂️','🗄️','🗑️','🔒','🔓','🔏','🔐','🔑','🗝️','🔨',
+  '📬','📭','📮','🗳️','✏️','✒️','🖋️','🖊️','📝','📁','📂','📅','📆','🗒️','🗓️','📇','📈','📉','📊','📋',
+  '📌','📍','📎','🖇️','📏','📐','✂️','🗃️','🗂️','🗄️','🚮','🔍','🔎','🔏','🔐','🔒','🔓',
+  // Symbols
+  '✨','💫','⭐','🌟','🌠','🔥','💥','❄️','🌊','🌀','🌈','⚡','🌙','☀️','🌤','🌦','⛅','🌧','⛈','🌩',
+  '💯','✅','❌','❎','🆗','🆙','🆒','🆕','🆓','🔞','📵','🚫','⛔','🚳','🚭','🚯','🚱','🚷','📶','🔕',
+  '❓','❔','❕','❗','‼️','⁉️','🔅','🔆','📳','📴','💠','🔷','🔶','🔹','🔸','🔺','🔻','✳️','✴️','❇️',
+  '🅰️','🅱️','🆎','🅾️','🆑','🆘','🛑','⛔','📛','🚫','💢','♨️','🚷','🔞','📵','❌','⭕','🛟','☣️','☢️',
+];
+
+function buildEmojiPicker(id) {
+  document.getElementById(id).innerHTML = EMOJIS.map(e =>
+    `<button class="emoji-btn" onclick="insertEmoji('${e}','${id}')">${e}</button>`).join('');
+}
+function toggleEmoji(pickerId, inputId) {
+  const p = document.getElementById(pickerId);
+  p.classList.toggle('open');
+  if (p.classList.contains('open')) p.dataset.target = inputId;
+}
+function insertEmoji(emoji, pickerId) {
+  const inputId = document.getElementById(pickerId).dataset.target;
+  const input = document.getElementById(inputId);
+  if (input) { input.value += emoji; input.focus(); }
+}
+
+
+// ═══════════════════════════════════════
+// MESSAGE CONTEXT MENU (long-press / right-click to delete)
+// ═══════════════════════════════════════
+let _holdTimer = null;
+
+function startMsgHold(e, msgId, msgType, isSent) {
+  _holdTimer = setTimeout(() => {
+    showMsgMenu(e, msgId, msgType, isSent);
+  }, 600); // 600ms hold
+}
+function cancelMsgHold() {
+  if (_holdTimer) { clearTimeout(_holdTimer); _holdTimer = null; }
+}
+
+function showMsgMenu(e, msgId, msgType, isSent) {
+  e.preventDefault();
+  cancelMsgHold();
+  closeContextMenu(); // close any existing
+
+  const menu = document.createElement('div');
+  menu.className = 'msg-context-menu';
+  menu.id = 'msg-context-menu';
+
+  // Position near touch/click
+  const x = e.touches ? e.touches[0].clientX : e.clientX;
+  const y = e.touches ? e.touches[0].clientY : e.clientY;
+
+  menu.innerHTML = `
+    <button onclick="closeContextMenu()">✕ &nbsp;Cancel</button>
+    <div class="msg-context-menu-divider"></div>
+    <button class="danger" onclick="confirmDeleteMsg('${msgId}','${msgType}')">🗑️ Delete Message</button>
+  `;
+
+  // Backdrop to close on outside tap
+  const overlay = document.createElement('div');
+  overlay.className = 'ctx-overlay';
+  overlay.onclick = closeContextMenu;
+  document.body.appendChild(overlay);
+  document.body.appendChild(menu);
+
+  // Smart positioning — keep menu on screen
+  const mw = 200, mh = 100;
+  let left = x, top = y;
+  if (left + mw > window.innerWidth)  left = window.innerWidth - mw - 10;
+  if (top  + mh > window.innerHeight) top  = y - mh - 10;
+  menu.style.left = left + 'px';
+  menu.style.top  = top  + 'px';
+}
+
+function closeContextMenu() {
+  const m = document.getElementById('msg-context-menu');
+  if (m) m.remove();
+  document.querySelectorAll('.ctx-overlay').forEach(el => el.remove());
+}
+
+async function confirmDeleteMsg(msgId, msgType) {
+  closeContextMenu();
+  if (!confirm('Delete this message? This cannot be undone.')) return;
+  const table = msgType === 'group' ? 'group_messages' : 'messages';
+  await sbQuery('DELETE', table, null, `?id=eq.${msgId}`);
+  // Also delete associated likes and comments
+  await sbQuery('DELETE', 'likes',    null, `?message_id=eq.${msgId}`);
+  await sbQuery('DELETE', 'comments', null, `?message_id=eq.${msgId}`);
+  // Reload the right chat
+  if (msgType === 'group') await loadGroupMessages();
+  else await loadPrivateMessages();
+}
+
+// ═══════════════════════════════════════
+// DELETE GROUP (admin only)
+// ═══════════════════════════════════════
+async function confirmDeleteGroup() {
+  if (!activeGroup || !activeGroup.isAdmin) return;
+  if (!confirm(`Delete the group "${activeGroup.name}"? This removes all messages and members permanently.`)) return;
+  const gid = activeGroup.id;
+  // Delete group messages, members, invites, then the group itself
+  await sbQuery('DELETE', 'group_messages', null, `?group_id=eq.${gid}`);
+  await sbQuery('DELETE', 'group_members',  null, `?group_id=eq.${gid}`);
+  await sbQuery('DELETE', 'group_invites',  null, `?group_id=eq.${gid}`);
+  await sbQuery('DELETE', 'groups',         null, `?id=eq.${gid}`);
+  closeGroupChat();
+  await loadGroups();
+  alert('✅ Group deleted.');
+}
+
+
+// ═══════════════════════════════════════
+// CONTACT LONG-PRESS DELETE
+// ═══════════════════════════════════════
+let _contactHoldTimer = null;
+
+function startContactHold(e, userId, userName) {
+  _contactHoldTimer = setTimeout(() => {
+    showContactMenu(e, userId, userName);
+  }, 600);
+}
+function cancelContactHold() {
+  if (_contactHoldTimer) { clearTimeout(_contactHoldTimer); _contactHoldTimer = null; }
+}
+
+function showContactMenu(e, userId, userName) {
+  e.preventDefault();
+  cancelContactHold();
+  closeContextMenu(); // reuse same close function
+
+  const menu = document.createElement('div');
+  menu.className = 'msg-context-menu';
+  menu.id = 'msg-context-menu';
+
+  const x = e.touches ? e.touches[0].clientX : e.clientX;
+  const y = e.touches ? e.touches[0].clientY : e.clientY;
+
+  menu.innerHTML = `
+    <div style="padding:12px 18px 8px;font-size:12px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;">${escHtml(userName)}</div>
+    <div class="msg-context-menu-divider"></div>
+    <button onclick="closeContextMenu()">✕ &nbsp;Cancel</button>
+    <div class="msg-context-menu-divider"></div>
+    <button class="danger" onclick="confirmDeleteContact('${userId}','${escAttr(userName)}')">🚫 Delete Contact</button>
+  `;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'ctx-overlay';
+  overlay.onclick = closeContextMenu;
+  document.body.appendChild(overlay);
+  document.body.appendChild(menu);
+
+  const mw = 200, mh = 130;
+  let left = x, top = y;
+  if (left + mw > window.innerWidth)  left = window.innerWidth - mw - 10;
+  if (top  + mh > window.innerHeight) top  = y - mh - 10;
+  menu.style.left = left + 'px';
+  menu.style.top  = top  + 'px';
+}
+
+async function confirmDeleteContact(userId, userName) {
+  closeContextMenu();
+  if (!confirm(`Are you sure you want to delete ${userName} from your contacts?\n\nThis will also delete all messages between you.`)) return;
+
+  const myId = currentUser.id;
+
+  // Delete all private messages between both users
+  await sbQuery('DELETE', 'messages', null,
+    `?or=(and(sender_id.eq.${myId},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${myId}))`);
+
+  // Remove contact relationship both ways
+  await sbQuery('DELETE', 'contacts', null, `?user_id=eq.${myId}&contact_id=eq.${userId}`);
+  await sbQuery('DELETE', 'contacts', null, `?user_id=eq.${userId}&contact_id=eq.${myId}`);
+
+  // If their chat is currently open, close it
+  if (activeChatContact && activeChatContact.id === userId) {
+    closePrivateChat();
+  }
+
+  // Remove from local list and re-render immediately
+  myContacts = myContacts.filter(u => u.id !== userId);
+  knownContactIds.delete(userId);
+  delete contactMeta[userId];
+  delete lastSeenMap[userId];
+  renderContacts();
+}
+
+// ═══════════════════════════════════════
+// STORIES
+// ═══════════════════════════════════════
+function openStories() {
+  document.getElementById('screen-stories').classList.add('active');
+  loadStories();
+}
+function closeStories() { document.getElementById('screen-stories').classList.remove('active'); }
+
+async function loadStories() {
+  const now = new Date().toISOString();
+  // Auto-delete any expired stories from DB first
+  await sbQuery('DELETE','stories',null,`?user_id=eq.${currentUser.id}&expires_at=lt.${now}`);
+  // Now fetch only active (non-expired) stories
+  const { data } = await sbQuery('GET','stories',null,`?user_id=eq.${currentUser.id}&expires_at=gt.${now}&order=created_at.desc&select=*`);
+  const grid = document.getElementById('stories-grid');
+  if (!Array.isArray(data) || !data.length) {
+    grid.innerHTML = `<div class="stories-empty-hint">No stories yet — tap "Add Story" to post one.</div>`;
+  } else {
+    grid.innerHTML = data.map(s => {
+      const media = s.media_type === 'video'
+        ? `<video src="${s.media_url}" style="width:100%;height:100%;object-fit:cover;" muted></video>`
+        : `<img src="${s.media_url}" />`;
+      // Time remaining
+      const msLeft = new Date(s.expires_at) - new Date();
+      const hLeft = Math.max(0, Math.floor(msLeft / 3600000));
+      const mLeft = Math.max(0, Math.floor((msLeft % 3600000) / 60000));
+      const timeLabel = hLeft > 0 ? `${hLeft}h ${mLeft}m left` : `${mLeft}m left`;
+      return `<div class="story-card"
+          oncontextmenu="showStoryMenu(event,'${s.id}')"
+          ontouchstart="startStoryHold(event,'${s.id}')"
+          ontouchend="cancelStoryHold()" ontouchmove="cancelStoryHold()">
+        ${media}
+        <div class="story-card-overlay">⏱ ${timeLabel}</div>
+      </div>`;
+    }).join('');
+  }
+  await loadContactsStories();
+}
+
+async function loadContactsStories() {
+  const row = document.getElementById('contacts-stories-row');
+  if (!myContacts.length) { row.innerHTML = `<div class="stories-empty-hint">No contacts yet.</div>`; return; }
+  const now = new Date().toISOString();
+  const activeIds = new Set();
+  for (const c of myContacts) {
+    const { data } = await sbQuery('GET','stories',null,`?user_id=eq.${c.id}&expires_at=gt.${now}&select=id`);
+    if (Array.isArray(data) && data.length) activeIds.add(c.id);
+  }
+  row.innerHTML = myContacts.map(u => {
+    const active = activeIds.has(u.id);
+    const avatar = u.avatar_url ? `<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover;" />` : escHtml(u.name.charAt(0).toUpperCase());
+    const click = active ? ` onclick="viewContactStory('${u.id}','${escAttr(u.name)}')"` : '';
+    return `<div class="contact-story-item ${active?'active':'inactive'}">
+      <div class="contact-story-avatar"${click}>${avatar}</div>
+      <div class="csi-name">${escHtml(u.name)}</div>
+    </div>`;
+  }).join('');
+}
+
+async function viewContactStory(userId, name) {
+  const now = new Date().toISOString();
+  const { data } = await sbQuery('GET','stories',null,`?user_id=eq.${userId}&expires_at=gt.${now}&order=created_at.desc&select=*`);
+  if (!Array.isArray(data) || !data.length) return;
+  document.getElementById('story-viewer-title').textContent = `${name}'s Story`;
+  document.getElementById('story-viewer-content').innerHTML = data.map(s =>
+    s.media_type === 'video'
+      ? `<video src="${s.media_url}" controls autoplay style="width:100%;border-radius:10px;margin-bottom:10px;display:block;"></video>`
+      : `<img src="${s.media_url}" style="width:100%;border-radius:10px;margin-bottom:10px;display:block;" />`).join('');
+  openModal('modal-story-viewer');
+}
+
+async function handleStoryUpload(input) {
+  if (!input.files[0]) return;
+  const file = input.files[0];
+  const url = await uploadToCloudinary(file);
+  const media_type = file.type.startsWith('video') ? 'video' : 'image';
+  // Set expiry to exactly 24 hours from now
+  const expires_at = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+  await sbQuery('POST','stories',{ user_id: currentUser.id, media_url: url, media_type, expires_at });
+  await loadStories();
+}
+
+
+// ═══════════════════════════════════════
+// STORY LONG-PRESS DELETE
+// ═══════════════════════════════════════
+let _storyHoldTimer = null;
+
+function startStoryHold(e, storyId) {
+  _storyHoldTimer = setTimeout(() => {
+    showStoryMenu(e, storyId);
+  }, 600);
+}
+function cancelStoryHold() {
+  if (_storyHoldTimer) { clearTimeout(_storyHoldTimer); _storyHoldTimer = null; }
+}
+
+function showStoryMenu(e, storyId) {
+  e.preventDefault();
+  cancelStoryHold();
+  closeContextMenu();
+
+  const menu = document.createElement('div');
+  menu.className = 'msg-context-menu';
+  menu.id = 'msg-context-menu';
+
+  const x = e.touches ? e.touches[0].clientX : e.clientX;
+  const y = e.touches ? e.touches[0].clientY : e.clientY;
+
+  menu.innerHTML = `
+    <button onclick="closeContextMenu()">✕ &nbsp;Cancel</button>
+    <div class="msg-context-menu-divider"></div>
+    <button class="danger" onclick="confirmDeleteStory('${storyId}')">🗑️ Delete Story</button>
+  `;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'ctx-overlay';
+  overlay.onclick = closeContextMenu;
+  document.body.appendChild(overlay);
+  document.body.appendChild(menu);
+
+  const mw = 200, mh = 100;
+  let left = x, top = y;
+  if (left + mw > window.innerWidth)  left = window.innerWidth - mw - 10;
+  if (top  + mh > window.innerHeight) top  = y - mh - 10;
+  menu.style.left = left + 'px';
+  menu.style.top  = top  + 'px';
+}
+
+async function confirmDeleteStory(storyId) {
+  closeContextMenu();
+  if (!confirm('Delete this story? Your contacts will no longer be able to view it.')) return;
+  await sbQuery('DELETE', 'stories', null, `?id=eq.${storyId}`);
+  await loadStories();
+}
+
+// ═══════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escAttr(str) {
+  return String(str).replace(/'/g,"\\'").replace(/"/g,'&quot;');
+}
+function toggleEye(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+  else { input.type = 'password'; btn.textContent = '👁️'; }
+}
+function formatCodeInput(input) {
+  let v = input.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if (v.length > 4) v = v.slice(0,4) + '-' + v.slice(4,8);
+  input.value = v;
+  // Keep cursor at end
+  const len = input.value.length;
+  input.setSelectionRange(len, len);
+}
+
+// ═══════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════
+async function handleEnterCode() {
+  const code = document.getElementById('login-code-input').value.trim().toUpperCase();
+  if (code.length !== 9) { showError('err-enter-code','Please enter a valid code (e.g. A1B2-C3D4)'); return; }
+  setLoading('Looking up your account...');
+  const { data, ok } = await sbQuery('GET','users',null,`?login_code=eq.${code}&select=*`);
+  if (!ok || !data || data.length === 0) {
+    showScreen('screen-enter-code');
+    showError('err-enter-code','Code not found. Please check and try again.');
+    return;
+  }
+  currentUser = data[0];
+  document.getElementById('login-greeting').textContent = `Welcome back, ${currentUser.name} ✦`;
+  showScreen('screen-login-password');
+}
+
+async function handleLogin() {
+  const password = document.getElementById('login-password-input').value;
+  if (!password) { showError('err-login','Please enter your password.'); return; }
+  setLoading('Entering your space...');
+  if (password !== currentUser.password) {
+    showScreen('screen-login-password');
+    showError('err-login','Incorrect password. Please try again.');
+    return;
+  }
+  showAdScreen();
+}
+
+// ═══════════════════════════════════════
+// AD SCREEN
+// ═══════════════════════════════════════
+async function showAdScreen() {
+  // Hide the auth wrapper and show the ad screen
+  document.getElementById('auth-wrapper').style.display = 'none';
+  const aboutBtn = document.getElementById('auth-about-btn');
+  if (aboutBtn) aboutBtn.style.display = 'none';
+
+  const adScreen   = document.getElementById('screen-ad');
+  const video      = document.getElementById('ad-video');
+  const image      = document.getElementById('ad-image');
+  const blankLabel = document.getElementById('ad-blank-label');
+  const skipBtn    = document.getElementById('ad-skip-btn');
+  const timerLabel = document.getElementById('ad-timer-label');
+  const unmuteBtn  = document.getElementById('ad-unmute-btn');
+
+  // Reset state
+  skipBtn.style.display = 'none';
+  timerLabel.style.display = 'flex';
+  blankLabel.style.display = 'none';
+  unmuteBtn.style.display = 'none';
+  video.style.display = 'none';
+  video.muted = false;
+  video.pause();
+  video.removeAttribute('src');
+  video.load();
+  image.style.display = 'none';
+  image.removeAttribute('src');
+
+  adScreen.classList.add('active');
+
+  // Fetch all configured ad slots from Supabase
+  let adUrls = [];
+  try {
+    const { data, ok } = await sbQuery('GET','app_settings',null,
+      '?id=eq.1&select=ad_video_url,ad_video_url_2,ad_video_url_3,ad_video_url_4,ad_video_url_5,ad_video_url_6,ad_video_url_7,ad_video_url_8,ad_video_url_9,ad_video_url_10');
+    if (ok && Array.isArray(data) && data.length) {
+      const row = data[0];
+      adUrls = [
+        row.ad_video_url, row.ad_video_url_2, row.ad_video_url_3,
+        row.ad_video_url_4, row.ad_video_url_5, row.ad_video_url_6,
+        row.ad_video_url_7, row.ad_video_url_8, row.ad_video_url_9,
+        row.ad_video_url_10
+      ].filter(u => u && u.trim());
+    }
+  } catch(e) { /* no ads configured / network issue — fall back to blank */ }
+
+  if (adUrls.length) {
+    // Cycle to the next ad each time, looping back to the start
+    let lastIndex = parseInt(localStorage.getItem('lastAdIndex') || '-1', 10);
+    let nextIndex = (lastIndex + 1) % adUrls.length;
+    localStorage.setItem('lastAdIndex', String(nextIndex));
+
+    const adUrl = adUrls[nextIndex];
+    const isImage = /\.(jpe?g|png|gif|webp)(\?|$)/i.test(adUrl);
+
+    if (isImage) {
+      image.addEventListener('load', () => startAdCountdown(), { once: true });
+      image.addEventListener('error', () => startAdCountdown(), { once: true });
+      image.src = adUrl;
+      image.style.display = 'block';
+    } else {
+      video.addEventListener('loadeddata', () => startAdCountdown(), { once: true });
+      video.addEventListener('error', () => startAdCountdown(), { once: true });
+      video.src = adUrl;
+      video.style.display = 'block';
+
+      // Try to play with sound; if the browser blocks it, fall back to muted + show unmute button
+      video.muted = false;
+      video.play().catch(() => {
+        video.muted = true;
+        unmuteBtn.style.display = 'block';
+        video.play().catch(()=>{});
+      });
+    }
+  } else {
+    blankLabel.style.display = 'block';
+    startAdCountdown();
+  }
+}
+
+function startAdCountdown() {
+  const skipBtn    = document.getElementById('ad-skip-btn');
+  const timerLabel = document.getElementById('ad-timer-label');
+
+  // 10 second countdown, starting only once media is ready (or immediately if blank)
+  let secondsLeft = 10;
+  timerLabel.textContent = secondsLeft;
+  const countdown = setInterval(() => {
+    secondsLeft--;
+    if (secondsLeft > 0) {
+      timerLabel.textContent = secondsLeft;
+    } else {
+      clearInterval(countdown);
+      timerLabel.style.display = 'none';
+      skipBtn.style.display = 'block';
+    }
+  }, 1000);
+}
+
+function unmuteAd() {
+  const video = document.getElementById('ad-video');
+  video.muted = false;
+  video.play().catch(()=>{});
+  document.getElementById('ad-unmute-btn').style.display = 'none';
+}
+
+function skipAd() {
+  const adScreen = document.getElementById('screen-ad');
+  const video    = document.getElementById('ad-video');
+  video.pause();
+  video.removeAttribute('src');
+  video.load();
+  adScreen.classList.remove('active');
+  enterChatSpace();
+}
+
+async function handleCreateAccount() {
+  const name     = document.getElementById('reg-name').value.trim();
+  const password = document.getElementById('reg-password').value;
+  const pin      = document.getElementById('reg-pin').value.trim();
+  if (!name || !password || !pin) { showError('err-create','Please fill in all fields.'); return; }
+  if (pin.length < 6)      { showError('err-create','Security PIN must be at least 6 characters.'); return; }
+  if (password.length < 6) { showError('err-create','Password must be at least 6 characters.'); return; }
+
+  const { data: pinCheck } = await sbQuery('GET','users',null,`?security_pin=eq.${pin}&select=id`);
+  if (Array.isArray(pinCheck) && pinCheck.length) { showError('err-create','❌ That Security PIN is already taken.'); return; }
+
+  setLoading('Creating your account...');
+  try {
+    const login_code = await generateUniqueCode('login_code', genCode4);
+    const chat_code  = await generateUniqueCode('chat_code', genCode5);
+    const { data, ok } = await sbQuery('POST','users',{ name, password, security_pin: pin, login_code, chat_code });
+    if (!ok) { showScreen('screen-create-account'); showError('err-create','Something went wrong. Please try again.'); return; }
+    currentUser = data[0];
+    document.getElementById('generated-code-display').textContent = login_code;
+    document.getElementById('welcome-name-title').textContent = `Welcome, ${name}! ✦`;
+    showScreen('screen-code-generated');
+  } catch(e) {
+    showScreen('screen-create-account');
+    showError('err-create','Network error. Check your connection and try again.');
+  }
+}
+
+async function handleForgotPassword() {
+  const code = document.getElementById('forgot-code').value.trim().toUpperCase();
+  const name = document.getElementById('forgot-name').value.trim();
+  const pin  = document.getElementById('forgot-pin').value.trim();
+  if (code.length !== 9 || !name || !pin) { showError('err-forgot','Please fill in your code, name, and Security PIN.'); return; }
+  setLoading('Verifying your identity...');
+  const { data, ok } = await sbQuery('GET','users',null,`?login_code=eq.${code}&security_pin=eq.${pin}&select=id,name`);
+  if (!ok || !data || !data.length || data[0].name.toLowerCase() !== name.toLowerCase()) {
+    showScreen('screen-forgot-password');
+    showError('err-forgot','Details not found.');
+    return;
+  }
+  resetUserId = data[0].id;
+  showScreen('screen-new-password');
+}
+
+async function handleSetNewPassword() {
+  const np = document.getElementById('new-password').value;
+  const cp = document.getElementById('confirm-password').value;
+  if (!np || !cp)  { showError('err-new-pass','Please fill in both fields.'); return; }
+  if (np !== cp)   { showError('err-new-pass','Passwords do not match.'); return; }
+  if (np.length < 6) { showError('err-new-pass','Password must be at least 6 characters.'); return; }
+  setLoading('Saving your new password...');
+  const { ok } = await sbQuery('PATCH','users',{ password: np },`?id=eq.${resetUserId}`);
+  if (!ok) { showScreen('screen-new-password'); showError('err-new-pass','Something went wrong.'); return; }
+  alert('✅ Password updated! Please log in with your new password.');
+  resetUserId = null;
+  showScreen('screen-enter-code');
+}
+</script>
+
+<!-- ABOUT MODAL -->
+<div class="modal-overlay" id="modal-about">
+  <div class="modal-sheet" style="text-align:center;">
+    <button class="modal-close" onclick="closeModal('modal-about')">✕</button>
+    <div style="margin-bottom:18px;">
+      <div class="logo-dg-shield" style="transform:scale(0.75);transform-origin:center top;"><svg width="80" height="100" viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">
+  <defs>
+    <linearGradient id="silver" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e8edf5"/>
+      <stop offset="40%" stop-color="#cfd3dc"/>
+      <stop offset="100%" stop-color="#8a95aa"/>
+    </linearGradient>
+    <linearGradient id="purpleFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6b1fb5"/>
+      <stop offset="100%" stop-color="#4a0e8f"/>
+    </linearGradient>
+    <linearGradient id="silverLetter" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="50%" stop-color="#cfd3dc"/>
+      <stop offset="100%" stop-color="#9aa0ad"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.6)"/>
+    </filter>
+  </defs>
+
+  <!-- TOP DIAMOND (D) -->
+  <!-- Outer silver border -->
+  <polygon points="40,2 74,24 74,48 40,50 6,48 6,24" fill="url(#silver)" filter="url(#shadow)"/>
+  <!-- Purple inner fill -->
+  <polygon points="40,7 69,27 69,44 40,46 11,44 11,27" fill="url(#purpleFill)"/>
+  <!-- Inner silver inset edge -->
+  <polygon points="40,11 65,29 65,42 40,43 15,42 15,29" fill="none" stroke="url(#silver)" stroke-width="1.5" opacity="0.6"/>
+  <!-- D letter -->
+  <text x="40" y="37" text-anchor="middle" font-family="'Cinzel',Georgia,serif" font-size="22" font-weight="900"
+        fill="url(#silverLetter)" filter="url(#shadow)" letter-spacing="1">D</text>
+
+  <!-- DIVIDER BAR -->
+  <rect x="4" y="47" width="72" height="5" fill="#111" rx="1"/>
+  <rect x="6" y="48" width="68" height="2" fill="url(#silver)" opacity="0.5" rx="1"/>
+
+  <!-- BOTTOM DIAMOND (G) -->
+  <!-- Outer silver border -->
+  <polygon points="40,52 74,52 74,76 40,98 6,76 6,52" fill="url(#silver)" filter="url(#shadow)"/>
+  <!-- Purple inner fill -->
+  <polygon points="40,56 69,56 69,74 40,93 11,74 11,56" fill="url(#purpleFill)"/>
+  <!-- Inner silver inset edge -->
+  <polygon points="40,60 65,60 65,72 40,89 15,72 15,60" fill="none" stroke="url(#silver)" stroke-width="1.5" opacity="0.6"/>
+  <!-- G letter -->
+  <text x="40" y="81" text-anchor="middle" font-family="'Cinzel',Georgia,serif" font-size="22" font-weight="900"
+        fill="url(#silverLetter)" filter="url(#shadow)" letter-spacing="1">G</text>
+
+  <!-- Glow overlay on edges -->
+  <polygon points="40,2 74,24 74,48 40,50 6,48 6,24" fill="none" stroke="rgba(168,85,247,0.4)" stroke-width="1" filter="url(#glow)"/>
+  <polygon points="40,52 74,52 74,76 40,98 6,76 6,52" fill="none" stroke="rgba(168,85,247,0.4)" stroke-width="1" filter="url(#glow)"/>
+</svg></div>
+      <div class="logo-name" style="font-size:18px;">DGREATVERSE</div>
+      <div class="logo-sub" style="margin-top:4px;">Connect · Share · Thrive</div>
+    </div>
+    <div style="border-top:1px solid rgba(168,85,247,0.2);padding-top:18px;text-align:left;">
+      <div style="font-size:11px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;">About</div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:20px;">👑</span>
+          <div>
+            <div style="font-size:11px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;">Creator</div>
+            <div style="font-size:15px;color:var(--white);font-weight:600;">Greatman Nyenwe</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:20px;">✉️</span>
+          <div>
+            <div style="font-size:11px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;">Email</div>
+            <div style="font-size:14px;color:var(--purple-glow);">dgreatnation83@gmail.com</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:20px;">🎵</span>
+          <div>
+            <div style="font-size:11px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;">TikTok</div>
+            <div style="font-size:14px;color:var(--purple-glow);">tiktok.com/@officialdgreatverse</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-ghost" style="margin-top:20px;" onclick="closeModal('modal-about')">Close</button>
+  </div>
+</div>
+
+</body>
+</html>
