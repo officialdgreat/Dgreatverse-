@@ -3250,11 +3250,25 @@ async function handleCreateAccount() {
   try {
     const login_code = await generateUniqueCode('login_code', genCode4);
     const chat_code  = await generateUniqueCode('chat_code', genCode5);
-    let deviceId = localStorage.getItem('device_id');
-    if (!deviceId) { deviceId = crypto.randomUUID(); localStorage.setItem('device_id', deviceId); }
-    const { data, ok } = await sbQuery('POST','users',{ name, password, security_pin: pin, login_code, chat_code, device_id: deviceId });
-    if (!ok) { showScreen('screen-create-account'); showError('err-create','Something went wrong. Please try again.'); return; }
-    currentUser = data[0];
+
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/quick-service`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'apikey': SUPABASE_KEY
+      },
+      body: JSON.stringify({ name, password, security_pin: pin, login_code, chat_code })
+    });
+    const result = await res.json();
+
+    if (!res.ok) {
+      showScreen('screen-create-account');
+      showError('err-create', result.error || 'Something went wrong. Please try again.');
+      return;
+    }
+
+    currentUser = result.user;
     document.getElementById('generated-code-display').textContent = login_code;
     document.getElementById('welcome-name-title').textContent = `Welcome, ${name}! ✦`;
     showScreen('screen-code-generated');
