@@ -3250,7 +3250,9 @@ async function handleCreateAccount() {
   try {
     const login_code = await generateUniqueCode('login_code', genCode4);
     const chat_code  = await generateUniqueCode('chat_code', genCode5);
-    const { data, ok } = await sbQuery('POST','users',{ name, password, security_pin: pin, login_code, chat_code });
+    let deviceId = localStorage.getItem('device_id');
+    if (!deviceId) { deviceId = crypto.randomUUID(); localStorage.setItem('device_id', deviceId); }
+    const { data, ok } = await sbQuery('POST','users',{ name, password, security_pin: pin, login_code, chat_code, device_id: deviceId });
     if (!ok) { showScreen('screen-create-account'); showError('err-create','Something went wrong. Please try again.'); return; }
     currentUser = data[0];
     document.getElementById('generated-code-display').textContent = login_code;
