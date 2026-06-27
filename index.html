@@ -260,6 +260,7 @@
     position: fixed; inset: 0; max-width: 100%;
     background: var(--purple-deep); z-index: 10;
     padding: 0; display: none; flex-direction: column;
+    align-items: stretch;
     overflow: hidden;
   }
   #screen-chat.active { display: flex; }
@@ -330,8 +331,9 @@
 
   .chat-topbar {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 16px; background: rgba(45,21,96,0.95);
-    border-bottom: 1px solid rgba(168,85,247,0.2);
+    padding: 14px 16px;
+    background: transparent;
+    border-bottom: none;
     position: sticky; top: 0; z-index: 20;
   }
   .topbar-btn {
@@ -355,35 +357,81 @@
   }
   .topbar-profile-btn img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 
-  .chat-split { flex: 1; display: flex; min-height: 0; overflow: hidden; }
+  /* ═══════════════════════════════════════
+     FULL-SCREEN NAV (WhatsApp-style)
+     ═══════════════════════════════════════ */
+  .chat-split { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; position: relative; }
 
-  /* Contacts pane */
+  /* Contacts pane — now a full-screen scrollable list */
   .contacts-pane {
-    width: 72px; flex-shrink: 0; overflow-y: auto;
-    padding: 10px 4px; display: flex; flex-direction: column;
-    align-items: center; gap: 6px;
-    height: 100%;
+    width: 100%; flex: 1; overflow-y: auto;
+    padding: 10px 8px 14px; display: none; flex-direction: column;
+    gap: 4px;
   }
-  /* Wider phones (≥480px) — icon + name row layout */
-  @media (min-width: 480px) {
-    .contacts-pane { width: 200px; align-items: stretch; padding: 12px 8px; }
-    .contact-rail-item { flex-direction: row; text-align: left; gap: 10px; padding: 9px 10px; }
-    .contact-rail-item .crl-info { flex: 1; min-width: 0; }
-    .contact-rail-name { font-size: 13px; font-weight: 600; color: var(--white); text-align: left; }
-    .contact-rail-sub { display: block; }
+  .contacts-pane.tab-active { display: flex; }
+
+  .contact-rail-item {
+    display: flex; flex-direction: row; align-items: center; text-align: left;
+    gap: 12px; width: 100%; padding: 10px 10px; border-radius: 14px; cursor: pointer;
+    transition: background 0.2s;
   }
-  @media (min-width: 640px) {
-    .contacts-pane { width: 250px; align-items: stretch; padding: 12px 8px; }
+  .contact-rail-item .crl-info { flex: 1; min-width: 0; }
+  .contact-rail-item:hover { background: rgba(123,47,255,0.12); }
+  .contact-rail-item.active {
+    background: rgba(123,47,255,0.2);
+    box-shadow: inset 0 0 0 1px rgba(168,85,247,0.4);
   }
+  .contact-rail-avatar {
+    width: 50px; height: 50px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--purple-bright), var(--silver-dim));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 700; color: white; flex-shrink: 0;
+    overflow: hidden; position: relative; cursor: pointer;
+  }
+  .contact-rail-item.active .contact-rail-avatar {
+    box-shadow: 0 0 0 2px var(--purple-glow), 0 0 0 4px var(--silver-glow), 0 0 14px rgba(168,85,247,0.55);
+  }
+  .contact-rail-name {
+    font-size: 14px; font-weight: 600; color: var(--white); text-align: left;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+  }
+  .contact-rail-item.active .contact-rail-name { color: var(--silver); }
+  .contact-rail-sub {
+    display: block; font-size: 12px; color: var(--text-muted);
+    margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%;
+  }
+
+  /* Bottom nav bar */
+  .bottom-nav {
+    display: flex; flex-shrink: 0; height: 58px;
+    background: var(--purple-deep); border-top: 1px solid rgba(168,85,247,0.25);
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.3);
+  }
+  .bottom-nav-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 2px; background: none; border: none; cursor: pointer;
+    color: var(--text-muted); font-family: 'Inter', sans-serif; font-size: 11px;
+    position: relative; transition: color 0.2s;
+  }
+  .bottom-nav-btn .bnb-icon { font-size: 20px; line-height: 1; }
+  .bottom-nav-btn.active { color: var(--silver); }
+  .bottom-nav-btn.active .bnb-icon { filter: drop-shadow(0 0 6px rgba(168,85,247,0.7)); }
+  .bnb-badge {
+    position: absolute; top: 2px; right: 22%;
+    min-width: 16px; height: 16px; border-radius: 8px;
+    background: var(--danger); color: #fff; font-size: 9px; font-weight: 700;
+    padding: 0 4px; line-height: 16px; text-align: center;
+    box-shadow: 0 0 8px rgba(255,79,79,0.7); border: 1.5px solid var(--purple-deep);
+    display: none;
+  }
+
   @media (min-width: 768px) {
-    .contacts-pane { width: 280px; }
     .contact-rail-item { padding: 11px 12px; gap: 13px; }
     .contact-rail-avatar { width: 50px; height: 50px; font-size: 18px; }
     .contact-rail-name { font-size: 14px; }
     .modal-sheet { max-width: 520px; }
   }
   @media (min-width: 1024px) {
-    .contacts-pane { width: 340px; }
     .contact-rail-name { font-size: 15px; }
     .contact-rail-avatar { width: 54px; height: 54px; font-size: 20px; }
     .msg-bubble { font-size: 15px; }
@@ -392,48 +440,34 @@
     .modal-sheet { max-width: 600px; }
   }
 
-  .contact-rail-item {
-    display: flex; flex-direction: column; align-items: center; gap: 5px;
-    width: 100%; padding: 8px 2px; border-radius: 14px; cursor: pointer;
-    transition: background 0.2s;
+  /* Groups tab — full-screen list */
+  .groups-pane {
+    width: 100%; flex: 1; overflow-y: auto;
+    padding: 10px 8px 14px; display: none; flex-direction: column; gap: 4px;
   }
-  .contact-rail-item:hover { background: rgba(123,47,255,0.12); }
-  .contact-rail-item.active {
-    background: rgba(123,47,255,0.2);
-    box-shadow: inset 0 0 0 1px rgba(168,85,247,0.4);
+  .groups-pane.tab-active { display: flex; }
+  .groups-pane-add-btn {
+    width: 100%; background: linear-gradient(90deg,rgba(168,85,247,0.18),rgba(123,47,255,0.16));
+    border: 1px solid rgba(168,85,247,0.4); border-radius: 12px;
+    color: var(--gold-light); font-size: 14px; font-weight: 600;
+    padding: 12px; margin-bottom: 10px; cursor: pointer; font-family: 'Inter', sans-serif;
   }
-  .contact-rail-avatar {
-    width: 46px; height: 46px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--purple-bright), var(--silver-dim));
-    display: flex; align-items: center; justify-content: center;
-    font-size: 17px; font-weight: 700; color: white; flex-shrink: 0;
-    overflow: hidden; position: relative;
+
+  /* Full-screen contact profile view */
+  #screen-contact-profile {
+    position: fixed; inset: 0; max-width: 100%;
+    background: var(--purple-deep); z-index: 16;
+    padding: 0; display: none; flex-direction: column;
   }
-  .contact-rail-item.active .contact-rail-avatar {
-    box-shadow: 0 0 0 2px var(--purple-glow), 0 0 0 4px var(--silver-glow), 0 0 14px rgba(168,85,247,0.55);
+  #screen-contact-profile.active { display: flex; }
+
+  /* Full-screen private chat view */
+  #screen-private-chat {
+    position: fixed; inset: 0; max-width: 100%;
+    background: var(--purple-deep); z-index: 15;
+    padding: 0; display: none; flex-direction: column;
   }
-  .contact-rail-name {
-    font-size: 11px; color: var(--text-muted); text-align: center;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
-  }
-  .contact-rail-item.active .contact-rail-name { color: var(--silver); font-weight: 600; }
-  .contact-rail-sub {
-    display: none; font-size: 11px; color: var(--text-muted);
-    margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%;
-  }
-  .pane-divider {
-    width: 3px; flex-shrink: 0; align-self: stretch; position: relative;
-    background: linear-gradient(180deg,
-      rgba(168,85,247,0) 0%, var(--purple-glow) 12%, var(--purple-bright) 50%,
-      var(--purple-glow) 88%, rgba(168,85,247,0) 100%);
-    box-shadow: 0 0 10px rgba(168,85,247,0.5), 0 0 20px rgba(123,47,255,0.25);
-  }
-  @keyframes dividerGlint { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.7; } }
-  .pane-divider::after {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(180deg, transparent, var(--silver-glow), transparent);
-    animation: dividerGlint 5s ease-in-out infinite;
-  }
+  #screen-private-chat.active { display: flex; }
 
   .chat-pane { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
   .chat-pane-empty {
@@ -560,6 +594,16 @@
     font-size: 14px; color: white; font-weight: 700; flex-shrink: 0;
   }
   .group-chip-name { font-size: 13px; color: var(--silver); font-weight: 500; }
+  .group-chip { justify-content: space-between; }
+  .group-chip-left { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
+  .group-chip-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .group-unread-badge {
+    flex-shrink: 0; min-width: 20px; height: 20px; padding: 0 6px;
+    border-radius: 10px; background: var(--danger);
+    color: #fff; font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 8px rgba(255,79,79,0.5);
+  }
 
   /* PROFILE PANEL */
   .profile-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 30; }
@@ -793,6 +837,172 @@
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: rgba(168,85,247,0.25); border-radius: 4px; }
+
+  /* VOICE MESSAGE BUBBLE */
+  .voice-bubble {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; min-width: 180px; max-width: 240px;
+  }
+  .voice-play-btn {
+    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+    background: rgba(168,85,247,0.35); border: 1.5px solid rgba(168,85,247,0.6);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 14px; color: #fff;
+    transition: background 0.2s;
+  }
+  .voice-play-btn:hover { background: rgba(168,85,247,0.55); }
+  .voice-waveform {
+    flex: 1; display: flex; align-items: center; gap: 2px; height: 28px;
+  }
+  .voice-bar {
+    flex: 1; border-radius: 2px;
+    background: rgba(168,85,247,0.5); min-width: 3px;
+    transition: background 0.15s;
+  }
+  .voice-bar.active { background: var(--purple-glow); }
+  .voice-duration { font-size: 11px; color: rgba(255,255,255,0.6); white-space: nowrap; }
+
+  /* MIC BUTTON (hold to record) */
+  .mic-btn {
+    width: 42px; height: 42px; border-radius: 50%; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; font-size: 20px;
+    background: rgba(168,85,247,0.2); border: 1.5px solid rgba(168,85,247,0.4);
+    flex-shrink: 0; transition: background 0.15s, transform 0.1s;
+    color: var(--text-muted); user-select: none; -webkit-user-select: none;
+    touch-action: none;
+  }
+  .mic-btn.recording {
+    background: rgba(255,79,79,0.35); border-color: rgba(255,79,79,0.7);
+    color: #ff8080; animation: micPulse 0.8s ease-in-out infinite;
+  }
+  @keyframes micPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,79,79,0.4); }
+    50% { transform: scale(1.08); box-shadow: 0 0 0 8px rgba(255,79,79,0); }
+  }
+  .mic-recording-label {
+    display: none; font-size: 11px; color: #ff8080; text-align: center;
+    padding: 2px 0; letter-spacing: 0.5px;
+  }
+  .mic-recording-label.show { display: block; }
+
+  /* POLL BUBBLE */
+  .poll-bubble {
+    padding: 12px 14px; border-radius: 16px; min-width: 200px; max-width: 260px;
+    background: rgba(45,21,96,0.9); border: 1px solid rgba(168,85,247,0.3);
+  }
+  .msg-row.sent .poll-bubble { background: rgba(123,47,255,0.4); border-color: rgba(168,85,247,0.5); }
+  .poll-question { font-size: 14px; font-weight: 600; color: var(--white); margin-bottom: 10px; }
+  .poll-option {
+    position: relative; padding: 8px 12px; border-radius: 8px; margin-bottom: 6px;
+    cursor: pointer; overflow: hidden; border: 1px solid rgba(168,85,247,0.25);
+    background: rgba(255,255,255,0.04); transition: border-color 0.2s;
+  }
+  .poll-option:hover { border-color: rgba(168,85,247,0.5); }
+  .poll-option.voted { border-color: var(--purple-glow); }
+  .poll-option-bar {
+    position: absolute; inset: 0; border-radius: 8px;
+    background: rgba(168,85,247,0.18); transform-origin: left;
+    transition: width 0.4s ease;
+  }
+  .poll-option-text { position: relative; font-size: 13px; color: var(--white); font-weight: 500; }
+  .poll-option-pct { position: relative; font-size: 11px; color: var(--text-muted); float: right; }
+  .poll-total { font-size: 10px; color: var(--text-muted); margin-top: 6px; text-align: right; }
+
+  /* SETTINGS SCREEN */
+  #screen-settings {
+    position: fixed; inset: 0; max-width: 100%;
+    background: var(--purple-deep); z-index: 18;
+    padding: 0; display: none; flex-direction: column;
+  }
+  #screen-settings.active { display: flex; }
+  .settings-body { flex: 1; overflow-y: auto; padding: 16px 16px 32px; }
+  .settings-section-title {
+    font-size: 10px; color: var(--text-muted); letter-spacing: 2px;
+    text-transform: uppercase; margin: 20px 0 10px; font-weight: 600;
+  }
+  .theme-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+  }
+  .theme-card {
+    border-radius: 14px; padding: 14px 12px; cursor: pointer;
+    border: 2px solid transparent; transition: border-color 0.2s, transform 0.15s;
+    display: flex; flex-direction: column; gap: 8px; position: relative;
+  }
+  .theme-card:active { transform: scale(0.97); }
+  .theme-card.selected { border-color: var(--purple-glow); }
+  .theme-card.selected::after {
+    content: '✓'; position: absolute; top: 8px; right: 10px;
+    font-size: 14px; font-weight: 700; color: var(--purple-glow);
+  }
+  .theme-preview {
+    display: flex; gap: 5px; align-items: center;
+  }
+  .theme-dot {
+    width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+  }
+  .theme-dot-sm {
+    width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0;
+  }
+  .theme-name {
+    font-size: 13px; font-weight: 600; color: var(--white);
+  }
+  .theme-sub {
+    font-size: 11px; color: var(--text-muted);
+  }
+
+  /* SEARCH BAR in contacts topbar */
+  .contacts-search-bar {
+    display: none; width: 100%; padding: 6px 12px 10px;
+    background: rgba(45,21,96,0.95); border-bottom: 1px solid rgba(168,85,247,0.15);
+  }
+  .contacts-search-bar.open { display: block; }
+  .contacts-search-input {
+    width: 100%; background: var(--input-bg); border: 1px solid var(--input-border);
+    border-radius: 24px; padding: 8px 16px; color: var(--white); font-size: 14px;
+    font-family: 'Inter', sans-serif; outline: none;
+  }
+  .contacts-search-input::placeholder { color: rgba(255,255,255,0.3); }
+
+  /* STORIES BUTTON in bottom nav — flat style matching Chat/Groups */
+  .bnb-stories-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 2px; background: none; border: none; cursor: pointer;
+    color: var(--text-muted); font-size: 11px; font-weight: 500;
+    font-family: 'Inter', sans-serif; position: relative; padding: 6px 0;
+    transition: color 0.2s;
+  }
+  .bnb-stories-btn .bnb-icon { font-size: 20px; line-height: 1; }
+  .bnb-stories-btn:active { opacity: 0.7; }
+
+  /* SWIPE-TO-REPLY */
+  .msg-row { touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+  .reply-indicator {
+    position: absolute; right: -36px; top: 50%; transform: translateY(-50%);
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(168,85,247,0.85); display: flex; align-items: center; justify-content: center;
+    font-size: 14px; opacity: 0; pointer-events: none;
+    transition: opacity 0.15s;
+  }
+  .reply-preview-bar {
+    display: none; align-items: center; gap: 8px; padding: 6px 14px;
+    background: rgba(123,47,255,0.18); border-left: 3px solid var(--purple-glow);
+    margin: 0 0 2px;
+  }
+  .reply-preview-bar.show { display: flex; }
+  .reply-preview-text {
+    flex: 1; font-size: 12px; color: var(--silver); white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  .reply-preview-close {
+    background: none; border: none; color: var(--text-muted); font-size: 16px;
+    cursor: pointer; padding: 0 2px; line-height: 1;
+  }
+  .msg-reply-quote {
+    font-size: 11px; color: var(--text-muted); background: rgba(255,255,255,0.07);
+    border-left: 2px solid var(--purple-glow); padding: 4px 8px; border-radius: 6px;
+    margin-bottom: 4px; max-width: 100%; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+  }
 
   /* UNREAD BADGE on contact items */
   .contact-rail-avatar { position: relative; }
@@ -1383,74 +1593,131 @@
 <!-- CHAT SPACE -->
 <div class="screen" id="screen-chat">
   <div class="chat-topbar">
-    <button class="topbar-btn" onclick="openDrawer()">☰</button>
-    <span class="topbar-title">DGREATVERSE</span>
-    <button class="topbar-btn topbar-profile-btn" onclick="openProfile()">
-      <span id="topbar-avatar-initials">D</span>
-      <img id="topbar-avatar-img" src="" style="display:none;" />
-      <span class="notif-badge" id="req-badge" style="display:none;">0</span>
-    </button>
-  </div>
-
-  <div class="chat-code-banner" id="chat-code-banner" style="display:none;">
-    <div>
-      <div class="ccb-label">Your Chat Code</div>
-      <div class="ccb-value" id="display-chat-code">—</div>
+    <span class="topbar-title" id="chat-topbar-title">DGREATVERSE</span>
+    <div style="display:flex;align-items:center;gap:4px;">
+      <button class="topbar-btn" id="contact-search-toggle-btn" onclick="toggleContactSearch()" title="Search contacts" style="font-size:18px;">🔍</button>
+      <button class="topbar-btn topbar-profile-btn" onclick="openProfile()">
+        <span id="topbar-avatar-initials">D</span>
+        <img id="topbar-avatar-img" src="" style="display:none;" />
+        <span class="notif-badge" id="req-badge" style="display:none;">0</span>
+      </button>
     </div>
-    <button class="ccb-btn" onclick="copyChatCode()">📋 Copy</button>
-    <button class="ccb-btn" onclick="toggleChatCodeBanner()">✕</button>
   </div>
-
-
+  <div class="contacts-search-bar" id="contacts-search-bar">
+    <input class="contacts-search-input" id="contacts-search-input" type="text" placeholder="Search contacts by name..." oninput="filterContactsByName(this.value)" />
+  </div>
 
   <div class="chat-split">
-    <!-- LEFT PANE: Contacts -->
-    <div class="contacts-pane" id="contacts-pane">
-      <button id="contacts-refresh-btn" onclick="manualRefreshContacts()"
-        style="width:100%;background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);border-radius:8px;color:var(--gold-light);font-size:12px;padding:8px;margin-bottom:8px;cursor:pointer;font-family:'Inter',sans-serif;">
-        ⟳ Refresh Contacts
-      </button>
+    <!-- CONTACTS TAB -->
+    <div class="contacts-pane tab-active" id="contacts-pane">
+      <div id="pull-to-refresh-indicator" style="display:none;text-align:center;padding:10px;color:var(--text-muted);font-size:12px;">⟳ Release to refresh...</div>
       <div id="empty-contacts-hint" style="text-align:center;color:var(--text-muted);font-size:12px;padding:16px 6px;">
-        No contacts yet ✦ Use the menu to join a chat.
+        No contacts yet ✦ Use Profile → Join Chat to add one.
       </div>
       <div id="contacts-list" style="width:100%;display:none;"></div>
     </div>
 
-    <div class="pane-divider"></div>
-
-    <!-- RIGHT PANE: Chat -->
-    <div class="chat-pane" id="chat-pane">
-      <div class="chat-pane-empty" id="chat-pane-empty">
-        <div class="cpe-icon">💬</div>
-        <div class="cpe-title">Your Chat Space</div>
-        <p>Tap a contact on the left to start chatting ✦</p>
+    <!-- GROUPS TAB -->
+    <div class="groups-pane" id="groups-pane">
+      <div id="drawer-new-msg-banner" style="display:none;margin:0 0 10px;background:linear-gradient(90deg,rgba(255,79,79,0.18),rgba(168,85,247,0.18));border:1px solid rgba(255,79,79,0.45);border-radius:12px;padding:10px 14px;animation:fadeIn 0.3s ease;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="font-size:14px;">🔔</span>
+          <span style="font-size:12px;font-weight:700;color:#ff9090;letter-spacing:0.8px;text-transform:uppercase;">New Message</span>
+        </div>
+        <div id="drawer-new-msg-list" style="display:flex;flex-direction:column;gap:4px;"></div>
       </div>
+      <button class="groups-pane-add-btn" onclick="openModal('modal-create-group')">✦ Create Group</button>
+      <div id="empty-groups-hint" style="text-align:center;color:var(--text-muted);font-size:12px;padding:16px 6px;">
+        No groups yet ✦ Tap "Create Group" to start one.
+      </div>
+      <div id="drawer-group-invites" style="display:none; padding:0 4px 8px;">
+        <div style="font-size:10px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;padding:8px 0 6px;font-weight:600;">📨 Group Invites</div>
+        <div id="drawer-group-invites-list"></div>
+      </div>
+      <div class="drawer-groups-list" id="drawer-groups-list"></div>
+    </div>
 
-      <div class="chat-pane-active" id="chat-pane-active" style="display:none;">
-        <div class="chat-pane-header">
-          <div class="cph-avatar" id="pc-avatar">?</div>
-          <span class="cph-name" id="pc-name">—</span>
-          <button class="topbar-btn" onclick="closePrivateChat()" title="Close chat">✕</button>
-        </div>
-        <div class="messages-area" id="private-messages-area">
-          <div style="text-align:center;color:var(--text-muted);font-size:12px;padding:20px;">
-            Start the conversation ✦
-          </div>
-        </div>
-        <div class="emoji-picker" id="private-emoji-picker"></div>
-        <div class="chat-input-bar">
-          <div class="chat-input-row">
-            <textarea class="chat-input-field" id="private-msg-input" rows="1" placeholder="Type a message..."></textarea>
-            <button class="send-btn" onclick="sendPrivateMessage()">➤</button>
-          </div>
-          <div class="chat-tools-row">
-            <button class="tool-btn" onclick="toggleEmoji('private-emoji-picker','private-msg-input')" title="Emoji">😊</button>
-            <button class="tool-btn" onclick="document.getElementById('private-file-input').click()" title="Attachment">📎</button>
-            <input type="file" id="private-file-input" style="display:none" onchange="handleFileAttach(this,'private')" />
-          </div>
-        </div>
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav">
+      <button class="bottom-nav-btn active" id="navbtn-contacts" onclick="switchChatTab('contacts')">
+        <span class="bnb-icon">💬</span><span>Contacts</span>
+      </button>
+      <button class="bnb-stories-btn" onclick="openStories()" title="Stories">
+        <span class="bnb-icon">📖</span><span>Stories</span>
+      </button>
+      <button class="bottom-nav-btn" id="navbtn-groups" onclick="switchChatTab('groups')">
+        <span class="bnb-icon">👥</span><span>Groups</span>
+        <span class="bnb-badge" id="group-notif-badge"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- FULL-SCREEN: CONTACT PROFILE -->
+<div id="screen-contact-profile">
+  <div class="chat-topbar">
+    <button class="topbar-btn" onclick="closeContactProfile()">←</button>
+    <span class="topbar-title" style="font-size:14px;">Contact Profile</span>
+    <span style="width:40px;"></span>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:24px 20px;">
+    <div style="display:flex;flex-direction:column;align-items:center;padding:8px 0 24px;">
+      <div id="cpf-avatar" style="width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,var(--purple-bright),var(--silver-dim));display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;color:white;overflow:hidden;box-shadow:0 0 28px rgba(123,47,255,0.4);flex-shrink:0;"></div>
+      <div id="cpf-name" style="font-size:20px;font-weight:700;color:var(--white);margin-top:14px;"></div>
+      <div id="cpf-about" style="font-size:13px;color:var(--text-muted);margin-top:8px;text-align:center;line-height:1.5;max-width:280px;"></div>
+    </div>
+    <input type="hidden" id="cpf-user-id" />
+    <button class="btn-primary" style="margin-bottom:12px;" onclick="chatFromProfile()">💬 Chat</button>
+    <div style="border-top:1px solid rgba(168,85,247,0.2);padding-top:16px;">
+      <div style="font-size:11px;color:var(--silver);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">📝 Your Nickname for This Contact</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;line-height:1.5;">Give them a custom name that only you can see. Won't change anything for them.</div>
+      <div class="input-group" style="margin-bottom:0;">
+        <input type="text" id="cpf-nickname-input" placeholder="e.g. Bestie, Boss, Mum..." maxlength="40"
+          style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:10px;padding:12px 16px;color:white;font-family:Inter,sans-serif;font-size:14px;width:100%;outline:none;" />
+      </div>
+      <button class="btn-ghost" style="margin-top:10px;" onclick="saveContactNicknameFromProfile()">Save Nickname</button>
+    </div>
+  </div>
+</div>
+
+<!-- FULL-SCREEN: PRIVATE CHAT -->
+<div id="screen-private-chat">
+  <div class="chat-topbar">
+    <button class="topbar-btn" onclick="closePrivateChat()" title="Back to contacts">←</button>
+    <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">
+      <div class="cph-avatar" id="pc-avatar">?</div>
+      <div style="display:flex;flex-direction:column;min-width:0;">
+        <span class="cph-name" id="pc-name">—</span>
+        <span id="pc-status" style="font-size:11px;color:var(--text-muted);"></span>
       </div>
     </div>
+  </div>
+  <div class="messages-area" id="private-messages-area">
+    <div style="text-align:center;color:var(--text-muted);font-size:12px;padding:20px;">
+      Start the conversation ✦
+    </div>
+  </div>
+  <div class="emoji-picker" id="private-emoji-picker"></div>
+  <div id="private-typing-row" style="display:none;padding:4px 14px;font-size:12px;color:var(--text-muted);font-style:italic;"></div>
+  <div class="reply-preview-bar" id="private-reply-preview">
+    <span style="font-size:14px;">↩️</span>
+    <span class="reply-preview-text" id="private-reply-preview-text"></span>
+    <button class="reply-preview-close" onclick="clearReply('private')">✕</button>
+  </div>
+  <div class="chat-input-bar">
+    <div class="chat-input-row">
+      <textarea class="chat-input-field" id="private-msg-input" rows="1" placeholder="Type a message..." oninput="handlePrivateTyping()"></textarea>
+      <button class="send-btn" onclick="sendPrivateMessage()">➤</button>
+    </div>
+    <div class="chat-tools-row">
+      <button class="tool-btn" onclick="toggleEmoji('private-emoji-picker','private-msg-input')" title="Emoji">😊</button>
+      <button class="tool-btn" onclick="document.getElementById('private-file-input').click()" title="Attachment">📎</button>
+      <input type="file" id="private-file-input" style="display:none" onchange="handleFileAttach(this,'private')" />
+      <button class="mic-btn" id="private-mic-btn" title="Hold to record voice message"
+        onmousedown="startVoiceRecord('private')" onmouseup="stopVoiceRecord('private')"
+        ontouchstart="event.preventDefault();startVoiceRecord('private')" ontouchend="stopVoiceRecord('private')">🎙️</button>
+    </div>
+    <div class="mic-recording-label" id="private-mic-label">🔴 Recording... release to send</div>
   </div>
 </div>
 
@@ -1464,32 +1731,8 @@
   </div>
 </div>
 
-<!-- DRAWER -->
-<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
-<div class="drawer" id="drawer">
-  <div class="drawer-header">
-    <div class="logo-name">DGREATVERSE</div>
-    <div style="font-size:11px;color:var(--text-muted);margin-top:4px;" id="drawer-user-name">—</div>
-  </div>
-  <div class="drawer-menu">
-    <div class="drawer-section-title">Chat</div>
-    <button class="drawer-item" onclick="toggleChatCodeBanner()" style="background:linear-gradient(90deg,rgba(168,85,247,0.15),rgba(123,47,255,0.14));border:1px solid rgba(168,85,247,0.3);border-radius:10px;">
-      <span class="di-icon">✦</span> Generate Chat Code
-    </button>
-    <button class="drawer-item" onclick="openModal('modal-join-chat')">
-      <span class="di-icon">🔗</span> Join Chat
-    </button>
-    <div class="drawer-section-title" style="margin-top:8px;">Groups</div>
-    <button class="drawer-item" onclick="openModal('modal-create-group')">
-      <span class="di-icon">👥</span> Create Group
-    </button>
-    <div id="drawer-group-invites" style="display:none; padding:0 12px 8px;">
-      <div style="font-size:10px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;padding:8px 0 6px;font-weight:600;">📨 Group Invites</div>
-      <div id="drawer-group-invites-list"></div>
-    </div>
-    <div class="drawer-groups-list" id="drawer-groups-list"></div>
-  </div>
-</div>
+<!-- (drawer-user-name kept for JS compatibility, not shown) -->
+<span id="drawer-user-name" style="display:none;"></span>
 
 <!-- PROFILE PANEL -->
 <div class="profile-overlay" id="profile-overlay" onclick="closeProfile()"></div>
@@ -1508,6 +1751,15 @@
     <div class="profile-name-display" id="profile-name-display">—</div>
   </div>
   <div class="profile-body">
+    <!-- MY CODE + JOIN CHAT -->
+    <div style="margin-bottom:18px;border-bottom:1px solid rgba(168,85,247,0.15);padding-bottom:16px;">
+      <div style="font-size:11px;color:var(--silver);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">✦ My Chat Code</div>
+      <div style="display:flex;align-items:center;gap:10px;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);border-radius:10px;padding:12px 14px;margin-bottom:10px;">
+        <div style="flex:1;font-size:16px;font-weight:700;color:var(--gold-light);letter-spacing:1px;" id="display-chat-code">—</div>
+        <button class="ccb-btn" onclick="copyChatCode()">📋 Copy</button>
+      </div>
+      <button class="btn-ghost" onclick="openModal('modal-join-chat')">🔗 Join Chat</button>
+    </div>
     <!-- CHAT REQUESTS SECTION — visible in profile when bell badge is tapped -->
     <div id="profile-requests-section" style="margin-bottom:18px;border-bottom:1px solid rgba(168,85,247,0.15);padding-bottom:16px;">
       <div style="font-size:11px;color:var(--silver);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">📨 Chat Requests</div>
@@ -1566,6 +1818,18 @@
       <input type="text" id="group-name" placeholder="Enter group name" />
     </div>
     <div class="input-group">
+      <label>About this Group <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
+      <textarea id="group-about-input" rows="2" placeholder="Describe what this group is about..." maxlength="200"
+        style="width:100%;background:var(--input-bg);border:1px solid var(--input-border);border-radius:10px;padding:12px 14px;color:var(--white);font-size:14px;font-family:'Inter',sans-serif;outline:none;resize:none;"></textarea>
+    </div>
+    <div class="input-group">
+      <label>Who can send messages?</label>
+      <select id="group-msg-permission" style="width:100%;background:var(--input-bg);border:1px solid var(--input-border);border-radius:10px;padding:13px 16px;color:var(--white);font-size:15px;font-family:'Inter',sans-serif;outline:none;">
+        <option value="all">Everyone (all members)</option>
+        <option value="admin">Admin only</option>
+      </select>
+    </div>
+    <div class="input-group">
       <label>Add Admins (from your contacts)</label>
       <div id="admin-contacts-list" style="max-height:150px;overflow-y:auto;"></div>
     </div>
@@ -1591,7 +1855,7 @@
 <div id="screen-group-chat">
   <div class="chat-topbar">
     <button class="topbar-btn" onclick="closeGroupChat()">←</button>
-    <div style="display:flex;align-items:center;gap:10px;">
+    <div style="display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="openGroupProfile()">
       <div class="contact-avatar" id="gc-avatar" style="width:34px;height:34px;font-size:14px;">G</div>
       <span class="topbar-title" id="gc-name" style="font-size:14px;">—</span>
     </div>
@@ -1604,16 +1868,30 @@
     <div style="text-align:center;color:var(--text-muted);font-size:12px;padding:20px;">Group chat starts here ✦</div>
   </div>
   <div class="emoji-picker" id="group-emoji-picker"></div>
+  <div id="group-typing-row" style="display:none;align-items:center;gap:6px;padding:4px 14px;font-size:12px;color:var(--text-muted);">
+    <div id="group-typing-avatars" style="display:flex;align-items:center;"></div>
+    <span id="group-typing-label"></span>
+  </div>
+  <div class="reply-preview-bar" id="group-reply-preview">
+    <span style="font-size:14px;">↩️</span>
+    <span class="reply-preview-text" id="group-reply-preview-text"></span>
+    <button class="reply-preview-close" onclick="clearReply('group')">✕</button>
+  </div>
   <div class="chat-input-bar">
     <div class="chat-input-row">
-      <textarea class="chat-input-field" id="group-msg-input" rows="1" placeholder="Type a message..."></textarea>
+      <textarea class="chat-input-field" id="group-msg-input" rows="1" placeholder="Type a message..." oninput="handleGroupTyping()"></textarea>
       <button class="send-btn" onclick="sendGroupMessage()">➤</button>
     </div>
     <div class="chat-tools-row">
       <button class="tool-btn" onclick="toggleEmoji('group-emoji-picker','group-msg-input')" title="Emoji">😊</button>
       <button class="tool-btn" onclick="document.getElementById('group-file-input').click()" title="Attachment">📎</button>
       <input type="file" id="group-file-input" style="display:none" onchange="handleFileAttach(this,'group')" />
+      <button class="tool-btn" onclick="openCreatePoll()" title="Create Poll">📊</button>
+      <button class="mic-btn" id="group-mic-btn" title="Hold to record voice message"
+        onmousedown="startVoiceRecord('group')" onmouseup="stopVoiceRecord('group')"
+        ontouchstart="event.preventDefault();startVoiceRecord('group')" ontouchend="stopVoiceRecord('group')">🎙️</button>
     </div>
+    <div class="mic-recording-label" id="group-mic-label">🔴 Recording... release to send</div>
   </div>
 </div>
 
@@ -1666,19 +1944,101 @@
   </div>
 </div>
 
-<!-- GROUP INFO MODAL -->
+<!-- POLL CREATION MODAL -->
+<div class="modal-overlay" id="modal-create-poll">
+  <div class="modal-sheet">
+    <button class="modal-close" onclick="closeModal('modal-create-poll')">✕</button>
+    <div class="modal-title">📊 Create Poll</div>
+    <div class="error-msg" id="err-create-poll">Please enter a question and at least 2 options.</div>
+    <div class="input-group">
+      <label>Question</label>
+      <input type="text" id="poll-question-input" placeholder="Ask the group something..." maxlength="120" />
+    </div>
+    <div class="input-group">
+      <label>Option 1</label>
+      <input type="text" id="poll-opt-1" placeholder="First option..." maxlength="60" />
+    </div>
+    <div class="input-group">
+      <label>Option 2</label>
+      <input type="text" id="poll-opt-2" placeholder="Second option..." maxlength="60" />
+    </div>
+    <div class="input-group">
+      <label>Option 3 <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
+      <input type="text" id="poll-opt-3" placeholder="Third option..." maxlength="60" />
+    </div>
+    <div class="input-group">
+      <label>Option 4 <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
+      <input type="text" id="poll-opt-4" placeholder="Fourth option..." maxlength="60" />
+    </div>
+    <button class="btn-primary" onclick="submitCreatePoll()">Post Poll →</button>
+    <button class="btn-ghost" onclick="closeModal('modal-create-poll')">Cancel</button>
+  </div>
+</div>
+
+<!-- GROUP PROFILE MODAL -->
+<div class="modal-overlay" id="modal-group-profile">
+  <div class="modal-sheet" style="max-height:90vh;overflow-y:auto;">
+    <button class="modal-close" onclick="closeModal('modal-group-profile')">✕</button>
+    <div id="gp-avatar-wrap" style="display:flex;flex-direction:column;align-items:center;padding:8px 0 16px;">
+      <div id="gp-avatar" style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--purple-bright),var(--silver-dim));display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:white;overflow:hidden;box-shadow:0 0 20px rgba(123,47,255,0.4);flex-shrink:0;"></div>
+      <div id="gp-name" style="font-size:18px;font-weight:700;color:var(--white);margin-top:12px;text-align:center;"></div>
+    </div>
+
+    <!-- ABOUT SECTION -->
+    <div style="margin-bottom:16px;">
+      <div style="font-size:11px;color:var(--silver);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">✦ About</div>
+      <div id="gp-about-display" style="font-size:13px;color:var(--text-muted);line-height:1.6;padding:10px 12px;background:var(--input-bg);border:1px solid rgba(168,85,247,0.15);border-radius:10px;">No description yet.</div>
+      <!-- Admin edit about -->
+      <div id="gp-about-edit-wrap" style="display:none;margin-top:10px;">
+        <textarea id="gp-about-edit" rows="3" maxlength="200" placeholder="Describe what this group is about..."
+          style="width:100%;background:var(--input-bg);border:1px solid var(--input-border);border-radius:10px;padding:12px 14px;color:var(--white);font-size:14px;font-family:'Inter',sans-serif;outline:none;resize:none;"></textarea>
+        <button class="btn-primary" style="margin-top:8px;" onclick="saveGroupAbout()">Save Description</button>
+      </div>
+    </div>
+
+    <!-- MESSAGING PERMISSION (admin only) -->
+    <div id="gp-msg-perm-wrap" style="display:none;margin-bottom:16px;">
+      <div style="font-size:11px;color:var(--silver);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">✦ Who Can Send Messages</div>
+      <select id="gp-msg-perm-select" style="width:100%;background:var(--input-bg);border:1px solid var(--input-border);border-radius:10px;padding:13px 16px;color:var(--white);font-size:14px;font-family:'Inter',sans-serif;outline:none;">
+        <option value="all">Everyone (all members)</option>
+        <option value="admin">Admin only</option>
+      </select>
+      <button class="btn-ghost" style="margin-top:8px;" onclick="saveGroupMsgPermission()">Update Permission</button>
+    </div>
+
+    <!-- MEMBERS LIST -->
+    <div>
+      <div style="font-size:11px;color:var(--silver);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">✦ Members</div>
+      <div id="gp-members-list" style="display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
+
+    <!-- ADD MEMBERS (admin only) -->
+    <div id="gp-add-members-wrap" style="display:none;margin-top:16px;border-top:1px solid rgba(168,85,247,0.15);padding-top:14px;">
+      <div style="font-size:11px;color:var(--silver);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">✦ Add Members</div>
+      <div id="group-add-members-list" style="max-height:160px;overflow-y:auto;"></div>
+      <button class="btn-primary" style="margin-top:10px;" onclick="addGroupMembers()">Send Invites →</button>
+    </div>
+
+    <button class="btn-ghost" style="margin-top:16px;" onclick="closeModal('modal-group-profile')">Close</button>
+  </div>
+</div>
+
+<!-- GROUP INFO MODAL (kept for back-compat, redirects to profile) -->
 <div class="modal-overlay" id="modal-group-info">
   <div class="modal-sheet">
     <button class="modal-close" onclick="closeModal('modal-group-info')">✕</button>
     <div class="modal-title" id="group-info-title">Group Info</div>
     <div class="input-group" style="margin-top:8px;">
       <label>Add Members (from your contacts)</label>
-      <div id="group-add-members-list" style="max-height:200px;overflow-y:auto;"></div>
+      <div id="group-add-members-list-legacy" style="max-height:200px;overflow-y:auto;"></div>
     </div>
-    <button class="btn-primary" onclick="addGroupMembers()">Add Selected Members</button>
+    <button class="btn-primary" onclick="addGroupMembersLegacy()">Add Selected Members</button>
     <button class="btn-ghost" onclick="closeModal('modal-group-info')">Close</button>
   </div>
 </div>
+
+<!-- Supabase JS SDK — needed only for Realtime Presence (active status) and Broadcast (typing indicator). Does not affect existing fetch()-based sbQuery calls. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
 <script>
 // ═══════════════════════════════════════
@@ -1688,6 +2048,312 @@ const SUPABASE_URL  = 'https://cdxmepbybarjpzkskedq.supabase.co';
 const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkeG1lcGJ5YmFyanB6a3NrZWRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzMjYzMzcsImV4cCI6MjA5NjkwMjMzN30.L6weqvlr-lJlHkonjwJEeeoWWUAEGiBDJQyVMONc2H8';
 const CLOUD_NAME    = 'dkrbxpi2y';
 const UPLOAD_PRESET = 'dgreatverse';
+
+// Realtime client — used ONLY for Presence (active status) and Broadcast (typing indicator).
+// All existing data calls (sbQuery) are untouched and keep using plain fetch().
+const sbRealtime = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ═══════════════════════════════════════
+// PRESENCE (Active / Offline status)
+// ═══════════════════════════════════════
+// One global channel everyone joins. No polling, no timers — the websocket
+// connection itself is the signal. Closing the tab / losing connection
+// automatically removes you from presenceState() on everyone else's screen.
+let presenceChannel = null;
+let presenceState = {}; // userId -> true if currently online
+
+function startPresence() {
+  if (presenceChannel || !currentUser) return;
+
+  presenceChannel = sbRealtime.channel('online-users', {
+    config: { presence: { key: currentUser.id } }
+  });
+
+  presenceChannel
+    .on('presence', { event: 'sync' }, () => {
+      const state = presenceChannel.presenceState();
+      presenceState = {};
+      Object.keys(state).forEach(userId => { presenceState[userId] = true; });
+      refreshActiveStatusLabel();
+    })
+    .subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        await presenceChannel.track({ online_at: new Date().toISOString() });
+      }
+    });
+}
+
+function isUserOnline(userId) {
+  return !!presenceState[userId];
+}
+
+// ═══════════════════════════════════════
+// TYPING INDICATOR (Broadcast — no polling, no DB writes)
+// ═══════════════════════════════════════
+// One broadcast channel per open conversation. Sends a lightweight "typing"
+// event while the user types (debounced), and a "stop" event when they
+// pause or send. Nothing is stored — purely a live signal between clients
+// currently looking at the same chat.
+
+const TYPING_DEBOUNCE_MS = 1200;   // min gap between sent typing events
+const TYPING_EXPIRE_MS   = 3000;   // auto-hide if no new event arrives
+
+let privateTypingChannel = null;
+let privateTypingLastSent = 0;
+
+// ── INBOX TYPING (drives the "typing..." label on the CONTACTS PANEL) ──
+// Each logged-in user subscribes to a channel keyed to their OWN id, so they
+// receive a "typing" event from anyone messaging them — even if they don't
+// have that person's chat open. This is what powers the contacts list label.
+let inboxTypingChannel = null;
+// inboxTypingFrom[senderId] = hideTimer — who is currently typing TO me
+let inboxTypingFrom = {};
+
+function myInboxTypingChannelName(userId) {
+  return 'typing-inbox-' + userId;
+}
+
+function joinInboxTypingChannel() {
+  leaveInboxTypingChannel();
+  if (!currentUser) return;
+  inboxTypingChannel = sbRealtime.channel(myInboxTypingChannelName(currentUser.id));
+  inboxTypingChannel
+    .on('broadcast', { event: 'typing' }, (msg) => {
+      const fromId = msg.payload && msg.payload.userId;
+      if (!fromId) return;
+      showContactTyping(fromId);
+    })
+    .on('broadcast', { event: 'stop' }, (msg) => {
+      const fromId = msg.payload && msg.payload.userId;
+      if (!fromId) return;
+      hideContactTyping(fromId);
+    })
+    .subscribe();
+}
+
+function leaveInboxTypingChannel() {
+  if (inboxTypingChannel) {
+    sbRealtime.removeChannel(inboxTypingChannel);
+    inboxTypingChannel = null;
+  }
+  Object.values(inboxTypingFrom).forEach(t => clearTimeout(t));
+  inboxTypingFrom = {};
+}
+
+// Shows "typing..." on a contact's row in the contacts panel.
+function showContactTyping(fromId) {
+  if (inboxTypingFrom[fromId]) clearTimeout(inboxTypingFrom[fromId]);
+  inboxTypingFrom[fromId] = setTimeout(() => hideContactTyping(fromId), TYPING_EXPIRE_MS);
+  renderContactTypingState(fromId, true);
+}
+
+// Reverts a contact's row back to its normal sub-label.
+function hideContactTyping(fromId) {
+  if (inboxTypingFrom[fromId]) {
+    clearTimeout(inboxTypingFrom[fromId]);
+    delete inboxTypingFrom[fromId];
+  }
+  renderContactTypingState(fromId, false);
+}
+
+// Flips just the sub-label of one contact row, without re-rendering or
+// re-sorting the whole list (list only reorders on an actual new message).
+function renderContactTypingState(userId, isTyping) {
+  const row = document.querySelector(`.contact-rail-item[data-user-id="${userId}"]`);
+  if (!row) return;
+  const sub = row.querySelector('.contact-rail-sub');
+  if (!sub) return;
+  if (isTyping) {
+    sub.innerHTML = '<span style="color:var(--gold-light);font-style:italic;">typing...</span>';
+  } else {
+    const meta = contactMeta[userId] || {};
+    sub.innerHTML = meta.unread > 0
+      ? '<span style="color:var(--danger);font-weight:600;">New message</span>'
+      : 'Tap to chat';
+  }
+}
+
+let groupTypingChannel = null;
+let groupTypingLastSent = 0;
+// groupTypingUsers[userId] = { name, avatar_url, hideTimer }
+let groupTypingUsers = {};
+
+// ── PRIVATE CHAT TYPING ─────────────────────────────────────────
+// We no longer show an in-chat "X is typing..." bar for private chat — the
+// indicator now lives on the CONTACTS PANEL row instead (see inbox typing
+// channel above). This just keeps one subscribed OUTGOING channel open,
+// pointed at whoever we're currently chatting with, so handlePrivateTyping
+// can send to their inbox without re-creating an unsubscribed channel on
+// every keystroke.
+let privateTypingReady = false; // true once channel.subscribe() confirms SUBSCRIBED
+
+function joinPrivateTypingChannel() {
+  leavePrivateTypingChannel();
+  if (!activeChatContact || !currentUser) return;
+  privateTypingChannel = sbRealtime.channel(myInboxTypingChannelName(activeChatContact.id));
+  privateTypingReady = false;
+  // IMPORTANT: Supabase Realtime silently drops broadcasts sent before the
+  // channel reaches SUBSCRIBED status — it does not queue them. We must wait
+  // for this callback before allowing any .send() calls, or early keystrokes
+  // (which is most of them, given the debounce) get dropped silently.
+  privateTypingChannel.subscribe((status) => {
+    if (status === 'SUBSCRIBED') {
+      privateTypingReady = true;
+    }
+  });
+}
+
+function leavePrivateTypingChannel() {
+  if (privateTypingChannel) {
+    sbRealtime.removeChannel(privateTypingChannel);
+    privateTypingChannel = null;
+  }
+  privateTypingReady = false;
+}
+
+// Called via oninput on the private message textarea.
+function handlePrivateTyping() {
+  if (!privateTypingChannel || !privateTypingReady || !activeChatContact || !currentUser) return;
+  const now = Date.now();
+  if (now - privateTypingLastSent < TYPING_DEBOUNCE_MS) return;
+  privateTypingLastSent = now;
+  // Send to the RECIPIENT's own inbox channel, so it reaches their contacts
+  // panel even if they don't have this chat open right now.
+  privateTypingChannel.send({
+    type: 'broadcast', event: 'typing',
+    payload: { userId: currentUser.id }
+  });
+}
+
+// Call when the user actually sends a message, to clear the indicator immediately.
+function sendPrivateTypingStop() {
+  if (!privateTypingChannel || !privateTypingReady || !currentUser) return;
+  privateTypingChannel.send({
+    type: 'broadcast', event: 'stop',
+    payload: { userId: currentUser.id }
+  });
+  privateTypingLastSent = 0;
+}
+
+// ── GROUP CHAT TYPING ───────────────────────────────────────────
+function joinGroupTypingChannel() {
+  leaveGroupTypingChannel();
+  if (!activeGroup || !currentUser) return;
+
+  const name = 'typing-group-' + activeGroup.id;
+  groupTypingChannel = sbRealtime.channel(name);
+
+  groupTypingChannel
+    .on('broadcast', { event: 'typing' }, (msg) => {
+      const p = msg.payload;
+      if (!p || p.userId === currentUser.id) return;
+      addGroupTypingUser(p.userId, p.name, p.avatar_url);
+    })
+    .on('broadcast', { event: 'stop' }, (msg) => {
+      const p = msg.payload;
+      if (!p) return;
+      removeGroupTypingUser(p.userId);
+    })
+    .subscribe();
+}
+
+function leaveGroupTypingChannel() {
+  if (groupTypingChannel) {
+    sbRealtime.removeChannel(groupTypingChannel);
+    groupTypingChannel = null;
+  }
+  Object.values(groupTypingUsers).forEach(u => clearTimeout(u.hideTimer));
+  groupTypingUsers = {};
+  renderGroupTyping();
+}
+
+function addGroupTypingUser(userId, name, avatarUrl) {
+  if (groupTypingUsers[userId]) clearTimeout(groupTypingUsers[userId].hideTimer);
+  groupTypingUsers[userId] = {
+    name: name || 'Someone',
+    avatar_url: avatarUrl || '',
+    hideTimer: setTimeout(() => removeGroupTypingUser(userId), TYPING_EXPIRE_MS)
+  };
+  renderGroupTyping();
+}
+
+function removeGroupTypingUser(userId) {
+  if (groupTypingUsers[userId]) {
+    clearTimeout(groupTypingUsers[userId].hideTimer);
+    delete groupTypingUsers[userId];
+    renderGroupTyping();
+  }
+}
+
+// Renders the avatar row + label. Up to 3 avatars shown; "..." beyond that.
+function renderGroupTyping() {
+  const row = document.getElementById('group-typing-row');
+  const avatarsEl = document.getElementById('group-typing-avatars');
+  const labelEl = document.getElementById('group-typing-label');
+  if (!row || !avatarsEl || !labelEl) return;
+
+  const typers = Object.values(groupTypingUsers);
+  if (!typers.length) { row.style.display = 'none'; return; }
+
+  const shown = typers.slice(0, 3);
+  avatarsEl.innerHTML = shown.map(u => {
+    const inner = u.avatar_url
+      ? `<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
+      : escHtml((u.name||'?').charAt(0).toUpperCase());
+    return `<div style="width:20px;height:20px;border-radius:50%;background:var(--purple-mid,#7b2fff);
+      display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;
+      margin-left:-6px;border:2px solid var(--bg-dark,#1a1025);overflow:hidden;">${inner}</div>`;
+  }).join('');
+
+  if (typers.length > 3) {
+    avatarsEl.innerHTML += `<span style="margin-left:4px;font-size:12px;">...</span>`;
+  }
+
+  if (typers.length === 1) {
+    labelEl.textContent = `${shown[0].name} is typing...`;
+  } else if (typers.length <= 3) {
+    labelEl.textContent = `${typers.map(u => u.name).join(', ')} are typing...`;
+  } else {
+    labelEl.textContent = `${typers.length} people are typing...`;
+  }
+
+  row.style.display = 'flex';
+}
+
+// Called via oninput on the group message textarea.
+function handleGroupTyping() {
+  if (!groupTypingChannel || !activeGroup || !currentUser) return;
+  const now = Date.now();
+  if (now - groupTypingLastSent < TYPING_DEBOUNCE_MS) return;
+  groupTypingLastSent = now;
+  groupTypingChannel.send({
+    type: 'broadcast', event: 'typing',
+    payload: { userId: currentUser.id, name: currentUser.name, avatar_url: currentUser.avatar_url || '' }
+  });
+}
+
+function sendGroupTypingStop() {
+  if (!groupTypingChannel || !currentUser) return;
+  groupTypingChannel.send({
+    type: 'broadcast', event: 'stop',
+    payload: { userId: currentUser.id }
+  });
+  groupTypingLastSent = 0;
+}
+
+// Updates the "Active" / "Offline" label in the open chat header.
+// Only ever reflects the person currently being chatted with — never the contact list.
+function refreshActiveStatusLabel() {
+  const statusEl = document.getElementById('pc-status');
+  if (!statusEl || !activeChatContact) return;
+  if (isUserOnline(activeChatContact.id)) {
+    statusEl.textContent = 'Active';
+    statusEl.style.color = '#3ddc84';
+  } else {
+    statusEl.textContent = 'Offline';
+    statusEl.style.color = 'var(--text-muted)';
+  }
+}
 
 // ═══════════════════════════════════════
 // SUPABASE HELPER
@@ -1928,11 +2594,46 @@ async function initChatSpace() {
   buildEmojiPicker('group-emoji-picker');
 
   await loadContacts();
-  await loadGroups();
+  await loadGroups({ force: true });
   await loadPendingRequests();
   await loadGroupInvites();
-  startPolling();
+  startPolling(); // no-op — kept for compatibility
   initPupDrag();
+  initPullToRefresh();
+  startPresence();
+  joinInboxTypingChannel();
+  joinGroupMessagesRealtime();
+  joinPrivateMessagesRealtime();
+  joinContactsRealtime();
+}
+
+// ═══════════════════════════════════════
+// PULL-TO-REFRESH (contacts pane)
+// ═══════════════════════════════════════
+function initPullToRefresh() {
+  const pane = document.getElementById('contacts-pane');
+  const indicator = document.getElementById('pull-to-refresh-indicator');
+  if (!pane || !indicator) return;
+  let startY = 0, pulling = false, threshold = 60;
+  pane.addEventListener('touchstart', e => {
+    if (pane.scrollTop === 0) { startY = e.touches[0].clientY; pulling = true; }
+  }, { passive: true });
+  pane.addEventListener('touchmove', e => {
+    if (!pulling) return;
+    const diff = e.touches[0].clientY - startY;
+    if (diff > 20) indicator.style.display = 'block';
+  }, { passive: true });
+  pane.addEventListener('touchend', async e => {
+    if (!pulling) return;
+    const diff = e.changedTouches[0].clientY - startY;
+    if (diff > threshold) {
+      indicator.textContent = '⟳ Refreshing...';
+      await manualRefreshContacts();
+    }
+    indicator.style.display = 'none';
+    indicator.textContent = '⟳ Release to refresh...';
+    pulling = false;
+  });
 }
 
 // ═══════════════════════════════════════
@@ -1948,6 +2649,7 @@ function initPupDrag() {
   let y = saved ? saved.y : window.innerHeight - size - 110;
   setPupPos(x, y);
   let dragging = false, moved = false, startX, startY, startLeft, startTop;
+  let lastTapTime = 0;
 
   function setPupPos(px, py) {
     px = Math.max(4, Math.min(window.innerWidth - size - 4, px));
@@ -1969,8 +2671,25 @@ function initPupDrag() {
   pup.addEventListener('pointerup', () => {
     if (!dragging) return;
     dragging = false; pup.classList.remove('dragging');
-    if (moved) localStorage.setItem('pupPosition', JSON.stringify({x, y}));
-    else openStories();
+    if (moved) {
+      localStorage.setItem('pupPosition', JSON.stringify({x, y}));
+    } else {
+      // Double-tap detection (within 350ms)
+      const now = Date.now();
+      if (now - lastTapTime < 350) {
+        lastTapTime = 0;
+        openSettings();
+      } else {
+        lastTapTime = now;
+        // Single tap — open Stories after short delay (cancelled if double-tap comes)
+        setTimeout(() => {
+          if (lastTapTime === now) { // no second tap arrived
+            lastTapTime = 0;
+            openStories();
+          }
+        }, 360);
+      }
+    }
   });
   window.addEventListener('resize', () => setPupPos(x, y));
 }
@@ -2078,7 +2797,7 @@ function renderContacts() {
         oncontextmenu="showContactMenu(event,'${u.id}','${escAttr(u.name)}')"
         ontouchstart="startContactHold(event,'${u.id}','${escAttr(u.name)}')"
         ontouchend="cancelContactHold()" ontouchmove="cancelContactHold()">
-        <div class="contact-rail-avatar">${av}${badge}</div>
+        <div class="contact-rail-avatar" onclick="event.stopPropagation();openContactProfile('${u.id}','${escAttr(u.name)}',this.parentElement.dataset.avatarUrl)" title="View profile">${av}${badge}</div>
         <div class="crl-info">
           <div class="contact-rail-name">${escHtml(displayName)}</div>
           <div class="contact-rail-sub">${unread > 0 ? '<span style="color:var(--danger);font-weight:600;">New message</span>' : 'Tap to chat'}</div>
@@ -2087,37 +2806,397 @@ function renderContacts() {
   }).join('');
 
   if (activeChatContact) highlightActiveContact(activeChatContact.id);
+
+  // The list above just got rebuilt from scratch, which would wipe any
+  // "typing..." label that was live before this re-render (e.g. from a
+  // polling refresh). Restore it for anyone still mid-typing.
+  Object.keys(inboxTypingFrom).forEach(fromId => renderContactTypingState(fromId, true));
 }
 
 // ═══════════════════════════════════════
 // LOAD GROUPS
 // ═══════════════════════════════════════
-async function loadGroups() {
+// groupMeta[groupId] = { lastMsgTime: ISO|null, unread: N }
+const groupMeta = {};
+
+async function loadGroups(opts) {
+  const force = opts && opts.force; // pass {force:true} for a true fresh-login load
   const { data: memberRows } = await sbQuery('GET', 'group_members', null,
     `?user_id=eq.${currentUser.id}&select=group_id`);
   if (!Array.isArray(memberRows) || !memberRows.length) { myGroups = []; renderGroups(); return; }
   const gids = memberRows.map(r => `id.eq.${r.group_id}`).join(',');
-  const { data: groups } = await sbQuery('GET', 'groups', null, `?or=(${gids})&select=*`);
+  const { data: groups } = await sbQuery('GET', 'groups', null, `?or=(${gids})&select=*,about,msg_permission`);
   myGroups = groups || [];
+
+  // Compute initial unread state for each group: compare the latest message
+  // time against this user's last_read_at for that group (group_reads).
+  //
+  // Unless force=true (true fresh-login load), we SKIP this for any group
+  // that already has an entry in groupMeta. loadGroups() also gets called
+  // from inside handleIncomingGroupMessage() whenever myGroups looks stale —
+  // if we unconditionally overwrote groupMeta here, that call could race
+  // against an in-progress unread increment and stomp it back to a stale
+  // DB-read value. Skipping already-tracked groups avoids that.
+  await Promise.all(myGroups.map(async (g) => {
+    if (!force && groupMeta[g.id]) return;
+
+    const { data: readRows } = await sbQuery('GET', 'group_reads', null,
+      `?group_id=eq.${g.id}&user_id=eq.${currentUser.id}&select=last_read_at`);
+    const lastRead = (Array.isArray(readRows) && readRows.length) ? readRows[0].last_read_at : null;
+
+    const { data: msgRows } = await sbQuery('GET', 'group_messages', null,
+      `?group_id=eq.${g.id}&order=created_at.desc&limit=50&select=created_at,sender_id`);
+    const msgs = Array.isArray(msgRows) ? msgRows : [];
+
+    const lastMsgTime = msgs.length ? msgs[0].created_at : null;
+    let unread = 0;
+    if (lastRead) {
+      unread = msgs.filter(m => m.sender_id !== currentUser.id && m.created_at > lastRead).length;
+    } else {
+      unread = msgs.filter(m => m.sender_id !== currentUser.id).length;
+    }
+    groupMeta[g.id] = { lastMsgTime, unread };
+  }));
+
   renderGroups();
+  updateGroupNotifDot();
 }
 
 function renderGroups() {
   const list = document.getElementById('drawer-groups-list');
+  const hint = document.getElementById('empty-groups-hint');
   if (!myGroups.length) {
-    list.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:8px 12px;">No groups yet</div>';
+    list.innerHTML = '';
+    if (hint) hint.style.display = 'block';
     return;
   }
-  list.innerHTML = myGroups.map(g => {
+  if (hint) hint.style.display = 'none';
+
+  // Newest-message-first sort. Groups with no messages yet sink to the bottom,
+  // in their existing order.
+  const sorted = [...myGroups].sort((a, b) => {
+    const ta = (groupMeta[a.id] && groupMeta[a.id].lastMsgTime) || '';
+    const tb = (groupMeta[b.id] && groupMeta[b.id].lastMsgTime) || '';
+    if (ta === tb) return 0;
+    return ta > tb ? -1 : 1;
+  });
+
+  list.innerHTML = sorted.map(g => {
     const av = g.avatar_url
       ? `<img src="${g.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
       : g.name.charAt(0).toUpperCase();
+    const unread = (groupMeta[g.id] && groupMeta[g.id].unread) || 0;
+    const badge = unread > 0
+      ? `<span class="group-unread-badge">${unread > 99 ? '99+' : '+' + unread}</span>`
+      : '';
     return `
-      <div class="group-chip" onclick="openGroupChat('${g.id}','${escAttr(g.name)}','${g.avatar_url||''}');closeDrawer()">
-        <div class="group-chip-avatar">${av}</div>
-        <div class="group-chip-name">${escHtml(g.name)}</div>
+      <div class="group-chip" style="position:relative;">
+        <div class="group-chip-left" onclick="openGroupChat('${g.id}','${escAttr(g.name)}','${g.avatar_url||''}')" style="flex:1;cursor:pointer;">
+          <div class="group-chip-avatar" onclick="event.stopPropagation();showGroupOptions('${g.id}','${escAttr(g.name)}','${g.avatar_url||''}')" style="cursor:pointer;position:relative;" title="Group options">${av}</div>
+          <div class="group-chip-name">${escHtml(g.name)}</div>
+        </div>
+        ${badge}
       </div>`;
   }).join('');
+}
+
+// Updates the hamburger badge count and the in-drawer "New Message" banner.
+function updateGroupNotifDot() {
+  // ── Hamburger count badge ──────────────────────────────────────────────
+  const badge = document.getElementById('group-notif-badge');
+  if (badge) {
+    const total = Object.values(groupMeta).reduce((sum, m) => sum + (m.unread || 0), 0);
+    if (total > 0) {
+      badge.textContent = '+' + (total > 99 ? '99' : total);
+      badge.style.display = 'inline-block';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  // ── In-drawer "New Message" banner ────────────────────────────────────
+  const banner   = document.getElementById('drawer-new-msg-banner');
+  const msgList  = document.getElementById('drawer-new-msg-list');
+  if (!banner || !msgList) return;
+
+  // Build list of groups with unread messages
+  const unreadGroups = myGroups.filter(g => groupMeta[g.id] && groupMeta[g.id].unread > 0);
+
+  if (!unreadGroups.length) {
+    banner.style.display = 'none';
+    msgList.innerHTML = '';
+    return;
+  }
+
+  banner.style.display = 'block';
+  msgList.innerHTML = unreadGroups.map(g => {
+    const count = groupMeta[g.id].unread;
+    const countLabel = count > 99 ? '99+' : '+' + count;
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-top:1px solid rgba(255,79,79,0.15);cursor:pointer;"
+        onclick="openGroupChat('${g.id}','${escAttr(g.name)}','${g.avatar_url||''}');closeDrawer();">
+      <span style="font-size:13px;color:var(--silver);font-weight:500;">👥 ${escHtml(g.name)}</span>
+      <span style="font-size:12px;color:#ff9090;font-weight:700;background:rgba(255,79,79,0.2);border-radius:8px;padding:2px 8px;">${countLabel}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── REALTIME: contacts + pending requests + group invites ───────────────────
+// One broadcast channel every logged-in user joins. When a chat request is
+// accepted, the accepter broadcasts { type:'new_contact', accepter_id, requester_id }.
+// The requester's browser hears it and immediately loads their updated contacts list.
+// Also broadcasts { type:'new_request', to_user } when a join request is sent,
+// so the recipient's pending badge updates instantly without polling.
+// And { type:'new_group_invite', to_user } so group invites appear in real-time.
+let contactsRealtimeChannel = null;
+const CONTACTS_NOTIFY_CHANNEL_NAME = 'contacts-notify';
+
+function joinContactsRealtime() {
+  leaveContactsRealtime();
+  if (!currentUser) return;
+  contactsRealtimeChannel = sbRealtime
+    .channel(CONTACTS_NOTIFY_CHANNEL_NAME)
+    .on('broadcast', { event: 'contacts_update' }, async (msg) => {
+      const p = msg.payload;
+      if (!p || !p.type) return;
+
+      if (p.type === 'new_contact') {
+        // A contact request was just accepted — both sides reload contacts
+        const me = String(currentUser.id);
+        if (String(p.accepter_id) === me || String(p.requester_id) === me) {
+          await loadContacts();
+          flashContactsPane();
+        }
+      }
+
+      if (p.type === 'new_request') {
+        // Someone sent me a chat request — refresh the badge instantly
+        if (String(p.to_user) === String(currentUser.id)) {
+          await loadPendingRequests();
+        }
+      }
+
+      if (p.type === 'new_group_invite') {
+        // I was invited to a group — refresh group invites instantly
+        if (String(p.to_user) === String(currentUser.id)) {
+          await loadGroupInvites();
+        }
+      }
+    })
+    .subscribe();
+}
+
+function leaveContactsRealtime() {
+  if (contactsRealtimeChannel) {
+    sbRealtime.removeChannel(contactsRealtimeChannel);
+    contactsRealtimeChannel = null;
+  }
+}
+
+// Broadcast that a chat request was accepted — both sides update contacts instantly.
+function broadcastContactAccepted(accepterId, requesterId) {
+  if (!contactsRealtimeChannel) return;
+  contactsRealtimeChannel.send({
+    type: 'broadcast', event: 'contacts_update',
+    payload: { type: 'new_contact', accepter_id: accepterId, requester_id: requesterId }
+  });
+}
+
+// Broadcast that a chat request was sent — recipient's badge updates instantly.
+function broadcastChatRequestSent(toUserId) {
+  if (!contactsRealtimeChannel) return;
+  contactsRealtimeChannel.send({
+    type: 'broadcast', event: 'contacts_update',
+    payload: { type: 'new_request', to_user: toUserId }
+  });
+}
+
+// Broadcast that a group invite was sent — recipient sees it instantly.
+function broadcastGroupInviteSent(toUserId) {
+  if (!contactsRealtimeChannel) return;
+  contactsRealtimeChannel.send({
+    type: 'broadcast', event: 'contacts_update',
+    payload: { type: 'new_group_invite', to_user: toUserId }
+  });
+}
+
+// ── REALTIME: new group messages (Broadcast — no polling, no postgres_changes) ──
+// One shared channel that every logged-in user joins. The moment someone sends
+// a group message (see sendGroupMessage), their browser broadcasts a tiny
+// { group_id, sender_id } event on this channel. Every other open browser
+// receives it instantly and runs the same unread/badge logic as before.
+let groupMessagesRealtimeChannel = null;
+const GROUP_NOTIFY_CHANNEL_NAME = 'group-notify';
+
+function joinGroupMessagesRealtime() {
+  leaveGroupMessagesRealtime();
+  if (!currentUser) return;
+  groupMessagesRealtimeChannel = sbRealtime
+    .channel(GROUP_NOTIFY_CHANNEL_NAME)
+    .on('broadcast', { event: 'new_group_message' }, (msg) => {
+      const p = msg.payload;
+      if (!p || !p.group_id) return;
+      handleIncomingGroupMessage({
+        group_id: p.group_id,
+        sender_id: p.sender_id,
+        created_at: p.created_at || new Date().toISOString()
+      });
+    })
+    .on('broadcast', { event: 'group_permission_change' }, (msg) => {
+      const p = msg.payload;
+      if (!p || !p.group_id) return;
+      // Update the cached group in myGroups
+      const cached = myGroups.find(g => g.id === p.group_id);
+      if (cached) cached.msg_permission = p.msg_permission;
+      // If this group is currently open, enforce immediately
+      if (activeGroup && activeGroup.id === p.group_id) {
+        activeGroup.msg_permission = p.msg_permission;
+        enforceGroupMsgPermission();
+      }
+    })
+    .subscribe();
+}
+
+function leaveGroupMessagesRealtime() {
+  if (groupMessagesRealtimeChannel) {
+    sbRealtime.removeChannel(groupMessagesRealtimeChannel);
+    groupMessagesRealtimeChannel = null;
+  }
+}
+
+// Broadcasts that a group message was just sent, so every other connected
+// member's browser can light up the purple notification dot immediately.
+function broadcastGroupMessageSent(groupId) {
+  if (!groupMessagesRealtimeChannel || !currentUser) return;
+  groupMessagesRealtimeChannel.send({
+    type: 'broadcast', event: 'new_group_message',
+    payload: { group_id: groupId, sender_id: currentUser.id, created_at: new Date().toISOString() }
+  });
+}
+
+// ── REALTIME: private message delivery (Broadcast — no polling) ─────────
+// One shared channel every logged-in user joins. The moment someone sends a
+// private message, their browser broadcasts { sender_id, receiver_id }.
+// If the recipient currently has that exact chat open, it reloads instantly.
+// NOTE: this only speeds up delivery into an already-open chat. The unread
+// red-dot / contact-list sort still runs on the existing 4-second poll,
+// per Chi's instruction to leave that part as-is.
+let privateMessagesRealtimeChannel = null;
+const PRIVATE_NOTIFY_CHANNEL_NAME = 'private-message-notify';
+
+function joinPrivateMessagesRealtime() {
+  leavePrivateMessagesRealtime();
+  if (!currentUser) return;
+  privateMessagesRealtimeChannel = sbRealtime
+    .channel(PRIVATE_NOTIFY_CHANNEL_NAME)
+    .on('broadcast', { event: 'new_private_message' }, (msg) => {
+      const p = msg.payload;
+      if (!p || !p.sender_id || !p.receiver_id) return;
+      // Only act if I'm the recipient
+      if (String(p.receiver_id) !== String(currentUser.id)) return;
+
+      const senderId = p.sender_id;
+      const now = p.created_at || new Date().toISOString();
+
+      // Update contactMeta for sort order
+      const prev = contactMeta[senderId] || {};
+      contactMeta[senderId] = { ...prev, lastMsgTime: now };
+
+      // Update the contact's _lastMsgTime so sortAndRenderContacts works
+      const contact = myContacts.find(u => String(u.id) === String(senderId));
+      if (contact) contact._lastMsgTime = now;
+
+      const chatIsOpen = activeChatContact && String(activeChatContact.id) === String(senderId);
+
+      if (chatIsOpen) {
+        // Chat is open — deliver message instantly, no unread dot
+        loadPrivateMessages();
+        const area = document.getElementById('private-messages-area');
+        if (area) area.scrollTop = area.scrollHeight;
+      } else {
+        // Chat is NOT open — show unread red dot and re-sort contacts list
+        contactMeta[senderId] = {
+          ...contactMeta[senderId],
+          unread: (prev.unread || 0) + 1
+        };
+        sortAndRenderContacts();
+      }
+    })
+    .subscribe();
+}
+
+function leavePrivateMessagesRealtime() {
+  if (privateMessagesRealtimeChannel) {
+    sbRealtime.removeChannel(privateMessagesRealtimeChannel);
+    privateMessagesRealtimeChannel = null;
+  }
+}
+
+// Broadcasts that a private message was just sent, so the recipient's
+// browser can load it into the open chat instantly (if they have it open).
+function broadcastPrivateMessageSent(receiverId) {
+  if (!privateMessagesRealtimeChannel || !currentUser) return;
+  privateMessagesRealtimeChannel.send({
+    type: 'broadcast', event: 'new_private_message',
+    payload: { sender_id: currentUser.id, receiver_id: receiverId, created_at: new Date().toISOString() }
+  });
+}
+
+async function handleIncomingGroupMessage(row) {
+  if (!currentUser) return;
+  // Compare as strings to avoid type mismatch
+  const isMine = String(row.sender_id) === String(currentUser.id);
+
+  // If myGroups hasn't loaded yet or this group isn't in it, re-check membership in DB
+  let belongsToMe = myGroups.some(g => String(g.id) === String(row.group_id));
+  if (!belongsToMe) {
+    const { data: check } = await sbQuery('GET', 'group_members', null,
+      `?group_id=eq.${row.group_id}&user_id=eq.${currentUser.id}&select=group_id`);
+    if (!Array.isArray(check) || !check.length) return;
+    // We belong to this group but myGroups is stale — reload
+    await loadGroups();
+    belongsToMe = myGroups.some(g => String(g.id) === String(row.group_id));
+    if (!belongsToMe) return;
+  }
+
+  const prev = groupMeta[row.group_id] || { lastMsgTime: null, unread: 0 };
+  const isOpenNow = activeGroup && String(activeGroup.id) === String(row.group_id);
+
+  // Count unread for everyone except the sender AND unless the group is open
+  const newUnread = (!isMine && !isOpenNow) ? (prev.unread || 0) + 1 : (prev.unread || 0);
+
+  groupMeta[row.group_id] = {
+    lastMsgTime: row.created_at || new Date().toISOString(),
+    unread: newUnread
+  };
+
+  // If this group's chat is open right now, load the new message into view
+  // and mark it read.
+  if (isOpenNow) {
+    if (!isMine) markGroupRead(row.group_id);
+    loadGroupMessages();
+  }
+
+  renderGroups();
+  updateGroupNotifDot();
+}
+
+// Marks a group as read: clears its badge immediately and persists
+// last_read_at to Supabase so the unread count survives a refresh/relogin.
+async function markGroupRead(groupId) {
+  if (!currentUser) return;
+  groupMeta[groupId] = { ...(groupMeta[groupId] || {}), unread: 0 };
+  renderGroups();
+  updateGroupNotifDot();
+
+  const nowIso = new Date().toISOString();
+  const { data: existing } = await sbQuery('GET', 'group_reads', null,
+    `?group_id=eq.${groupId}&user_id=eq.${currentUser.id}&select=group_id`);
+  if (Array.isArray(existing) && existing.length) {
+    await sbQuery('PATCH', 'group_reads', { last_read_at: nowIso },
+      `?group_id=eq.${groupId}&user_id=eq.${currentUser.id}`);
+  } else {
+    await sbQuery('POST', 'group_reads', { group_id: groupId, user_id: currentUser.id, last_read_at: nowIso });
+  }
 }
 
 // ═══════════════════════════════════════
@@ -2268,6 +3347,10 @@ async function acceptRequest(reqId, fromUserId) {
   // 5. Flash the contacts pane so the user notices
   flashContactsPane();
 
+  // 5b. Broadcast the accepted contact to the requester's browser so they
+  //     see the new contact appear in real-time without polling.
+  broadcastContactAccepted(currentUser.id, fromUserId);
+
   // 6. Auto-open the new contact's chat
   if (newContact) {
     openPrivateChat(newContact.id, newContact.name, newContact.avatar_url || '');
@@ -2295,14 +3378,9 @@ function flashContactsPane() {
 // Works for BOTH sides: the accepter and the sender will both see the new
 // contact appear here once they tap this after an accept happens.
 async function manualRefreshContacts() {
-  const btn = document.getElementById('contacts-refresh-btn');
-  if (btn) { btn.textContent = '⟳ Refreshing...'; btn.disabled = true; }
-
   await loadContacts();
   await loadPendingRequests();
 
-  // DIAGNOSTIC: dump raw table contents for this user so we can see
-  // exactly what's in contacts / chat_requests right now.
   const { data: rawContacts } = await sbQuery('GET', 'contacts', null,
     `?or=(user_id.eq.${currentUser.id},contact_id.eq.${currentUser.id})&select=*`);
   const { data: rawRequests } = await sbQuery('GET', 'chat_requests', null,
@@ -2315,10 +3393,6 @@ async function manualRefreshContacts() {
     myContacts_after_load: myContacts.map(u => ({ id: u.id, name: u.name }))
   });
 
-  if (btn) {
-    btn.textContent = '✓ Refreshed';
-    setTimeout(() => { btn.textContent = '⟳ Refresh Contacts'; btn.disabled = false; }, 1000);
-  }
   flashContactsPane();
 }
 
@@ -2337,15 +3411,16 @@ function appendDebugBox(title, obj) {
 // ═══════════════════════════════════════
 // POLLING — now checks BOTH sides
 // ═══════════════════════════════════════
+// POLLING — fully replaced by real-time subscriptions.
+// • Private message unread dots  → joinPrivateMessagesRealtime()
+// • New contacts appearing       → joinContactsRealtime()
+// • Pending request badge        → joinContactsRealtime()
+// • Group invites badge          → joinContactsRealtime()
+// • Group unread badges          → joinGroupMessagesRealtime()
+// This function is kept so existing call sites don't error but does nothing.
+// ═══════════════════════════════════════
 function startPolling() {
-  pollTimer = setInterval(async () => {
-    await pollContactSync();
-    await pollNewMessages();   // ← real-time sort + red dot
-    await loadPendingRequests();
-    await loadGroupInvites();
-    if (activeChatContact) await loadPrivateMessages();
-    if (activeGroup) await loadGroupMessages();
-  }, 4000);
+  // No-op: all updates are now real-time. No polling needed.
 }
 
 // ─── REAL-TIME NEW-MESSAGE POLL ─────────────────────────────────────────
@@ -2384,79 +3459,80 @@ async function pollNewMessages() {
   if (changed) sortAndRenderContacts();
 }
 
-// Called every poll tick — checks if any new contacts appeared,
-// OR if an existing contact's profile picture (or name) changed.
-// Works for BOTH sides: the sender (whose request was accepted) AND the accepter
-async function pollContactSync() {
-  const { data: rows } = await sbQuery('GET', 'contacts', null,
-    `?or=(user_id.eq.${currentUser.id},contact_id.eq.${currentUser.id})&select=user_id,contact_id`);
-  if (!Array.isArray(rows)) return;
+// ─── REAL-TIME GROUP UNREAD POLL ────────────────────────────────────────
+// Checks all groups for new messages since last read. Updates groupMeta and
+// re-renders the drawer badge + hamburger dot.
+async function pollGroupUnread() {
+  if (!currentUser || !myGroups.length) return;
+  let changed = false;
 
-  const otherIds = [];
-  rows.forEach(r => {
-    const otherId = r.user_id === currentUser.id ? r.contact_id : r.user_id;
-    if (otherId && !otherIds.includes(otherId)) otherIds.push(otherId);
-  });
+  for (const g of myGroups) {
+    // Skip if this group is currently open — it's already marked read
+    if (activeGroup && activeGroup.id === g.id) continue;
 
-  // Check if the set of contacts changed (added/removed)
-  const setChanged = otherIds.length !== knownContactIds.size
-    || otherIds.some(id => !knownContactIds.has(id));
+    const { data: readRows } = await sbQuery('GET', 'group_reads', null,
+      `?group_id=eq.${g.id}&user_id=eq.${currentUser.id}&select=last_read_at`);
+    const lastRead = (Array.isArray(readRows) && readRows.length) ? readRows[0].last_read_at : null;
 
-  if (setChanged) {
-    await loadContacts(); // full reload + re-render
-    flashContactsPane();
-    return;
+    const { data: msgRows } = await sbQuery('GET', 'group_messages', null,
+      `?group_id=eq.${g.id}&order=created_at.desc&limit=50&select=created_at,sender_id`);
+    const msgs = Array.isArray(msgRows) ? msgRows : [];
+
+    const lastMsgTime = msgs.length ? msgs[0].created_at : null;
+    let unread = 0;
+    if (lastRead) {
+      unread = msgs.filter(m => m.sender_id !== currentUser.id && m.created_at > lastRead).length;
+    } else {
+      unread = msgs.filter(m => m.sender_id !== currentUser.id).length;
+    }
+
+    const prev = groupMeta[g.id] || {};
+    if (prev.unread !== unread || prev.lastMsgTime !== lastMsgTime) {
+      groupMeta[g.id] = { lastMsgTime, unread };
+      changed = true;
+    }
   }
 
-  // Set is the same, but check if any existing contact's avatar_url or name
-  // changed (e.g. they just uploaded a new profile picture). Without this,
-  // a contact's picture would only ever refresh when the contact list itself
-  // changes, which could be never.
-  if (!otherIds.length) return;
-  const { data: freshProfiles } = await sbQuery('GET', 'users', null,
-    `?id=in.(${otherIds.join(',')})&select=id,name,avatar_url`);
-  if (!Array.isArray(freshProfiles)) return;
-
-  let profileChanged = false;
-  freshProfiles.forEach(fresh => {
-    const existing = myContacts.find(u => u.id === fresh.id);
-    if (existing && (existing.avatar_url !== fresh.avatar_url || existing.name !== fresh.name)) {
-      existing.avatar_url = fresh.avatar_url;
-      existing.name = fresh.name;
-      profileChanged = true;
-    }
-  });
-
-  if (profileChanged) {
-    renderContacts();
-    loadContactsStories();
-    // Keep the open chat header in sync too, if it's this contact
-    if (activeChatContact) {
-      const updated = freshProfiles.find(u => u.id === activeChatContact.id);
-      if (updated) {
-        activeChatContact.avatar_url = updated.avatar_url;
-        activeChatContact.name = updated.name;
-        const av = document.getElementById('pc-avatar');
-        if (av) av.innerHTML = updated.avatar_url
-          ? `<img src="${updated.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
-          : escHtml(updated.name.charAt(0).toUpperCase());
-      }
-    }
+  if (changed) {
+    renderGroups();
+    updateGroupNotifDot();
   }
 }
 
 // ═══════════════════════════════════════
-// DRAWER
+// BOTTOM NAV — switch between Contacts / Groups tabs
+// ═══════════════════════════════════════
+function switchChatTab(tab) {
+  const contactsPane = document.getElementById('contacts-pane');
+  const groupsPane   = document.getElementById('groups-pane');
+  const btnContacts  = document.getElementById('navbtn-contacts');
+  const btnGroups    = document.getElementById('navbtn-groups');
+  if (!contactsPane || !groupsPane) return;
+
+  const showContacts = tab === 'contacts';
+  contactsPane.classList.toggle('tab-active', showContacts);
+  groupsPane.classList.toggle('tab-active', !showContacts);
+  if (btnContacts) btnContacts.classList.toggle('active', showContacts);
+  if (btnGroups)   btnGroups.classList.toggle('active', !showContacts);
+
+  if (!showContacts) {
+    // Refresh groups + admin contacts list + notif dot whenever Groups tab opens
+    renderAdminContactsList();
+    renderGroups();
+    updateGroupNotifDot();
+  }
+}
+
+// ═══════════════════════════════════════
+// DRAWER (legacy compatibility no-ops — drawer UI removed,
+// replaced by bottom nav tabs. Kept so older call sites don't error.)
 // ═══════════════════════════════════════
 function openDrawer() {
-  document.getElementById('drawer').classList.add('open');
-  document.getElementById('drawer-overlay').classList.add('open');
   renderAdminContactsList();
+  renderGroups();
+  updateGroupNotifDot();
 }
-function closeDrawer() {
-  document.getElementById('drawer').classList.remove('open');
-  document.getElementById('drawer-overlay').classList.remove('open');
-}
+function closeDrawer() { /* no-op: drawer no longer exists */ }
 
 // ═══════════════════════════════════════
 // PROFILE
@@ -2556,6 +3632,9 @@ async function deleteAccount() {
 function logout() {
   closeProfile();
   clearInterval(pollTimer);
+  leaveInboxTypingChannel();
+  leaveGroupMessagesRealtime();  // ← clean up group realtime channel on account switch
+  leavePrivateMessagesRealtime();  // ← clean up private message realtime channel on account switch
   currentUser = null;
   document.getElementById('screen-chat').classList.remove('active');
   document.getElementById('auth-wrapper').style.display = 'flex';
@@ -2603,11 +3682,6 @@ function copyChatCode() {
   const code = currentUser.chat_code;
   if (navigator.clipboard) navigator.clipboard.writeText(code);
   alert(`✅ Chat code copied: ${code}`);
-}
-function toggleChatCodeBanner() {
-  closeDrawer();
-  const b = document.getElementById('chat-code-banner');
-  b.style.display = (b.style.display === 'none' || !b.style.display) ? 'flex' : 'none';
 }
 
 // ═══════════════════════════════════════
@@ -2686,6 +3760,8 @@ async function handleJoinChat() {
   }
 
   document.getElementById('join-chat-code').value = '';
+  // Broadcast to the recipient so their pending badge lights up instantly
+  broadcastChatRequestSent(target.id);
   alert(`✅ Join request sent to ${target.name}!`);
   closeModal('modal-join-chat');
   } catch (err) {
@@ -2713,10 +3789,12 @@ function renderAdminContactsList() {
 async function handleCreateGroup() {
   const name = document.getElementById('group-name').value.trim();
   if (!name) { showError('err-create-group','Please enter a group name.'); return; }
+  const about = (document.getElementById('group-about-input') ? document.getElementById('group-about-input').value.trim() : '') || null;
+  const msg_permission = (document.getElementById('group-msg-permission') ? document.getElementById('group-msg-permission').value : 'all') || 'all';
   let avatar_url = null;
   const avatarFile = document.getElementById('group-avatar-input').files[0];
   if (avatarFile) avatar_url = await uploadToCloudinary(avatarFile);
-  const { data, ok, status } = await sbQuery('POST','groups',{ name, avatar_url, created_by: currentUser.id });
+  const { data, ok, status } = await sbQuery('POST','groups',{ name, avatar_url, created_by: currentUser.id, about, msg_permission });
   if (!ok || !data || !data[0]) {
     console.error('Group creation failed. Status:', status, 'Response:', data);
     const realMsg = (data && (data.message || data.hint || data.details)) || `Unknown error (status ${status})`;
@@ -2741,6 +3819,7 @@ async function handleCreateGroup() {
     if (invOk) invitesSent++;
   }
   document.getElementById('group-name').value = '';
+  if (document.getElementById('group-about-input')) document.getElementById('group-about-input').value = '';
   document.getElementById('group-avatar-input').value = '';
   document.getElementById('group-avatar-preview').style.display = 'none';
   document.getElementById('group-upload-icon').style.display = 'block';
@@ -2780,17 +3859,21 @@ function openPrivateChat(userId, userName, avatarUrl) {
   av.innerHTML = avatarUrl
     ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
     : escHtml(userName.charAt(0).toUpperCase());
-  document.getElementById('chat-pane-empty').style.display = 'none';
-  document.getElementById('chat-pane-active').style.display = 'flex';
   document.getElementById('private-emoji-picker').classList.remove('open');
+  document.getElementById('screen-private-chat').classList.add('active');
   highlightActiveContact(userId);
+  refreshActiveStatusLabel();
+  joinPrivateTypingChannel();
+  // Force scroll to bottom on first open
+  const _pArea = document.getElementById('private-messages-area');
+  if (_pArea) _pArea.scrollTop = _pArea.scrollHeight;
   loadPrivateMessages();
 }
 
 function closePrivateChat() {
-  document.getElementById('chat-pane-active').style.display = 'none';
-  document.getElementById('chat-pane-empty').style.display = 'flex';
+  document.getElementById('screen-private-chat').classList.remove('active');
   document.getElementById('private-emoji-picker').classList.remove('open');
+  leavePrivateTypingChannel();
   activeChatContact = null;
   highlightActiveContact(null);
 }
@@ -2799,6 +3882,63 @@ function highlightActiveContact(userId) {
   document.querySelectorAll('.contact-rail-item').forEach(el => {
     el.classList.toggle('active', el.dataset.userId === userId);
   });
+}
+
+// ═══════════════════════════════════════
+// CONTACT PROFILE — full-screen view shown when tapping a contact
+// ═══════════════════════════════════════
+let viewingContact = null; // { id, name, avatar_url }
+
+async function openContactProfile(userId, userName, avatarUrl) {
+  viewingContact = { id: userId, name: userName, avatar_url: avatarUrl || '' };
+
+  document.getElementById('cpf-user-id').value = userId;
+  document.getElementById('cpf-name').textContent = userName;
+  let av = document.getElementById('cpf-avatar');
+  av.innerHTML = avatarUrl
+    ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
+    : escHtml(userName.charAt(0).toUpperCase());
+  document.getElementById('cpf-about').textContent = '';
+  document.getElementById('cpf-nickname-input').value = getNicknames()[userId] || '';
+
+  document.getElementById('screen-contact-profile').classList.add('active');
+
+  // Fetch latest profile data (avatar/about may have changed since last load)
+  const { data: uArr } = await sbQuery('GET', 'users', null, `?id=eq.${userId}&select=id,name,avatar_url,about`);
+  const profile = (Array.isArray(uArr) && uArr.length) ? uArr[0] : null;
+  if (!profile || !viewingContact || viewingContact.id !== userId) return;
+
+  const displayAvatar = profile.avatar_url || avatarUrl;
+  const displayName   = profile.name || userName;
+  viewingContact.avatar_url = displayAvatar || '';
+  viewingContact.name = displayName;
+
+  document.getElementById('cpf-name').textContent = displayName;
+  av = document.getElementById('cpf-avatar');
+  av.innerHTML = displayAvatar
+    ? `<img src="${displayAvatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
+    : escHtml(displayName.charAt(0).toUpperCase());
+  document.getElementById('cpf-about').textContent = profile.about || 'No bio yet.';
+}
+
+function closeContactProfile() {
+  document.getElementById('screen-contact-profile').classList.remove('active');
+  viewingContact = null;
+}
+
+function chatFromProfile() {
+  if (!viewingContact) return;
+  const { id, name, avatar_url } = viewingContact;
+  closeContactProfile();
+  openPrivateChat(id, name, avatar_url);
+}
+
+function saveContactNicknameFromProfile() {
+  if (!viewingContact) return;
+  const nick = document.getElementById('cpf-nickname-input').value.trim();
+  setNickname(viewingContact.id, nick || null);
+  renderContacts(); // re-render rail with new nickname
+  alert(nick ? `✅ Nickname saved: "${nick}"` : '✅ Nickname cleared — showing real name.');
 }
 
 async function loadPrivateMessages() {
@@ -2820,30 +3960,35 @@ function renderPrivateMessages(msgs) {
     area.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:12px;padding:20px;">Start the conversation ✦</div>';
     return;
   }
+  // Only auto-scroll if user is already near the bottom (within 120px)
+  const wasNearBottom = area.scrollHeight - area.scrollTop - area.clientHeight < 120;
   area.innerHTML = msgs.map(m => {
     const sent = m.sender_id === currentUser.id;
     const time = ''; // time display removed
     let content = '';
     if (m.content) content = `<div class="msg-bubble">${escHtml(m.content)}</div>`;
     else if (m.file_url) {
-      if (m.file_type === 'image') content = `<img src="${m.file_url}" style="max-width:200px;border-radius:12px;cursor:pointer;" onclick="openMediaViewer('${m.file_url}','image')" />`;
+      if (m.file_type === 'voice') content = `<div class="msg-bubble" style="padding:0;">${renderVoiceBubble(m.file_url, m.id)}</div>`;
+      else if (m.file_type === 'image') content = `<img src="${m.file_url}" style="max-width:200px;border-radius:12px;cursor:pointer;" onclick="openMediaViewer('${m.file_url}','image')" />`;
       else if (m.file_type === 'video') content = `<div class="chat-video-thumb" style="max-width:220px;" onclick="openMediaViewer('${m.file_url}','video')"><video src="${m.file_url}" style="width:100%;display:block;border-radius:12px;will-change:transform;" muted playsinline preload="none"></video><div class="chat-video-play">▶</div></div>`;
       else content = `<div class="msg-bubble">📎 <span onclick="openMediaViewer('${m.file_url}','file')" style="color:var(--gold-light);cursor:pointer;text-decoration:underline;">View file</span></div>`;
     }
-    return `<div class="msg-row ${sent?'sent':'received'}"
+    return `<div class="msg-row ${sent?'sent':'received'}" data-msg-id="${m.id}" data-msg-type="private" data-msg-text="${escAttr(m.content||'')}"
+        style="position:relative;"
         oncontextmenu="showMsgMenu(event,'${m.id}','private',${sent})"
-        ontouchstart="startMsgHold(event,'${m.id}','private',${sent})"
-        ontouchend="cancelMsgHold()" ontouchmove="cancelMsgHold()">
+        ontouchstart="startMsgHold(event,'${m.id}','private',${sent});startSwipe(event,this,'private')"
+        ontouchend="cancelMsgHold();endSwipe(event,this,'private')"
+        ontouchmove="handleSwipeMove(event,this,'private')">
+      ${m.reply_to_id ? `<div class="msg-reply-quote" id="quote-${m.id}">↩ Loading...</div>` : ''}
       ${content}
       <div class="msg-actions">
-        <button class="msg-action-btn" id="comment-btn-${m.id}" onclick="openComments('${m.id}','private')">💬 Comment</button>
         <button class="msg-action-btn" id="like-btn-${m.id}" onclick="toggleLike('${m.id}','private')">🔥 Like</button>
       </div>
     </div>`;
   }).join('');
-  area.scrollTop = area.scrollHeight;
+  if (wasNearBottom) area.scrollTop = area.scrollHeight;
   msgs.forEach(m => loadLikeCount(m.id));
-  msgs.forEach(m => loadCommentCount(m.id));
+  msgs.filter(m => m.reply_to_id).forEach(m => loadReplyQuote(m.reply_to_id, m.id, 'private'));
 }
 
 async function sendPrivateMessage() {
@@ -2851,11 +3996,19 @@ async function sendPrivateMessage() {
   const text = input.value.trim();
   if (!text || !activeChatContact) return;
   input.value = '';
-  await sbQuery('POST','messages',{
+  sendPrivateTypingStop();
+  const body = {
     sender_id: currentUser.id, receiver_id: activeChatContact.id,
     content: text, file_type: 'text'
-  });
+  };
+  if (activeReply.private) body.reply_to_id = activeReply.private.msgId;
+  await sbQuery('POST','messages', body);
+  clearReply('private');
+  broadcastPrivateMessageSent(activeChatContact.id);
   await loadPrivateMessages();
+  // Force scroll to bottom after sending
+  const area = document.getElementById('private-messages-area');
+  if (area) area.scrollTop = area.scrollHeight;
 }
 
 // ═══════════════════════════════════════
@@ -2874,16 +4027,40 @@ async function openGroupChat(groupId, groupName, avatarUrl) {
   if (Array.isArray(memberRow) && memberRow.length && memberRow[0].is_admin) {
     activeGroup.isAdmin = true;
   }
+  // Fetch messaging permission + about — check myGroups cache first, then DB
+  const cachedGroup = myGroups.find(g => g.id === groupId);
+  if (cachedGroup && cachedGroup.msg_permission !== undefined) {
+    activeGroup.msg_permission = cachedGroup.msg_permission || 'all';
+    activeGroup.about = cachedGroup.about || '';
+  } else {
+    const { data: gRow } = await sbQuery('GET', 'groups', null, `?id=eq.${groupId}&select=msg_permission,about`);
+    if (Array.isArray(gRow) && gRow.length) {
+      activeGroup.msg_permission = gRow[0].msg_permission || 'all';
+      activeGroup.about = gRow[0].about || '';
+      // Also cache it in myGroups for future navigation
+      if (cachedGroup) {
+        cachedGroup.msg_permission = activeGroup.msg_permission;
+        cachedGroup.about = activeGroup.about;
+      }
+    } else {
+      activeGroup.msg_permission = 'all';
+      activeGroup.about = '';
+    }
+  }
   // Show/hide the Add Members + Delete Group buttons based on admin status
   const infoBtn = document.getElementById('gc-info-btn');
   const delBtn  = document.getElementById('gc-delete-btn');
   if (infoBtn) infoBtn.style.display = activeGroup.isAdmin ? 'flex' : 'none';
   if (delBtn)  delBtn.style.display  = activeGroup.isAdmin ? 'flex' : 'none';
   document.getElementById('screen-group-chat').classList.add('active');
+  joinGroupTypingChannel();
   loadGroupMessages();
+  markGroupRead(groupId);
+  enforceGroupMsgPermission();
 }
 function closeGroupChat() {
   document.getElementById('screen-group-chat').classList.remove('active');
+  leaveGroupTypingChannel();
   activeGroup = null;
 }
 async function loadGroupMessages() {
@@ -2891,91 +4068,435 @@ async function loadGroupMessages() {
   const { data } = await sbQuery('GET','group_messages',null,
     `?group_id=eq.${activeGroup.id}&order=created_at.asc&select=*`);
   if (!Array.isArray(data)) return;
-  const senderIds = [...new Set(data.map(m => m.sender_id))];
+
+  // Load polls for this group
+  const { data: polls } = await sbQuery('GET','group_polls',null,
+    `?group_id=eq.${activeGroup.id}&order=created_at.asc&select=*`);
+
+  // Build senderMap from BOTH message senders AND poll senders
+  const senderIds = [...new Set([
+    ...data.map(m => m.sender_id),
+    ...(Array.isArray(polls) ? polls.map(p => p.sender_id) : [])
+  ])];
   const senderMap = {};
   for (const sid of senderIds) {
     const { data: uArr } = await sbQuery('GET','users',null,`?id=eq.${sid}&select=id,name,avatar_url`);
     if (Array.isArray(uArr) && uArr.length) senderMap[sid] = { name: uArr[0].name, avatar_url: uArr[0].avatar_url || '' };
   }
-  renderGroupMessages(data, senderMap);
+
+  const pollMap = {};
+  if (Array.isArray(polls)) polls.forEach(p => { pollMap[p.id] = p; });
+
+  // Load vote counts for all polls in one pass
+  const pollVoteCounts = {};
+  const pollMyVotes = {};
+  if (Array.isArray(polls) && polls.length) {
+    for (const poll of polls) {
+      const { data: votes } = await sbQuery('GET','group_poll_votes',null,
+        `?poll_id=eq.${poll.id}&select=user_id,option_index`);
+      const counts = {};
+      let myVote = null;
+      if (Array.isArray(votes)) {
+        votes.forEach(v => {
+          counts[v.option_index] = (counts[v.option_index] || 0) + 1;
+          if (String(v.user_id) === String(currentUser.id)) myVote = v.option_index;
+        });
+      }
+      pollVoteCounts[poll.id] = counts;
+      pollMyVotes[poll.id] = myVote;
+    }
+  }
+
+  renderGroupMessages(data, senderMap, pollMap, pollVoteCounts, pollMyVotes, polls || []);
 }
-function renderGroupMessages(msgs, senderMap) {
+function renderGroupMessages(msgs, senderMap, pollMap, pollVoteCounts, pollMyVotes, polls) {
   const area = document.getElementById('group-messages-area');
-  if (!msgs.length) {
+
+  // Build combined timeline: messages + polls sorted by created_at
+  // Using string comparison since ISO 8601 timestamps sort correctly lexicographically
+  const items = [
+    ...msgs.map(m => ({ ...m, _type: 'msg' })),
+    ...(polls || []).map(p => ({ ...p, _type: 'poll' }))
+  ].sort((a, b) => {
+    const ta = a.created_at || '9999';
+    const tb = b.created_at || '9999';
+    return ta < tb ? -1 : ta > tb ? 1 : 0;
+  });
+
+  if (!items.length) {
     area.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:12px;padding:20px;">Group chat starts here ✦</div>';
     return;
   }
-  area.innerHTML = msgs.map(m => {
+
+  const wasNearBottom = area.scrollHeight - area.scrollTop - area.clientHeight < 400;
+
+  area.innerHTML = items.map(item => {
+    if (item._type === 'poll') {
+      const poll = item;
+      const sent = String(poll.sender_id) === String(currentUser.id);
+      const sender = senderMap[poll.sender_id] || { name: 'Unknown', avatar_url: '' };
+      const senderName = sender.name;
+      const voteCounts = pollVoteCounts[poll.id] || {};
+      const myVote = pollMyVotes[poll.id] != null ? pollMyVotes[poll.id] : null;
+      const avatarHtml = sent ? '' : `<div style="width:28px;height:28px;border-radius:50%;overflow:hidden;flex-shrink:0;margin-right:6px;background:linear-gradient(135deg,var(--purple-bright),var(--silver-dim));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;align-self:flex-end;">
+        ${sender.avatar_url ? `<img src="${sender.avatar_url}" style="width:100%;height:100%;object-fit:cover;" />` : escHtml(senderName.charAt(0).toUpperCase())}
+      </div>`;
+      const pollHtml = renderPollBubble(poll, voteCounts, myVote, sent);
+      return `<div class="msg-row ${sent?'sent':'received'}" style="display:flex;flex-direction:row;align-items:flex-end;max-width:82%;"
+          ontouchstart="startPollHold(event,'${poll.id}',${sent})" ontouchend="cancelMsgHold()" ontouchmove="cancelMsgHold()"
+          oncontextmenu="showPollMenu(event,'${poll.id}',${sent})">
+        ${avatarHtml}
+        <div style="display:flex;flex-direction:column;align-items:${sent?'flex-end':'flex-start'};flex:1;">
+          ${!sent ? `<div style="font-size:10px;color:var(--gold-light);margin-bottom:2px;padding-left:2px;">${escHtml(senderName)}</div>` : ''}
+          ${pollHtml}
+        </div>
+      </div>`;
+    }
+
+    // Regular message
+    const m = item;
     const sent = m.sender_id === currentUser.id;
     const sender = senderMap[m.sender_id] || { name: 'Unknown', avatar_url: '' };
     const senderName = sender.name;
-    const time = ''; // time display removed
     let content = '';
     if (m.content) content = `<div class="msg-bubble">${escHtml(m.content)}</div>`;
     else if (m.file_url) {
-      if (m.file_type === 'image') content = `<img src="${m.file_url}" style="max-width:200px;border-radius:12px;cursor:pointer;" onclick="openMediaViewer('${m.file_url}','image')" />`;
+      if (m.file_type === 'voice') content = `<div class="msg-bubble" style="padding:0;">${renderVoiceBubble(m.file_url, m.id)}</div>`;
+      else if (m.file_type === 'image') content = `<img src="${m.file_url}" style="max-width:200px;border-radius:12px;cursor:pointer;" onclick="openMediaViewer('${m.file_url}','image')" />`;
       else if (m.file_type === 'video') content = `<div class="chat-video-thumb" style="max-width:220px;" onclick="openMediaViewer('${m.file_url}','video')"><video src="${m.file_url}" style="width:100%;display:block;border-radius:12px;will-change:transform;" muted playsinline preload="none"></video><div class="chat-video-play">▶</div></div>`;
       else content = `<div class="msg-bubble">📎 <span onclick="openMediaViewer('${m.file_url}','file')" style="color:var(--gold-light);cursor:pointer;text-decoration:underline;">View file</span></div>`;
     }
     const avatarHtml = sent ? '' : `<div style="width:28px;height:28px;border-radius:50%;overflow:hidden;flex-shrink:0;margin-right:6px;background:linear-gradient(135deg,var(--purple-bright),var(--silver-dim));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;align-self:flex-end;">
       ${sender.avatar_url ? `<img src="${sender.avatar_url}" style="width:100%;height:100%;object-fit:cover;" />` : escHtml(senderName.charAt(0).toUpperCase())}
     </div>`;
-    return `<div class="msg-row ${sent?'sent':'received'}" style="display:flex;flex-direction:row;align-items:flex-end;max-width:82%;"
+    return `<div class="msg-row ${sent?'sent':'received'}" style="display:flex;flex-direction:row;align-items:flex-end;max-width:82%;position:relative;" data-msg-id="${m.id}" data-msg-type="group" data-msg-text="${escAttr(m.content||'')}"
         oncontextmenu="showMsgMenu(event,'${m.id}','group',${sent})"
-        ontouchstart="startMsgHold(event,'${m.id}','group',${sent})"
-        ontouchend="cancelMsgHold()" ontouchmove="cancelMsgHold()">
+        ontouchstart="startMsgHold(event,'${m.id}','group',${sent});startSwipe(event,this,'group')"
+        ontouchend="cancelMsgHold();endSwipe(event,this,'group')"
+        ontouchmove="handleSwipeMove(event,this,'group')">
       ${avatarHtml}
       <div style="display:flex;flex-direction:column;align-items:${sent?'flex-end':'flex-start'};flex:1;">
         ${!sent ? `<div style="font-size:10px;color:var(--gold-light);margin-bottom:2px;padding-left:2px;">${escHtml(senderName)}</div>` : ''}
+        ${m.reply_to_id ? `<div class="msg-reply-quote" id="quote-${m.id}">↩ Loading...</div>` : ''}
         ${content}
         <div class="msg-actions">
-          <button class="msg-action-btn" id="comment-btn-${m.id}" onclick="openComments('${m.id}','group')">💬 Comment</button>
           <button class="msg-action-btn" id="like-btn-${m.id}" onclick="toggleLike('${m.id}','group')">🔥 Like</button>
         </div>
       </div>
     </div>`;
   }).join('');
-  area.scrollTop = area.scrollHeight;
-  msgs.forEach(m => loadLikeCount(m.id));
-  msgs.forEach(m => loadCommentCount(m.id));
+
+  if (wasNearBottom) area.scrollTop = area.scrollHeight;
+  msgs.forEach(m => { loadLikeCount(m.id); });
+  msgs.filter(m => m.reply_to_id).forEach(m => loadReplyQuote(m.reply_to_id, m.id, 'group'));
 }
 async function sendGroupMessage() {
   const input = document.getElementById('group-msg-input');
   const text = input.value.trim();
   if (!text || !activeGroup) return;
+  // Block non-admins if permission is admin-only
+  if ((activeGroup.msg_permission || 'all') === 'admin' && !activeGroup.isAdmin) {
+    enforceGroupMsgPermission(); // re-hide the bar in case it slipped through
+    return;
+  }
   input.value = '';
-  await sbQuery('POST','group_messages',{ group_id: activeGroup.id, sender_id: currentUser.id, content: text });
+  sendGroupTypingStop();
+  const body = { group_id: activeGroup.id, sender_id: currentUser.id, content: text };
+  if (activeReply.group) body.reply_to_id = activeReply.group.msgId;
+  await sbQuery('POST','group_messages', body);
+  clearReply('group');
+  broadcastGroupMessageSent(activeGroup.id);
   await loadGroupMessages();
+  const area = document.getElementById('group-messages-area');
+  if (area) area.scrollTop = area.scrollHeight;
 }
 
 // ═══════════════════════════════════════
-// GROUP INFO
+// GROUP PROFILE (tap name/avatar in group chat)
+// ═══════════════════════════════════════
+async function openGroupProfile() {
+  if (!activeGroup) return;
+  // Fetch fresh group data
+  const { data: gArr } = await sbQuery('GET', 'groups', null, `?id=eq.${activeGroup.id}&select=*`);
+  const gData = Array.isArray(gArr) && gArr.length ? gArr[0] : {};
+
+  // Avatar
+  const gpAv = document.getElementById('gp-avatar');
+  if (gpAv) {
+    gpAv.innerHTML = (gData.avatar_url || activeGroup.avatar_url)
+      ? `<img src="${gData.avatar_url || activeGroup.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
+      : escHtml((gData.name || activeGroup.name || 'G').charAt(0).toUpperCase());
+  }
+  const gpName = document.getElementById('gp-name');
+  if (gpName) gpName.textContent = gData.name || activeGroup.name || '';
+
+  // About
+  const about = gData.about || '';
+  const gpAboutDisplay = document.getElementById('gp-about-display');
+  if (gpAboutDisplay) gpAboutDisplay.textContent = about || 'No description yet.';
+  const gpAboutEditWrap = document.getElementById('gp-about-edit-wrap');
+  const gpAboutEdit = document.getElementById('gp-about-edit');
+
+  // Messaging permission display
+  const msgPerm = gData.msg_permission || 'all';
+  const gpMsgPermWrap = document.getElementById('gp-msg-perm-wrap');
+  const gpMsgPermSelect = document.getElementById('gp-msg-perm-select');
+
+  if (activeGroup.isAdmin) {
+    if (gpAboutEditWrap) gpAboutEditWrap.style.display = 'block';
+    if (gpAboutEdit) gpAboutEdit.value = about;
+    if (gpMsgPermWrap) gpMsgPermWrap.style.display = 'block';
+    if (gpMsgPermSelect) gpMsgPermSelect.value = msgPerm;
+    const gpAddWrap = document.getElementById('gp-add-members-wrap');
+    if (gpAddWrap) {
+      gpAddWrap.style.display = 'block';
+      const list = document.getElementById('group-add-members-list');
+      if (list) {
+        list.innerHTML = myContacts.length
+          ? myContacts.map(u => `
+            <label style="display:flex;align-items:center;gap:10px;padding:8px;cursor:pointer;border-radius:8px;color:var(--gold-light);font-size:13px;">
+              <input type="checkbox" value="${u.id}" style="accent-color:var(--purple-bright);" />
+              ${escHtml(u.name)}
+            </label>`).join('')
+          : '<div style="font-size:12px;color:var(--text-muted);">No contacts to add.</div>';
+      }
+    }
+  } else {
+    if (gpAboutEditWrap) gpAboutEditWrap.style.display = 'none';
+    if (gpMsgPermWrap) gpMsgPermWrap.style.display = 'none';
+    const gpAddWrap = document.getElementById('gp-add-members-wrap');
+    if (gpAddWrap) gpAddWrap.style.display = 'none';
+  }
+
+  // Load members
+  await loadGroupProfileMembers();
+  openModal('modal-group-profile');
+}
+
+async function loadGroupProfileMembers() {
+  if (!activeGroup) return;
+  const { data: memberRows } = await sbQuery('GET', 'group_members', null,
+    `?group_id=eq.${activeGroup.id}&select=user_id,is_admin`);
+  const list = document.getElementById('gp-members-list');
+  if (!list) return;
+  if (!Array.isArray(memberRows) || !memberRows.length) {
+    list.innerHTML = '<div style="font-size:12px;color:var(--text-muted);">No members found.</div>';
+    return;
+  }
+  const userIds = memberRows.map(r => r.user_id);
+  const adminSet = new Set(memberRows.filter(r => r.is_admin).map(r => r.user_id));
+  const profiles = [];
+  for (const uid of userIds) {
+    const { data: uArr } = await sbQuery('GET', 'users', null, `?id=eq.${uid}&select=id,name,avatar_url`);
+    if (Array.isArray(uArr) && uArr.length) profiles.push(uArr[0]);
+  }
+  list.innerHTML = profiles.map(u => {
+    const isAdmin = adminSet.has(u.id);
+    const isSelf = u.id === currentUser.id;
+    const av = u.avatar_url
+      ? `<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
+      : escHtml((u.name || '?').charAt(0).toUpperCase());
+    const removeBtn = (activeGroup.isAdmin && !isSelf)
+      ? `<button onclick="removeGroupMember('${u.id}','${escAttr(u.name)}')"
+           style="background:rgba(255,79,79,0.15);border:1px solid rgba(255,79,79,0.4);border-radius:8px;color:#ff8080;font-size:12px;padding:5px 10px;cursor:pointer;font-family:'Inter',sans-serif;flex-shrink:0;">Remove</button>`
+      : '';
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px;border-radius:10px;background:var(--input-bg);">
+      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--purple-bright),var(--silver-dim));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;overflow:hidden;flex-shrink:0;">${av}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(u.name || '')}${isSelf ? ' <span style="color:var(--text-muted);font-weight:400;">(you)</span>' : ''}</div>
+        ${isAdmin ? '<div style="font-size:11px;color:var(--purple-glow);">Admin</div>' : ''}
+      </div>
+      ${removeBtn}
+    </div>`;
+  }).join('');
+}
+
+async function removeGroupMember(userId, userName) {
+  if (!activeGroup || !activeGroup.isAdmin) return;
+  if (!confirm(`Remove ${userName} from the group?`)) return;
+  await sbQuery('DELETE', 'group_members', null, `?group_id=eq.${activeGroup.id}&user_id=eq.${userId}`);
+  await loadGroupProfileMembers();
+}
+
+async function saveGroupAbout() {
+  if (!activeGroup || !activeGroup.isAdmin) return;
+  const aboutText = (document.getElementById('gp-about-edit') ? document.getElementById('gp-about-edit').value.trim() : '') || null;
+  const { ok, status, data } = await sbQuery('PATCH', 'groups', { about: aboutText }, `?id=eq.${activeGroup.id}`);
+  if (!ok) {
+    const msg = (data && (data.message || data.hint || data.details)) || `Status ${status}`;
+    alert(`❌ Failed to save description: ${msg}\n\nMake sure the "about" column exists in your Supabase groups table.\nRun: ALTER TABLE groups ADD COLUMN IF NOT EXISTS about TEXT;`);
+    return;
+  }
+  // Update in-memory caches so it survives navigation
+  activeGroup.about = aboutText;
+  const cached = myGroups.find(g => g.id === activeGroup.id);
+  if (cached) cached.about = aboutText;
+  const display = document.getElementById('gp-about-display');
+  if (display) display.textContent = aboutText || 'No description yet.';
+  alert('✅ Description saved!');
+}
+
+async function saveGroupMsgPermission() {
+  if (!activeGroup || !activeGroup.isAdmin) return;
+  const perm = document.getElementById('gp-msg-perm-select') ? document.getElementById('gp-msg-perm-select').value : 'all';
+  const { ok, status, data } = await sbQuery('PATCH', 'groups', { msg_permission: perm }, `?id=eq.${activeGroup.id}`);
+  if (!ok) {
+    const msg = (data && (data.message || data.hint || data.details)) || `Status ${status}`;
+    alert(`❌ Failed to save permission: ${msg}\n\nMake sure the "msg_permission" column exists in your Supabase groups table.\nRun: ALTER TABLE groups ADD COLUMN IF NOT EXISTS msg_permission TEXT DEFAULT 'all';`);
+    return;
+  }
+  // Update in-memory caches so it survives navigation
+  activeGroup.msg_permission = perm;
+  const cached = myGroups.find(g => g.id === activeGroup.id);
+  if (cached) cached.msg_permission = perm;
+  // Broadcast to all members currently in this group so they update instantly
+  if (groupMessagesRealtimeChannel) {
+    groupMessagesRealtimeChannel.send({
+      type: 'broadcast', event: 'group_permission_change',
+      payload: { group_id: activeGroup.id, msg_permission: perm }
+    });
+  }
+  enforceGroupMsgPermission();
+  alert(`✅ Messaging set to: ${perm === 'admin' ? 'Admin only' : 'Everyone'}`);
+}
+
+function enforceGroupMsgPermission() {
+  if (!activeGroup) return;
+  // Target the group chat input bar specifically (not private chat's bar)
+  const gcScreen = document.getElementById('screen-group-chat');
+  if (!gcScreen) return;
+  const bar = gcScreen.querySelector('.chat-input-bar');
+  if (!bar) return;
+  const perm = activeGroup.msg_permission || 'all';
+  if (perm === 'admin' && !activeGroup.isAdmin) {
+    bar.style.display = 'none';
+    let label = document.getElementById('gc-admin-only-label');
+    if (!label) {
+      label = document.createElement('div');
+      label.id = 'gc-admin-only-label';
+      label.style.cssText = 'text-align:center;font-size:13px;color:var(--text-muted);padding:14px;border-top:1px solid rgba(168,85,247,0.15);';
+      label.textContent = '🔒 Only admins can send messages in this group.';
+      bar.parentNode.insertBefore(label, bar);
+    }
+  } else {
+    bar.style.display = '';
+    const label = document.getElementById('gc-admin-only-label');
+    if (label) label.remove();
+  }
+}
+
+// ═══════════════════════════════════════
+// GROUP INFO (legacy — now opens via gc-info-btn)
 // ═══════════════════════════════════════
 function openGroupInfo() {
   if (!activeGroup || !activeGroup.isAdmin) {
     alert('Only the group admin can add members.');
     return;
   }
-  document.getElementById('group-info-title').textContent = activeGroup.name;
-  const list = document.getElementById('group-add-members-list');
-  if (!myContacts.length) { list.innerHTML = '<div style="font-size:12px;color:var(--text-muted);">No contacts to add.</div>'; }
-  else {
-    list.innerHTML = myContacts.map(u => `
-      <label style="display:flex;align-items:center;gap:10px;padding:8px;cursor:pointer;border-radius:8px;color:var(--gold-light);font-size:13px;">
-        <input type="checkbox" value="${u.id}" style="accent-color:var(--purple-bright);" />
-        ${escHtml(u.name)}
-      </label>`).join('');
-  }
-  openModal('modal-group-info');
+  openGroupProfile();
 }
 async function addGroupMembers() {
   if (!activeGroup) return;
   const cbs = document.querySelectorAll('#group-add-members-list input[type=checkbox]:checked');
   for (const cb of cbs) {
     await sbQuery('POST','group_invites',{ group_id: activeGroup.id, from_user: currentUser.id, to_user: cb.value, status: 'pending' });
+    broadcastGroupInviteSent(cb.value);
+  }
+  // Uncheck all
+  document.querySelectorAll('#group-add-members-list input[type=checkbox]').forEach(c => c.checked = false);
+  alert('✅ Invites sent!');
+}
+async function addGroupMembersLegacy() {
+  if (!activeGroup) return;
+  const cbs = document.querySelectorAll('#group-add-members-list-legacy input[type=checkbox]:checked');
+  for (const cb of cbs) {
+    await sbQuery('POST','group_invites',{ group_id: activeGroup.id, from_user: currentUser.id, to_user: cb.value, status: 'pending' });
+    broadcastGroupInviteSent(cb.value);
   }
   closeModal('modal-group-info');
   alert('✅ Invites sent!');
+}
+
+// ═══════════════════════════════════════
+// GROUP OPTIONS (Leave / Open)
+// ═══════════════════════════════════════
+function showGroupOptions(groupId, groupName, avatarUrl) {
+  // Remove any existing menu
+  const old = document.getElementById('group-options-menu');
+  if (old) old.remove();
+  const oldOv = document.getElementById('group-options-overlay');
+  if (oldOv) oldOv.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'group-options-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.5);display:flex;align-items:flex-end;justify-content:center;';
+
+  const sheet = document.createElement('div');
+  sheet.id = 'group-options-menu';
+  sheet.style.cssText = 'background:#1a0a2e;border:1px solid rgba(168,85,247,0.3);border-radius:24px 24px 0 0;padding:20px;width:100%;max-width:420px;animation:slideUp 0.25s ease;';
+
+  // Resolve avatar for display
+  const avHtml = avatarUrl
+    ? `<img src="${avatarUrl}" style="width:50px;height:50px;object-fit:cover;border-radius:50%;" />`
+    : `<div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--purple-bright),var(--silver-dim));display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:white;">${escHtml(groupName.charAt(0).toUpperCase())}</div>`;
+
+  sheet.innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+      ${avHtml}
+      <div>
+        <div style="font-size:16px;font-weight:700;color:var(--white);">${escHtml(groupName)}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Group</div>
+      </div>
+    </div>
+    <button onclick="closeGroupOptions();openGroupChat('${groupId}','${escAttr(groupName)}','${escAttr(avatarUrl)}');closeDrawer();"
+      style="width:100%;padding:14px;background:rgba(123,47,255,0.15);border:1px solid rgba(168,85,247,0.3);border-radius:12px;color:var(--white);font-size:14px;cursor:pointer;margin-bottom:10px;text-align:left;">
+      💬 Open Group Chat
+    </button>
+    <button onclick="confirmLeaveGroup('${groupId}','${escAttr(groupName)}')"
+      style="width:100%;padding:14px;background:rgba(255,79,79,0.1);border:1px solid rgba(255,79,79,0.35);border-radius:12px;color:#ff8080;font-size:14px;cursor:pointer;margin-bottom:10px;text-align:left;">
+      🚪 Leave Group
+    </button>
+    <button onclick="closeGroupOptions()"
+      style="width:100%;padding:12px;background:none;border:1px solid rgba(168,85,247,0.2);border-radius:12px;color:var(--text-muted);font-size:14px;cursor:pointer;text-align:center;">
+      Cancel
+    </button>`;
+
+  overlay.onclick = (e) => { if (e.target === overlay) closeGroupOptions(); };
+  overlay.appendChild(sheet);
+  document.body.appendChild(overlay);
+}
+
+function closeGroupOptions() {
+  const ov = document.getElementById('group-options-overlay');
+  if (ov) ov.remove();
+}
+
+async function confirmLeaveGroup(groupId, groupName) {
+  closeGroupOptions();
+  closeDrawer();
+  if (!confirm(`Leave "${groupName}"?\n\nYou will be removed from this group and will no longer receive its messages.`)) return;
+  await leaveGroup(groupId);
+}
+
+async function leaveGroup(groupId) {
+  if (!currentUser) return;
+
+  // Close group chat if it's currently open
+  if (activeGroup && activeGroup.id === groupId) {
+    closeGroupChat();
+  }
+
+  // Remove user from group_members
+  await sbQuery('DELETE', 'group_members', null,
+    `?group_id=eq.${groupId}&user_id=eq.${currentUser.id}`);
+
+  // Remove from local state
+  myGroups = myGroups.filter(g => g.id !== groupId);
+  delete groupMeta[groupId];
+
+  // Re-render groups in drawer and update notification dot
+  renderGroups();
+  updateGroupNotifDot();
 }
 
 // ═══════════════════════════════════════
@@ -3043,14 +4564,21 @@ async function submitComment() {
 // ═══════════════════════════════════════
 async function handleFileAttach(input, type) {
   if (!input.files[0]) return;
+  // Block non-admins from sending files in admin-only groups
+  if (type === 'group' && activeGroup && (activeGroup.msg_permission || 'all') === 'admin' && !activeGroup.isAdmin) {
+    input.value = '';
+    return;
+  }
   const file = input.files[0];
   const url = await uploadToCloudinary(file);
   const fileType = file.type.startsWith('image') ? 'image' : file.type.startsWith('video') ? 'video' : 'file';
   if (type === 'private' && activeChatContact) {
     await sbQuery('POST','messages',{ sender_id: currentUser.id, receiver_id: activeChatContact.id, file_url: url, file_type: fileType });
+    broadcastPrivateMessageSent(activeChatContact.id);
     await loadPrivateMessages();
   } else if (type === 'group' && activeGroup) {
     await sbQuery('POST','group_messages',{ group_id: activeGroup.id, sender_id: currentUser.id, file_url: url, file_type: fileType });
+    broadcastGroupMessageSent(activeGroup.id);
     await loadGroupMessages();
   }
 }
@@ -3712,10 +5240,37 @@ function formatCodeInput(input) {
   input.setSelectionRange(len, len);
 }
 
+// ─── PASSWORD ATTEMPT TRACKER ───────────────────────────────────────────
+// Tracks failed login attempts per email (in memory only).
+// Resets automatically once the user successfully logs in.
+const loginAttempts = {}; // email -> { count: N }
+const MAX_LOGIN_ATTEMPTS = 5;
+
+function getLoginAttempts(email) {
+  return (loginAttempts[email] && loginAttempts[email].count) || 0;
+}
+function incrementLoginAttempts(email) {
+  if (!loginAttempts[email]) loginAttempts[email] = { count: 0 };
+  loginAttempts[email].count++;
+  return loginAttempts[email].count;
+}
+function resetLoginAttempts(email) {
+  delete loginAttempts[email];
+}
+
 // ═══════════════════════════════════════
 // AUTH
 // ═══════════════════════════════════════
 async function doSupabaseLogin(email, password, errorElId) {
+  // Check if this email is already locked out
+  if (getLoginAttempts(email) >= MAX_LOGIN_ATTEMPTS) {
+    // Redirect to forgot-password with email pre-filled
+    document.getElementById('forgot-email').value = email;
+    showScreen('screen-forgot-password');
+    showError('err-forgot', '⚠️ Too many failed attempts. Please reset your password via email.');
+    return;
+  }
+
   setLoading('Logging in...');
   try {
     const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
@@ -3726,13 +5281,28 @@ async function doSupabaseLogin(email, password, errorElId) {
     const result = await res.json();
 
     if (!res.ok || !result.access_token) {
-      const msg = (result.error_description || result.msg || '').toLowerCase().includes('confirm')
-        ? 'Please confirm your email first — check your inbox for the link.'
-        : 'Incorrect email or password.';
+      const attempts = incrementLoginAttempts(email);
+      const remaining = MAX_LOGIN_ATTEMPTS - attempts;
+
+      let msg;
+      if (attempts >= MAX_LOGIN_ATTEMPTS) {
+        // Immediately redirect to forgot password
+        document.getElementById('forgot-email').value = email;
+        showScreen('screen-forgot-password');
+        showError('err-forgot', '⚠️ 5 failed attempts. Enter your email to reset your password.');
+        return;
+      } else if ((result.error_description || result.msg || '').toLowerCase().includes('confirm')) {
+        msg = 'Please confirm your email first — check your inbox for the link.';
+      } else {
+        msg = `Incorrect password. ${remaining} attempt${remaining === 1 ? '' : 's'} remaining.`;
+      }
       showScreen(errorElId === 'err-login' ? 'screen-login-password' : 'screen-enter-code');
       showError(errorElId, msg);
       return;
     }
+
+    // Success — clear attempt counter for this email
+    resetLoginAttempts(email);
 
     const authUser = result.user;
     currentAccessToken = result.access_token;
@@ -4031,7 +5601,502 @@ async function handleSetNewPassword() {
   }
 })();
 
-document.addEventListener('DOMContentLoaded', renderSavedAccounts);
+// Render saved accounts immediately on page load so chips appear on the login screen
+document.addEventListener('DOMContentLoaded', () => { renderSavedAccounts(); });
+
+
+// ═══════════════════════════════════════
+// VOICE MESSAGES
+// ═══════════════════════════════════════
+let voiceMediaRecorder = null;
+let voiceChunks = [];
+let voiceRecordingType = null; // 'private' | 'group'
+
+async function startVoiceRecord(type) {
+  if (voiceMediaRecorder) return; // already recording
+  // Block non-admins from voice recording in admin-only groups
+  if (type === 'group' && activeGroup && (activeGroup.msg_permission || 'all') === 'admin' && !activeGroup.isAdmin) return;
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    voiceMediaRecorder = new MediaRecorder(stream);
+    voiceChunks = [];
+    voiceRecordingType = type;
+
+    voiceMediaRecorder.ondataavailable = e => {
+      if (e.data.size > 0) voiceChunks.push(e.data);
+    };
+
+    voiceMediaRecorder.start();
+
+    // UI feedback
+    const btn = document.getElementById(type + '-mic-btn');
+    const label = document.getElementById(type + '-mic-label');
+    if (btn) btn.classList.add('recording');
+    if (label) label.classList.add('show');
+  } catch (err) {
+    alert('Microphone access denied. Please allow mic permission and try again.');
+    voiceMediaRecorder = null;
+  }
+}
+
+async function stopVoiceRecord(type) {
+  if (!voiceMediaRecorder || voiceMediaRecorder.state === 'inactive') return;
+
+  // UI reset
+  const btn = document.getElementById(type + '-mic-btn');
+  const label = document.getElementById(type + '-mic-label');
+  if (btn) btn.classList.remove('recording');
+  if (label) label.classList.remove('show');
+
+  voiceMediaRecorder.stop();
+
+  // Wait for all chunks, then upload
+  voiceMediaRecorder.onstop = async () => {
+    const stream = voiceMediaRecorder.stream;
+    stream.getTracks().forEach(t => t.stop()); // release mic
+
+    if (!voiceChunks.length) { voiceMediaRecorder = null; return; }
+
+    const blob = new Blob(voiceChunks, { type: 'audio/webm' });
+    const file = new File([blob], 'voice-' + Date.now() + '.webm', { type: 'audio/webm' });
+
+    try {
+      const url = await uploadToCloudinary(file);
+      if (type === 'private' && activeChatContact) {
+        await sbQuery('POST', 'messages', {
+          sender_id: currentUser.id, receiver_id: activeChatContact.id,
+          file_url: url, file_type: 'voice'
+        });
+        broadcastPrivateMessageSent(activeChatContact.id);
+        await loadPrivateMessages();
+        const area = document.getElementById('private-messages-area');
+        if (area) area.scrollTop = area.scrollHeight;
+      } else if (type === 'group' && activeGroup) {
+        await sbQuery('POST', 'group_messages', {
+          group_id: activeGroup.id, sender_id: currentUser.id,
+          file_url: url, file_type: 'voice'
+        });
+        broadcastGroupMessageSent(activeGroup.id);
+        await loadGroupMessages();
+        const area = document.getElementById('group-messages-area');
+        if (area) area.scrollTop = area.scrollHeight;
+      }
+    } catch (err) {
+      console.error('Voice upload failed:', err);
+      alert('Failed to send voice message. Try again.');
+    }
+
+    voiceMediaRecorder = null;
+    voiceChunks = [];
+    voiceRecordingType = null;
+  };
+}
+
+// Renders a voice message bubble with waveform bars and play button
+function renderVoiceBubble(fileUrl, msgId) {
+  const bars = Array.from({ length: 18 }, (_, i) => {
+    const h = 30 + Math.sin(i * 0.8) * 20 + Math.random() * 20;
+    return `<div class="voice-bar" id="vb-${msgId}-${i}" style="height:${Math.round(h)}%;"></div>`;
+  }).join('');
+
+  return `<div class="voice-bubble">
+    <button class="voice-play-btn" id="vplay-${msgId}" onclick="playVoiceMsg('${fileUrl}','${msgId}')">▶</button>
+    <div class="voice-waveform">${bars}</div>
+    <span class="voice-duration" id="vdur-${msgId}">0:00</span>
+  </div>`;
+}
+
+// Plays/pauses a voice message
+const voicePlayers = {}; // msgId -> Audio instance
+function playVoiceMsg(url, msgId) {
+  // Pause any currently playing voice
+  Object.entries(voicePlayers).forEach(([id, audio]) => {
+    if (id !== msgId && !audio.paused) {
+      audio.pause();
+      const pbtn = document.getElementById('vplay-' + id);
+      if (pbtn) pbtn.textContent = '▶';
+      // Reset bars
+      document.querySelectorAll(`[id^="vb-${id}-"]`).forEach(b => b.classList.remove('active'));
+    }
+  });
+
+  if (!voicePlayers[msgId]) {
+    const audio = new Audio(url);
+    voicePlayers[msgId] = audio;
+
+    audio.addEventListener('loadedmetadata', () => {
+      const dur = document.getElementById('vdur-' + msgId);
+      if (dur) dur.textContent = formatVoiceDuration(audio.duration);
+    });
+
+    audio.addEventListener('timeupdate', () => {
+      const pct = audio.currentTime / audio.duration;
+      const barCount = 18;
+      const activeCount = Math.round(pct * barCount);
+      for (let i = 0; i < barCount; i++) {
+        const bar = document.getElementById(`vb-${msgId}-${i}`);
+        if (bar) bar.classList.toggle('active', i < activeCount);
+      }
+      const dur = document.getElementById('vdur-' + msgId);
+      if (dur) dur.textContent = formatVoiceDuration(audio.currentTime);
+    });
+
+    audio.addEventListener('ended', () => {
+      const pbtn = document.getElementById('vplay-' + msgId);
+      if (pbtn) pbtn.textContent = '▶';
+      document.querySelectorAll(`[id^="vb-${msgId}-"]`).forEach(b => b.classList.remove('active'));
+      const dur = document.getElementById('vdur-' + msgId);
+      if (dur && audio.duration) dur.textContent = formatVoiceDuration(audio.duration);
+    });
+  }
+
+  const audio = voicePlayers[msgId];
+  const pbtn = document.getElementById('vplay-' + msgId);
+
+  if (audio.paused) {
+    audio.play();
+    if (pbtn) pbtn.textContent = '⏸';
+  } else {
+    audio.pause();
+    if (pbtn) pbtn.textContent = '▶';
+  }
+}
+
+function formatVoiceDuration(secs) {
+  if (!isFinite(secs)) return '0:00';
+  const m = Math.floor(secs / 60);
+  const s = Math.floor(secs % 60);
+  return m + ':' + String(s).padStart(2, '0');
+}
+
+// ═══════════════════════════════════════
+// GROUP POLLS
+// ═══════════════════════════════════════
+function openCreatePoll() {
+  if (!activeGroup) return;
+  document.getElementById('poll-question-input').value = '';
+  ['1','2','3','4'].forEach(n => { document.getElementById('poll-opt-' + n).value = ''; });
+  const err = document.getElementById('err-create-poll');
+  if (err) err.classList.remove('show');
+  openModal('modal-create-poll');
+}
+
+async function submitCreatePoll() {
+  if (!activeGroup || !currentUser) return;
+  const question = document.getElementById('poll-question-input').value.trim();
+  const opts = ['1','2','3','4']
+    .map(n => document.getElementById('poll-opt-' + n).value.trim())
+    .filter(Boolean);
+
+  if (!question || opts.length < 2) {
+    const err = document.getElementById('err-create-poll');
+    if (err) { err.textContent = 'Please enter a question and at least 2 options.'; err.classList.add('show'); }
+    return;
+  }
+
+  const { data, ok } = await sbQuery('POST', 'group_polls', {
+    group_id: activeGroup.id,
+    sender_id: currentUser.id,
+    question,
+    options: JSON.stringify(opts),
+    created_at: new Date().toISOString()
+  });
+
+  if (!ok) { alert('Failed to create poll. Check your Supabase group_polls table.'); return; }
+
+  closeModal('modal-create-poll');
+
+  // Broadcast as a group message event so everyone's chat reloads
+  broadcastGroupMessageSent(activeGroup.id);
+  await loadGroupMessages();
+  const area = document.getElementById('group-messages-area');
+  if (area) area.scrollTop = area.scrollHeight;
+}
+
+// Renders a poll bubble inline in the message list
+// pollData = { id, question, options (JSON string), sender_id, created_at }
+// voteCounts = { optionIndex: count }
+// myVote = index I voted for (or null)
+function renderPollBubble(poll, voteCounts, myVote, sent) {
+  const options = JSON.parse(poll.options || '[]');
+  const total = Object.values(voteCounts).reduce((a, b) => a + b, 0);
+
+  const optHtml = options.map((opt, i) => {
+    const count = voteCounts[i] || 0;
+    const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+    const isVoted = myVote === i;
+    return `<div class="poll-option${isVoted ? ' voted' : ''}" onclick="castPollVote('${poll.id}',${i})">
+      <div class="poll-option-bar" style="width:${pct}%;"></div>
+      <span class="poll-option-text">${escHtml(opt)}</span>
+      <span class="poll-option-pct">${pct}%</span>
+    </div>`;
+  }).join('');
+
+  return `<div class="poll-bubble">
+    <div class="poll-question">📊 ${escHtml(poll.question)}</div>
+    ${optHtml}
+    <div class="poll-total">${total} vote${total !== 1 ? 's' : ''}</div>
+  </div>`;
+}
+
+// Cast or change a poll vote — purely real-time broadcast, no UI polling
+async function castPollVote(pollId, optionIndex) {
+  if (!currentUser) return;
+
+  // Check if already voted
+  const { data: existing } = await sbQuery('GET', 'group_poll_votes', null,
+    `?poll_id=eq.${pollId}&user_id=eq.${currentUser.id}&select=id,option_index`);
+
+  if (Array.isArray(existing) && existing.length) {
+    if (existing[0].option_index === optionIndex) return; // same vote — no-op
+    // Change vote
+    await sbQuery('PATCH', 'group_poll_votes', { option_index: optionIndex },
+      `?poll_id=eq.${pollId}&user_id=eq.${currentUser.id}`);
+  } else {
+    await sbQuery('POST', 'group_poll_votes', {
+      poll_id: pollId, user_id: currentUser.id, option_index: optionIndex,
+      group_id: activeGroup ? activeGroup.id : null
+    });
+  }
+
+  // Broadcast the vote update so everyone sees the change instantly
+  if (groupMessagesRealtimeChannel && activeGroup) {
+    groupMessagesRealtimeChannel.send({
+      type: 'broadcast', event: 'poll_vote',
+      payload: { poll_id: pollId, group_id: activeGroup.id }
+    });
+  }
+
+  // Reload messages to reflect updated counts
+  await loadGroupMessages();
+}
+
+// ═══════════════════════════════════════
+// PATCH: loadGroupMessages — handle voice + polls
+// ═══════════════════════════════════════
+// ═══════════════════════════════════════
+// PATCH joinGroupMessagesRealtime to also handle poll_vote events
+// ═══════════════════════════════════════
+// We reassign the function variable after the original is defined.
+// Using a different approach: override via a wrapper that re-subscribes.
+(function patchGroupRealtime() {
+  const _orig = joinGroupMessagesRealtime;
+  window.joinGroupMessagesRealtime = function() {
+    leaveGroupMessagesRealtime();
+    if (!currentUser) return;
+    groupMessagesRealtimeChannel = sbRealtime
+      .channel(GROUP_NOTIFY_CHANNEL_NAME)
+      .on('broadcast', { event: 'new_group_message' }, (msg) => {
+        const p = msg.payload;
+        if (!p || !p.group_id) return;
+        handleIncomingGroupMessage({
+          group_id: p.group_id,
+          sender_id: p.sender_id,
+          created_at: p.created_at || new Date().toISOString()
+        });
+      })
+      .on('broadcast', { event: 'poll_vote' }, (msg) => {
+        const p = msg.payload;
+        if (!p || !activeGroup) return;
+        if (String(p.group_id) === String(activeGroup.id)) {
+          loadGroupMessages();
+        }
+      })
+      .on('broadcast', { event: 'group_permission_change' }, (msg) => {
+        const p = msg.payload;
+        if (!p || !p.group_id) return;
+        const cached = myGroups.find(g => g.id === p.group_id);
+        if (cached) cached.msg_permission = p.msg_permission;
+        if (activeGroup && activeGroup.id === p.group_id) {
+          activeGroup.msg_permission = p.msg_permission;
+          enforceGroupMsgPermission();
+        }
+      })
+      .subscribe();
+  };
+})();
+
+// END VOICE + POLLS
+
+// ═══════════════════════════════════════
+// CONTACT SEARCH
+// ═══════════════════════════════════════
+function toggleContactSearch() {
+  const bar = document.getElementById('contacts-search-bar');
+  const input = document.getElementById('contacts-search-input');
+  const isOpen = bar.classList.toggle('open');
+  if (isOpen) {
+    input.value = '';
+    input.focus();
+    filterContactsByName('');
+  } else {
+    input.value = '';
+    filterContactsByName(''); // restore full list
+  }
+}
+
+function filterContactsByName(query) {
+  const q = query.trim().toLowerCase();
+  const list = document.getElementById('contacts-list');
+  if (!list) return;
+  const items = list.querySelectorAll('.contact-rail-item');
+  items.forEach(item => {
+    const name = (item.querySelector('.contact-rail-name') || {}).textContent || '';
+    item.style.display = (!q || name.toLowerCase().includes(q)) ? '' : 'none';
+  });
+}
+
+// ═══════════════════════════════════════
+// SWIPE TO REPLY
+// ═══════════════════════════════════════
+// activeReply[type] = { msgId, text }
+const activeReply = { private: null, group: null };
+
+let swipeStartX = 0;
+let swipeStartY = 0;
+let swipeTriggered = false;
+const SWIPE_THRESHOLD = 60; // px to trigger reply
+
+function startSwipe(e, el, type) {
+  if (e.touches && e.touches.length === 1) {
+    swipeStartX = e.touches[0].clientX;
+    swipeStartY = e.touches[0].clientY;
+    swipeTriggered = false;
+    el._swipeType = type;
+    el.style.transition = 'none';
+  }
+}
+
+function handleSwipeMove(e, el, type) {
+  if (!e.touches || e.touches.length !== 1) return;
+  const dx = e.touches[0].clientX - swipeStartX;
+  const dy = e.touches[0].clientY - swipeStartY;
+  // Only handle rightward swipe and mostly horizontal
+  if (dx < 0 || Math.abs(dy) > Math.abs(dx)) return;
+  e.stopPropagation();
+  const capped = Math.min(dx, SWIPE_THRESHOLD + 20);
+  el.style.transform = `translateX(${capped}px)`;
+  if (dx >= SWIPE_THRESHOLD && !swipeTriggered) {
+    swipeTriggered = true;
+    // Haptic if available
+    if (navigator.vibrate) navigator.vibrate(30);
+  }
+}
+
+function endSwipe(e, el, type) {
+  el.style.transition = 'transform 0.25s ease';
+  el.style.transform = 'translateX(0)';
+  if (swipeTriggered) {
+    const msgId = el.dataset.msgId;
+    const text = el.dataset.msgText || '';
+    setReply(msgId, type, text);
+  }
+  swipeTriggered = false;
+}
+
+function setReply(msgId, type, text) {
+  activeReply[type] = { msgId, text };
+  const bar = document.getElementById(type + '-reply-preview');
+  const label = document.getElementById(type + '-reply-preview-text');
+  if (bar) bar.classList.add('show');
+  if (label) label.textContent = text ? text.substring(0, 80) : '📎 Media';
+  // Focus input
+  const inputId = type === 'private' ? 'private-msg-input' : 'group-msg-input';
+  const inp = document.getElementById(inputId);
+  if (inp) inp.focus();
+}
+
+function clearReply(type) {
+  activeReply[type] = null;
+  const bar = document.getElementById(type + '-reply-preview');
+  if (bar) bar.classList.remove('show');
+}
+
+// ═══════════════════════════════════════
+// LOAD REPLY QUOTE
+// ═══════════════════════════════════════
+async function loadReplyQuote(replyToId, msgId, type) {
+  const el = document.getElementById('quote-' + msgId);
+  if (!el) return;
+  let text = '';
+  if (type === 'private') {
+    const { data } = await sbQuery('GET', 'messages', null, `?id=eq.${replyToId}&select=content,sender_id`);
+    if (Array.isArray(data) && data[0]) {
+      const m = data[0];
+      const isMine = String(m.sender_id) === String(currentUser.id);
+      // For private chat show "You" or the contact's display name
+      const senderLabel = isMine ? 'You' : (activeChatContact ? getDisplayName(activeChatContact.id, activeChatContact.name) : 'Them');
+      text = senderLabel + ': ' + (m.content || '📎 Media');
+    }
+  } else {
+    const { data } = await sbQuery('GET', 'group_messages', null, `?id=eq.${replyToId}&select=content,sender_id`);
+    if (Array.isArray(data) && data[0]) {
+      const m = data[0];
+      const isMine = String(m.sender_id) === String(currentUser.id);
+      let senderName = isMine ? 'You' : 'Someone';
+      if (!isMine) {
+        const { data: uArr } = await sbQuery('GET', 'users', null, `?id=eq.${m.sender_id}&select=name`);
+        if (Array.isArray(uArr) && uArr[0]) senderName = uArr[0].name;
+      }
+      text = senderName + ': ' + (m.content || '📎 Media');
+    }
+  }
+  el.textContent = '↩ ' + (text || 'Deleted message');
+}
+
+// ═══════════════════════════════════════
+// POLL LONG-PRESS (admin delete)
+// ═══════════════════════════════════════
+function startPollHold(e, pollId, isSent) {
+  cancelMsgHold();
+  let hx, hy;
+  if (e.touches && e.touches[0]) { hx = e.touches[0].clientX; hy = e.touches[0].clientY; }
+  else { hx = e.clientX; hy = e.clientY; }
+  _holdTimer = setTimeout(() => showPollMenuAt(hx, hy, pollId, isSent), 600);
+}
+
+function showPollMenu(e, pollId, isSent) {
+  e.preventDefault();
+  cancelMsgHold();
+  const x = e.clientX, y = e.clientY;
+  showPollMenuAt(x, y, pollId, isSent);
+}
+
+function showPollMenuAt(x, y, pollId, isSent) {
+  const canDelete = isSent || (activeGroup && activeGroup.isAdmin);
+  if (!canDelete) return;
+  closeContextMenu();
+  const menu = document.createElement('div');
+  menu.className = 'msg-context-menu';
+  menu.id = 'msg-context-menu';
+  menu.innerHTML = `
+    <button onclick="closeContextMenu()">✕ &nbsp;Cancel</button>
+    <div class="msg-context-menu-divider"></div>
+    <button class="danger" onclick="confirmDeletePoll('${pollId}')">🗑️ Delete Poll</button>
+  `;
+  const overlay = document.createElement('div');
+  overlay.className = 'ctx-overlay';
+  overlay.onclick = closeContextMenu;
+  document.body.appendChild(overlay);
+  document.body.appendChild(menu);
+  const mw = 200, mh = 100;
+  let left = x, top = y;
+  if (left + mw > window.innerWidth)  left = window.innerWidth - mw - 10;
+  if (top  + mh > window.innerHeight) top  = y - mh - 10;
+  menu.style.left = left + 'px';
+  menu.style.top  = top  + 'px';
+}
+
+async function confirmDeletePoll(pollId) {
+  closeContextMenu();
+  if (!confirm('Delete this poll? This cannot be undone.')) return;
+  await sbQuery('DELETE', 'group_poll_votes', null, `?poll_id=eq.${pollId}`);
+  await sbQuery('DELETE', 'group_polls', null, `?id=eq.${pollId}`);
+  broadcastGroupMessageSent(activeGroup.id);
+  await loadGroupMessages();
+}
+
 </script>
 
 <!-- FULLSCREEN MEDIA VIEWER -->
@@ -4164,6 +6229,212 @@ document.addEventListener('DOMContentLoaded', renderSavedAccounts);
     <button class="btn-ghost" style="margin-top:20px;" onclick="closeModal('modal-about')">Close</button>
   </div>
 </div>
+
+<!-- SETTINGS SCREEN -->
+<div id="screen-settings">
+  <div class="chat-topbar">
+    <button class="topbar-btn" onclick="closeSettings()">←</button>
+    <span class="topbar-title">Settings</span>
+    <span style="width:34px;"></span>
+  </div>
+  <div class="settings-body">
+
+    <div class="settings-section-title">✦ App Theme</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;line-height:1.5;">Choose a style for Dgreatverse. All themes keep the purple soul.</div>
+
+    <div class="theme-grid" id="theme-grid">
+      <!-- filled by JS -->
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// THEMES
+// ═══════════════════════════════════════
+const THEMES = [
+  {
+    id: 'default',
+    name: 'Purple & Silver',
+    sub: 'Default — Classic',
+    dots: ['#7b2fff', '#cfd3dc'],
+    vars: {
+      '--purple-deep':   '#0d0618',
+      '--purple-mid':    '#1e0d3f',
+      '--purple-bright': '#7b2fff',
+      '--purple-glow':   '#a855f7',
+      '--gold':          '#d0d8e8',
+      '--gold-light':    '#e8edf5',
+      '--gold-dim':      '#8a95aa',
+      '--text-muted':    '#8892a4',
+      '--input-border':  'rgba(168,85,247,0.35)',
+      '--silver':        '#cfd3dc',
+      '--silver-dim':    '#9aa0ad',
+      '--silver-glow':   'rgba(207,211,220,0.35)',
+    }
+  },
+  {
+    id: 'blue',
+    name: 'Purple & Blue',
+    sub: 'Galaxy vibes',
+    dots: ['#7b2fff', '#38bdf8'],
+    vars: {
+      '--purple-deep':   '#080e1f',
+      '--purple-mid':    '#0f1e3d',
+      '--purple-bright': '#7b2fff',
+      '--purple-glow':   '#a855f7',
+      '--gold':          '#bae6fd',
+      '--gold-light':    '#e0f2fe',
+      '--gold-dim':      '#60a5fa',
+      '--text-muted':    '#6b8db5',
+      '--input-border':  'rgba(56,189,248,0.35)',
+      '--silver':        '#93c5fd',
+      '--silver-dim':    '#60a5fa',
+      '--silver-glow':   'rgba(147,197,253,0.3)',
+    }
+  },
+  {
+    id: 'white',
+    name: 'Purple & White',
+    sub: 'Clean & bright',
+    dots: ['#7b2fff', '#f0f0f0'],
+    vars: {
+      '--purple-deep':   '#120a22',
+      '--purple-mid':    '#1e0d3f',
+      '--purple-bright': '#7b2fff',
+      '--purple-glow':   '#a855f7',
+      '--gold':          '#f5f5f5',
+      '--gold-light':    '#ffffff',
+      '--gold-dim':      '#cccccc',
+      '--text-muted':    '#9090aa',
+      '--input-border':  'rgba(168,85,247,0.4)',
+      '--silver':        '#f0f0f0',
+      '--silver-dim':    '#cccccc',
+      '--silver-glow':   'rgba(240,240,240,0.3)',
+    }
+  },
+  {
+    id: 'pink',
+    name: 'Purple & Pink',
+    sub: 'Vibrant energy',
+    dots: ['#7b2fff', '#f472b6'],
+    vars: {
+      '--purple-deep':   '#15060f',
+      '--purple-mid':    '#2d0a1e',
+      '--purple-bright': '#7b2fff',
+      '--purple-glow':   '#c026d3',
+      '--gold':          '#fce7f3',
+      '--gold-light':    '#fdf2f8',
+      '--gold-dim':      '#f9a8d4',
+      '--text-muted':    '#a0607a',
+      '--input-border':  'rgba(244,114,182,0.4)',
+      '--silver':        '#f472b6',
+      '--silver-dim':    '#ec4899',
+      '--silver-glow':   'rgba(244,114,182,0.3)',
+    }
+  },
+  {
+    id: 'green',
+    name: 'Purple & Green',
+    sub: 'Nature spirit',
+    dots: ['#7b2fff', '#4ade80'],
+    vars: {
+      '--purple-deep':   '#060f0a',
+      '--purple-mid':    '#0e2018',
+      '--purple-bright': '#7b2fff',
+      '--purple-glow':   '#a855f7',
+      '--gold':          '#bbf7d0',
+      '--gold-light':    '#dcfce7',
+      '--gold-dim':      '#4ade80',
+      '--text-muted':    '#4d7a60',
+      '--input-border':  'rgba(74,222,128,0.35)',
+      '--silver':        '#86efac',
+      '--silver-dim':    '#4ade80',
+      '--silver-glow':   'rgba(134,239,172,0.3)',
+    }
+  },
+  {
+    id: 'gold',
+    name: 'Purple & Gold',
+    sub: 'Royal luxury',
+    dots: ['#7b2fff', '#f59e0b'],
+    vars: {
+      '--purple-deep':   '#120a00',
+      '--purple-mid':    '#231500',
+      '--purple-bright': '#7b2fff',
+      '--purple-glow':   '#a855f7',
+      '--gold':          '#fde68a',
+      '--gold-light':    '#fef3c7',
+      '--gold-dim':      '#f59e0b',
+      '--text-muted':    '#92753a',
+      '--input-border':  'rgba(245,158,11,0.4)',
+      '--silver':        '#fcd34d',
+      '--silver-dim':    '#f59e0b',
+      '--silver-glow':   'rgba(252,211,77,0.3)',
+    }
+  }
+];
+
+const THEME_KEY = 'dg_theme';
+
+function applyTheme(themeId, save = true) {
+  const theme = THEMES.find(t => t.id === themeId) || THEMES[0];
+  const root = document.documentElement;
+  Object.entries(theme.vars).forEach(([k, v]) => root.style.setProperty(k, v));
+  if (save) localStorage.setItem(THEME_KEY, themeId);
+}
+
+function loadSavedTheme() {
+  const saved = localStorage.getItem(THEME_KEY) || 'default';
+  applyTheme(saved, false);
+}
+
+function renderThemeGrid() {
+  const current = localStorage.getItem(THEME_KEY) || 'default';
+  const grid = document.getElementById('theme-grid');
+  if (!grid) return;
+  grid.innerHTML = THEMES.map(t => {
+    const dotsHtml = t.dots.map(c =>
+      `<div class="theme-dot" style="background:${c};box-shadow:0 0 8px ${c}55;"></div>`
+    ).join('');
+    // Mini preview bar
+    const barHtml = `<div style="display:flex;gap:3px;margin-top:4px;">
+      <div style="flex:1;height:5px;border-radius:3px;background:${t.dots[0]};opacity:0.8;"></div>
+      <div style="flex:1;height:5px;border-radius:3px;background:${t.dots[1]};opacity:0.7;"></div>
+    </div>`;
+    return `<div class="theme-card ${t.id === current ? 'selected' : ''}"
+        style="background:rgba(${t.id==='default'?'30,13,63':'20,10,40'},0.85);border-color:${t.id === current ? t.dots[1] : 'rgba(255,255,255,0.08)'};"
+        onclick="selectTheme('${t.id}')">
+      <div class="theme-preview">
+        ${dotsHtml}
+      </div>
+      <div class="theme-name">${t.name}</div>
+      <div class="theme-sub">${t.sub}</div>
+      ${barHtml}
+    </div>`;
+  }).join('');
+}
+
+function selectTheme(themeId) {
+  applyTheme(themeId);
+  renderThemeGrid(); // re-render to update selected state
+  // Brief visual feedback
+  const card = document.querySelector(`.theme-card[onclick="selectTheme('${themeId}')"]`);
+  if (card) { card.style.transform = 'scale(0.95)'; setTimeout(() => { card.style.transform = ''; }, 150); }
+}
+
+function openSettings() {
+  renderThemeGrid();
+  document.getElementById('screen-settings').classList.add('active');
+}
+function closeSettings() {
+  document.getElementById('screen-settings').classList.remove('active');
+}
+
+// Apply saved theme immediately on load
+loadSavedTheme();
+</script>
 
 </body>
 </html>
