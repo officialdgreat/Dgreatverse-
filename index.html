@@ -3433,6 +3433,11 @@ function joinPrivateMessagesRealtime() {
         };
         sortAndRenderContacts();
       }
+
+      // Fallback notification — fires whenever the tab is backgrounded,
+      // regardless of whether the chat happens to be "open" in the UI.
+      const senderName = (contact && contact.name) || 'New message';
+      showFallbackNotification(senderName, 'Sent you a message', '/Dgreatverse-/');
     })
     .on('broadcast', { event: 'reaction_update' }, (msg) => {
       const p = msg.payload;
@@ -3512,6 +3517,14 @@ async function handleIncomingGroupMessage(row) {
 
   renderGroups();
   updateGroupNotifDot();
+
+  // Fallback notification — fires whenever the tab is backgrounded, as
+  // long as it wasn't me who sent the message.
+  if (!isMine) {
+    const g = myGroups.find(g => String(g.id) === String(row.group_id));
+    const groupName = (g && g.name) || 'Group chat';
+    showFallbackNotification(groupName, 'New message in group', '/Dgreatverse-/');
+  }
 }
 
 // Marks a group as read: clears its badge immediately and persists
@@ -7185,6 +7198,37 @@ function urlBase64ToUint8Array(base64String) {
   const outputArray = new Uint8Array(rawData.length);
   for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
   return outputArray;
+}
+
+// ═══════════════════════════════════════
+// FALLBACK NOTIFICATIONS (Realtime-based)
+// ═══════════════════════════════════════
+// Some Android skins (XOS, MIUI, etc.) silently block real push notifications
+// once the app is fully closed, even though the server reports success.
+// As a reliable backup, whenever a message arrives over Supabase Realtime
+// while the tab is open but backgrounded (not focused), we show a
+// notification directly through the service worker — no push service,
+// no encryption, nothing that can be blocked in transit.
+// LIMITATION: this only fires while the tab/app is still alive in the
+// background. If the app has been fully swiped away or the browser killed,
+// only real push (FCM) can wake it — this is a supplement, not a full
+// replacement for that.
+function showFallbackNotification(title, body, url) {
+  try {
+    if (!document.hidden) return; // tab is focused — user already sees it live, no need
+    if (!('serviceWorker' in navigator)) return;
+    navigator.serviceWorker.ready.then(function(reg) {
+      reg.showNotification(title, {
+        body: body,
+        icon: '/Dgreatverse-/icon-192.png',
+        badge: '/Dgreatverse-/icon-192.png',
+        data: { url: url || '/Dgreatverse-/' },
+        vibrate: [200, 100, 200]
+      });
+    }).catch(function(e) { console.log('Fallback notification failed:', e); });
+  } catch (e) {
+    console.log('Fallback notification error:', e);
+  }
 }
 
 // Called when the user explicitly taps "Allow Notifications" in Settings.
