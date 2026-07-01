@@ -3,56 +3,98 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Notification Test</title>
+<title>Notification Diagnostic</title>
 <style>
   body { font-family: sans-serif; background:#111; color:#fff; padding:24px; text-align:center; }
-  button { font-size:18px; padding:16px 24px; margin:10px; border-radius:10px; border:none; background:#7b2fff; color:#fff; }
+  button { font-size:16px; padding:14px 20px; margin:8px; border-radius:10px; border:none; background:#7b2fff; color:#fff; width:90%; max-width:420px; }
+  button:disabled { background:#444; }
   #log { text-align:left; background:#222; padding:12px; border-radius:8px; margin-top:20px; font-size:13px; white-space:pre-wrap; }
+  .info { font-size:12px; color:#aaa; max-width:420px; margin:6px auto 0; }
+  .good { color:#3ddc84; }
+  .neutral { color:#f0c000; }
+  input { font-size:16px; padding:10px; border-radius:8px; border:1px solid #555; background:#222; color:#fff; width:80px; text-align:center; }
 </style>
 </head>
 <body>
   <h2>Notification Diagnostic</h2>
   <p>Permission status: <span id="perm-status">checking...</span></p>
-  <button onclick="testDirectNotification()">1. Test Direct Notification (no push, no server)</button>
-  <button onclick="testSWNotification()">2. Test Via Service Worker</button>
+
+  <button onclick="testSWNotification()">1. Test Via Service Worker</button>
+  <p class="info">Confirms your device CAN display notifications locally. This is the same method your app's fallback notifications use.</p>
+
+  <hr style="border-color:#333; margin:24px 0;">
+
+  <h3>Swipe-Survival Test</h3>
+  <p class="info">This is the real test. It schedules a notification <b>inside the service worker itself</b> (not the page), then you fully swipe the app away. If it still fires, your OS keeps the service worker alive that long. If not, that's the exact point your OS kills it — which is the real cause of missed push notifications, not your code.</p>
+  <div>
+    <input type="number" id="delay-input" value="10" min="3" max="120"> seconds
+  </div>
+  <button onclick="scheduleSwipeTest()">2. Schedule Test, Then Swipe App Away</button>
+  <p class="info" id="countdown"></p>
+
   <div id="log"></div>
 
   <script>
-    const log = (msg) => {
-      document.getElementById('log').textContent += msg + '\n';
+    const log = (msg, cls) => {
+      const el = document.getElementById('log');
+      const line = document.createElement('div');
+      if (cls) line.className = cls;
+      line.textContent = msg;
+      el.appendChild(line);
       console.log(msg);
     };
 
     document.getElementById('perm-status').textContent = Notification.permission;
 
-    // Test 1: the most basic possible notification, straight from JS,
-    // no service worker, no push, no server involved at all.
-    // If this doesn't show, the problem is 100% the device/OS blocking
-    // notifications from this browser, not your push code.
-    function testDirectNotification() {
-      log('Attempting direct Notification()...');
-      try {
-        const n = new Notification('Direct Test', { body: 'If you see this, your device CAN show notifications.' });
-        log('Notification() call succeeded, no error thrown.');
-        n.onshow = () => log('Notification onshow fired.');
-        n.onerror = (e) => log('Notification onerror: ' + JSON.stringify(e));
-      } catch (e) {
-        log('ERROR: ' + e.message);
-      }
-    }
-
-    // Test 2: same as your app — showNotification() via the service worker
-    // registration, but triggered locally instead of through a real push.
-    // If test 1 works but this doesn't, the issue is specific to how the
-    // service worker shows notifications.
+    // Test: showNotification() via the service worker registration,
+    // triggered locally instead of through a real push. This is the exact
+    // method your app's Realtime fallback uses (see index.html).
+    //
+    // NOTE: on mobile Chrome, the OLD "direct new Notification()" constructor
+    // is intentionally disabled by the browser (Android requires all
+    // notifications to go through a service worker). That's not a bug or a
+    // sign anything is broken — it's expected, so that test has been removed
+    // from this page to avoid confusion.
     async function testSWNotification() {
       log('Attempting service worker showNotification()...');
       try {
         const reg = await navigator.serviceWorker.ready;
         await reg.showNotification('SW Test', { body: 'Service worker notification test.' });
-        log('showNotification() resolved without error.');
+        log('✓ showNotification() resolved without error. If you saw a banner, your device can display notifications correctly.', 'good');
       } catch (e) {
         log('ERROR: ' + e.message);
+      }
+    }
+
+    // Real diagnostic: ask the service worker to fire a notification after
+    // a delay, scheduled INSIDE the service worker's own setTimeout — not
+    // the page's. This means it can survive the tab/app being swiped away,
+    // as long as the OS hasn't killed the service worker process itself.
+    async function scheduleSwipeTest() {
+      const seconds = parseInt(document.getElementById('delay-input').value, 10) || 10;
+      try {
+        const reg = await navigator.serviceWorker.ready;
+        if (!reg.active) {
+          log('ERROR: no active service worker to message.');
+          return;
+        }
+        reg.active.postMessage({ type: 'schedule-test-notification', delaySeconds: seconds });
+        log(`Scheduled — notification will fire in ${seconds}s. Now SWIPE THE APP AWAY (fully close it, don't just background it) and wait.`, 'neutral');
+
+        let remaining = seconds;
+        const cd = document.getElementById('countdown');
+        cd.textContent = `${remaining}s remaining — go swipe the app away now`;
+        const timer = setInterval(() => {
+          remaining--;
+          if (remaining <= 0) {
+            cd.textContent = 'Time\'s up — check if a notification appeared.';
+            clearInterval(timer);
+          } else {
+            cd.textContent = `${remaining}s remaining — go swipe the app away now`;
+          }
+        }, 1000);
+      } catch (e) {
+        log('ERROR scheduling test: ' + e.message);
       }
     }
   </script>

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dgreatverse-v3'; // bump this number every time you deploy an update
+const CACHE_NAME = 'dgreatverse-v4'; // bump this number every time you deploy an update
 const urlsToCache = [
   '/Dgreatverse-/',
   '/Dgreatverse-/index.html',
@@ -87,4 +87,30 @@ self.addEventListener('notificationclick', function(event) {
       }
     })
   );
+});
+
+// ═══════════════════════════════════════
+// SWIPE-SURVIVAL DIAGNOSTIC (notif-test.html only)
+// ═══════════════════════════════════════
+// Lets the diagnostic page ask the service worker itself to fire a
+// notification after N seconds. Because the setTimeout below runs INSIDE
+// the service worker (not the page), this notification can still fire even
+// if the tab/page has been fully swiped away in the meantime — as long as
+// the OS hasn't killed the service worker process itself. This tells us,
+// concretely, how long this device keeps a service worker alive after the
+// app is swiped away, rather than guessing.
+self.addEventListener('message', function(event) {
+  if (!event.data || event.data.type !== 'schedule-test-notification') return;
+  const delayMs = (event.data.delaySeconds || 10) * 1000;
+  const startedAt = Date.now();
+
+  setTimeout(function() {
+    const actualDelaySec = Math.round((Date.now() - startedAt) / 1000);
+    self.registration.showNotification('Swipe Survival Test', {
+      body: 'Fired ' + actualDelaySec + 's after scheduling — if you swiped the app away, the SW survived.',
+      icon: '/Dgreatverse-/icon-192.png',
+      badge: '/Dgreatverse-/icon-192.png',
+      vibrate: [200, 100, 200]
+    });
+  }, delayMs);
 });
