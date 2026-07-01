@@ -7,29 +7,39 @@
 <style>
   body { font-family: sans-serif; background:#111; color:#fff; padding:24px; text-align:center; }
   button { font-size:16px; padding:14px 20px; margin:8px; border-radius:10px; border:none; background:#7b2fff; color:#fff; width:90%; max-width:420px; }
+  button.push-btn { background:#e0392b; }
   button:disabled { background:#444; }
   #log { text-align:left; background:#222; padding:12px; border-radius:8px; margin-top:20px; font-size:13px; white-space:pre-wrap; }
   .info { font-size:12px; color:#aaa; max-width:420px; margin:6px auto 0; }
   .good { color:#3ddc84; }
+  .bad { color:#ff5555; }
   .neutral { color:#f0c000; }
-  input { font-size:16px; padding:10px; border-radius:8px; border:1px solid #555; background:#222; color:#fff; width:80px; text-align:center; }
+  input { font-size:15px; padding:10px; border-radius:8px; border:1px solid #555; background:#222; color:#fff; width:90%; max-width:420px; margin:4px 0; text-align:center; }
+  label { font-size:12px; color:#999; display:block; margin-top:10px; }
 </style>
 </head>
 <body>
   <h2>Notification Diagnostic</h2>
   <p>Permission status: <span id="perm-status">checking...</span></p>
 
-  <button onclick="testSWNotification()">1. Test Via Service Worker</button>
-  <p class="info">Confirms your device CAN display notifications locally. This is the same method your app's fallback notifications use.</p>
+  <button onclick="testSWNotification()">1. Test Via Service Worker (baseline)</button>
+  <p class="info">Confirms your device CAN display notifications locally.</p>
 
   <hr style="border-color:#333; margin:24px 0;">
 
-  <h3>Swipe-Survival Test</h3>
-  <p class="info">This is the real test. It schedules a notification <b>inside the service worker itself</b> (not the page), then you fully swipe the app away. If it still fires, your OS keeps the service worker alive that long. If not, that's the exact point your OS kills it — which is the real cause of missed push notifications, not your code.</p>
-  <div>
-    <input type="number" id="delay-input" value="10" min="3" max="120"> seconds
-  </div>
-  <button onclick="scheduleSwipeTest()">2. Schedule Test, Then Swipe App Away</button>
+  <h3>The Real Test</h3>
+  <p class="info">Fill in your details once (saved on this device). Tapping the red button sends a <b>real push through your actual edge function</b> — the exact same path FCM uses in production — then starts a countdown. Swipe the app away before it ends. If it fires, real push survives a swipe on this device. If not, that's your answer.</p>
+
+  <label>Edge Function URL</label>
+  <input type="text" id="fn-url" placeholder="https://YOUR_PROJECT.supabase.co/functions/v1/send-push">
+  <label>Anon Key (leave blank if not required)</label>
+  <input type="text" id="anon-key" placeholder="anon key (optional)">
+  <label>Recipient ID</label>
+  <input type="text" id="recipient-id" placeholder="user id to send to">
+  <label>Swipe delay (seconds)</label>
+  <input type="number" id="delay-input" value="10" min="3" max="120">
+
+  <button class="push-btn" onclick="runRealPushTest()">2. Send REAL Push, Then Swipe App Away</button>
   <p class="info" id="countdown"></p>
 
   <div id="log"></div>
@@ -46,55 +56,82 @@
 
     document.getElementById('perm-status').textContent = Notification.permission;
 
-    // Test: showNotification() via the service worker registration,
-    // triggered locally instead of through a real push. This is the exact
-    // method your app's Realtime fallback uses (see index.html).
-    //
-    // NOTE: on mobile Chrome, the OLD "direct new Notification()" constructor
-    // is intentionally disabled by the browser (Android requires all
-    // notifications to go through a service worker). That's not a bug or a
-    // sign anything is broken — it's expected, so that test has been removed
-    // from this page to avoid confusion.
+    // Restore saved values so you don't have to retype every time
+    ['fn-url', 'anon-key', 'recipient-id'].forEach(id => {
+      const saved = localStorage.getItem('difftest-' + id);
+      if (saved) document.getElementById(id).value = saved;
+    });
+    ['fn-url', 'anon-key', 'recipient-id'].forEach(id => {
+      document.getElementById(id).addEventListener('input', (e) => {
+        localStorage.setItem('difftest-' + id, e.target.value);
+      });
+    });
+
+    // Baseline: confirms the device CAN show SW-triggered notifications
+    // while the page is open. Same method your app's fallback uses.
     async function testSWNotification() {
       log('Attempting service worker showNotification()...');
       try {
         const reg = await navigator.serviceWorker.ready;
         await reg.showNotification('SW Test', { body: 'Service worker notification test.' });
-        log('✓ showNotification() resolved without error. If you saw a banner, your device can display notifications correctly.', 'good');
+        log('✓ Baseline OK — showNotification() fired locally.', 'good');
       } catch (e) {
-        log('ERROR: ' + e.message);
+        log('✗ ERROR: ' + e.message, 'bad');
       }
     }
 
-    // Real diagnostic: ask the service worker to fire a notification after
-    // a delay, scheduled INSIDE the service worker's own setTimeout — not
-    // the page's. This means it can survive the tab/app being swiped away,
-    // as long as the OS hasn't killed the service worker process itself.
-    async function scheduleSwipeTest() {
+    // THE REAL TEST: fires an actual push through your production edge
+    // function (real FCM delivery), then counts down for you to swipe the
+    // app away. This is the exact same path a real message notification
+    // takes — if it doesn't survive here, it won't in production either.
+    async function runRealPushTest() {
+      const url = document.getElementById('fn-url').value.trim();
+      const anonKey = document.getElementById('anon-key').value.trim();
+      const recipientId = document.getElementById('recipient-id').value.trim();
       const seconds = parseInt(document.getElementById('delay-input').value, 10) || 10;
-      try {
-        const reg = await navigator.serviceWorker.ready;
-        if (!reg.active) {
-          log('ERROR: no active service worker to message.');
-          return;
-        }
-        reg.active.postMessage({ type: 'schedule-test-notification', delaySeconds: seconds });
-        log(`Scheduled — notification will fire in ${seconds}s. Now SWIPE THE APP AWAY (fully close it, don't just background it) and wait.`, 'neutral');
 
-        let remaining = seconds;
-        const cd = document.getElementById('countdown');
-        cd.textContent = `${remaining}s remaining — go swipe the app away now`;
-        const timer = setInterval(() => {
-          remaining--;
-          if (remaining <= 0) {
-            cd.textContent = 'Time\'s up — check if a notification appeared.';
-            clearInterval(timer);
-          } else {
-            cd.textContent = `${remaining}s remaining — go swipe the app away now`;
-          }
-        }, 1000);
+      if (!url || !recipientId) {
+        log('✗ Please fill in the Edge Function URL and Recipient ID first.', 'bad');
+        return;
+      }
+
+      log('Sending REAL push via edge function...');
+      try {
+        const headers = { 'Content-Type': 'application/json' };
+        if (anonKey) headers['Authorization'] = 'Bearer ' + anonKey;
+
+        const res = await fetch(url, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            recipient_id: recipientId,
+            sender_name: 'Swipe Test',
+            message_preview: 'Real push swipe-survival test',
+            chat_url: '/Dgreatverse-/'
+          })
+        });
+        const data = await res.json();
+        log('Server response: ' + JSON.stringify(data), data.failed > 0 ? 'bad' : 'neutral');
+
+        if (data.sent > 0) {
+          log(`Push accepted by FCM. Now SWIPE THE APP AWAY — you have ${seconds}s.`, 'neutral');
+          let remaining = seconds;
+          const cd = document.getElementById('countdown');
+          cd.textContent = `${remaining}s remaining — swipe the app away NOW`;
+          const timer = setInterval(() => {
+            remaining--;
+            if (remaining <= 0) {
+              cd.textContent = 'Time\'s up. Did a notification appear while the app was swiped away?';
+              clearInterval(timer);
+            } else {
+              cd.textContent = `${remaining}s remaining — swipe the app away NOW`;
+            }
+          }, 1000);
+        } else {
+          log('✗ No subscriptions found or push failed to send — check recipient ID.', 'bad');
+        }
       } catch (e) {
-        log('ERROR scheduling test: ' + e.message);
+        log('✗ Request failed: ' + e.message + ' (if this is a CORS error, make sure the edge function has CORS headers enabled)', 'bad');
       }
     }
   </script>
